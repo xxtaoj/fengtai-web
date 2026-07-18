@@ -1,0 +1,1 @@
+export type NewsArticle = { id:number; slug:string; category:string; categoryZh:string; categoryEn:string; date:string; image:string; titleZh:string; titleEn:string; summaryZh:string; summaryEn:string; contentZh:string[]; contentEn:string[]; };

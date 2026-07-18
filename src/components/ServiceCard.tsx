@@ -1,0 +1,2 @@
+import type { LucideIcon } from 'lucide-react';
+export function ServiceCard({icon:Icon,title,description}:{icon:LucideIcon;title:string;description:string}){return <article className="border border-line bg-white p-6 transition hover:border-amber-300 hover:shadow-lift"><div className="mb-8 grid size-11 place-items-center bg-accent-soft text-accent"><Icon size={22}/></div><h3 className="text-lg font-bold text-ink">{title}</h3><p className="mt-3 text-sm leading-6 text-muted">{description}</p></article>}

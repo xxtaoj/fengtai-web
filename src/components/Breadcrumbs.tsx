@@ -1,0 +1,2 @@
+import { ChevronRight,Home } from 'lucide-react';import { Link } from 'react-router-dom';
+export function Breadcrumbs({items}:{items:{label:string;to?:string}[]}){return <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-sm text-muted"><Link to="/" aria-label="Home"><Home size={16}/></Link>{items.map((x,i)=><span key={i} className="flex items-center gap-2"><ChevronRight size={14}/>{x.to?<Link to={x.to} className="hover:text-accent">{x.label}</Link>:<span className="text-body">{x.label}</span>}</span>)}</nav>}

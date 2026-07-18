@@ -1,0 +1,2 @@
+import { useEffect, useRef } from 'react'; import { useReducedMotion } from './useReducedMotion';
+export function useScrollReveal<T extends HTMLElement>(){ const ref=useRef<T>(null); const reduced=useReducedMotion(); useEffect(()=>{const el=ref.current;if(!el)return;if(reduced){el.classList.add('is-visible');return}const o=new IntersectionObserver(([e])=>{if(e.isIntersecting){el.classList.add('is-visible');o.disconnect()}},{threshold:.12});o.observe(el);return()=>o.disconnect()},[reduced]);return ref;}

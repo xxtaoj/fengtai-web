@@ -1,0 +1,1 @@
+import { SearchX } from 'lucide-react';export function EmptyState({message}:{message:string}){return <div className="col-span-full border border-dashed border-slate-300 bg-white p-12 text-center"><SearchX className="mx-auto text-muted"/><p className="mt-4 text-muted">{message}</p></div>}

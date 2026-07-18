@@ -1,0 +1,1 @@
+export const domesticSteps = [['提交需求','Submit Requirements'],['产品沟通','Product Discussion'],['报价确认','Quotation'],['样品确认','Sample Approval'],['签订订单','Order Signing'],['安排生产','Production'],['品质检验','Quality Inspection'],['包装发货','Packaging & Delivery'],['售后跟进','Follow-up']];

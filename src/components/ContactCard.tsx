@@ -1,0 +1,2 @@
+import type { LucideIcon } from 'lucide-react';
+export function ContactCard({icon:Icon,label,value,href}:{icon:LucideIcon;label:string;value:string;href?:string}){const content=<><Icon className="text-accent"/><div><span className="block text-xs font-semibold uppercase tracking-wide text-muted">{label}</span><strong className="mt-1 block text-ink">{value}</strong></div></>;return href?<a href={href} className="flex gap-4 border border-line bg-white p-5 hover:border-accent">{content}</a>:<div className="flex gap-4 border border-line bg-white p-5">{content}</div>}

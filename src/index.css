@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; --accent: #D97706; --accent-hover: #B45309; }
+html { scroll-behavior: smooth; }
+body { margin: 0; min-width: 320px; background: #F8FAFC; color: #334155; font-family: 'Inter','Noto Sans SC',sans-serif; overflow-x: clip; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+* { box-sizing: border-box; }
+::selection { background: #D97706; color: white; }
+button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
+:focus-visible { outline: 3px solid rgba(217,119,6,.38); outline-offset: 3px; }
+.container-shell { width: min(100% - 2rem, 80rem); margin-inline: auto; }
+.section-pad { padding-block: clamp(4.5rem, 8vw, 7.5rem); }
+.display { font-size: clamp(2.55rem, 6.5vw, 5.8rem); line-height: .98; letter-spacing: -.045em; text-wrap: balance; }
+.heading { font-size: clamp(2rem, 4vw, 3.35rem); line-height: 1.08; letter-spacing: -.035em; text-wrap: balance; }
+.industrial-grid { background-image: linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px); background-size: 48px 48px; }
+.bg-ink .heading { color: #fff; }
+.bg-ink .heading + div { color: #cbd5e1; }
+section:has(> video[autoplay]) { background-image: url('/images/hero-poster.jpg'); background-position: center; background-size: cover; }
+.media-placeholder { background: linear-gradient(135deg,#1F2937,#111827); }
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s cubic-bezier(.22,1,.36,1); }
+.reveal.is-visible { opacity: 1; transform: none; }
+.prose-factory p { margin: 0 0 1.25rem; line-height: 1.9; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *,*::before,*::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } .reveal { opacity: 1; transform: none; } video[autoplay] { display: none; } }

@@ -1,0 +1,2 @@
+import type { ReactNode } from 'react';
+export function SectionHeading({eyebrow,title,description,align='left'}:{eyebrow?:string;title:string;description?:ReactNode;align?:'left'|'center'}){return <div className={`max-w-3xl ${align==='center'?'mx-auto text-center':''}`}><p className="mb-4 text-xs font-bold uppercase tracking-[.22em] text-accent">{eyebrow}</p><h2 className="heading font-bold text-ink">{title}</h2>{description&&<div className="mt-5 text-base leading-8 text-muted md:text-lg">{description}</div>}</div>}

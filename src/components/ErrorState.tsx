@@ -1,0 +1,1 @@
+import { AlertTriangle } from 'lucide-react';export function ErrorState({title,message}:{title:string;message:string}){return <div className="mx-auto max-w-xl border border-line bg-white p-10 text-center"><AlertTriangle className="mx-auto text-accent"/><h1 className="mt-4 text-2xl font-bold text-ink">{title}</h1><p className="mt-3 text-muted">{message}</p></div>}

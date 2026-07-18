@@ -1,0 +1,4 @@
+import { Link } from 'react-router-dom'; import type { ReactNode } from 'react';
+const base='inline-flex min-h-11 items-center justify-center gap-2 px-5 py-3 text-sm font-semibold transition active:translate-y-px disabled:cursor-not-allowed disabled:opacity-50';
+export function PrimaryButton({to,children,className=''}:{to?:string;children:ReactNode;className?:string}){const c=`${base} bg-accent text-white hover:bg-accent-hover ${className}`;return to?<Link to={to} className={c}>{children}</Link>:<button className={c}>{children}</button>}
+export function SecondaryButton({to,children,className=''}:{to?:string;children:ReactNode;className?:string}){const c=`${base} border border-slate-300 bg-white text-ink hover:border-accent hover:text-accent ${className}`;return to?<Link to={to} className={c}>{children}</Link>:<button className={c}>{children}</button>}
