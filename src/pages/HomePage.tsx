@@ -25,7 +25,7 @@ export function HomePage(){
     : ['Source weaving factory with direct communication','Regular running stock for faster samples and quotes','Sample-based custom weaving for blended and interwoven fabrics','Simple product hierarchy for domestic and overseas buyers'];
 
   return <>
-    <Seo title={{zh:'首页',en:'Home'}} description={{zh:'丰泰纺织织造工厂官网，展示现货面料、来样定织、工厂实景和在线询盘。',en:'Official website of Fengtai Textile Weaving Factory, showing ready-stock fabrics, custom weaving, factory scenes, and online inquiry.'}}/>
+    <Seo title={{zh:'首页',en:'Home'}} description={{zh:'丰泰永晟织造工厂官网，展示现货面料、来样定织、工厂实景和在线询盘。',en:'Official website of Fengtai Yongsheng weaving factory, showing ready-stock fabrics, custom weaving, factory scenes, and online inquiry.'}}/>
 
     <section className="relative flex min-h-[92vh] items-end overflow-hidden bg-ink pb-20 pt-32 text-white">
       <video src="/videos/factory-hero.mp4" poster="/images/hero-poster.jpg" autoPlay muted loop playsInline className="absolute inset-0 size-full object-cover" aria-label={zh?'工厂生产场景视频':'Factory production video'}>Your browser does not support video.</video>
@@ -48,7 +48,7 @@ export function HomePage(){
     <section id="about" className="section-pad scroll-mt-28 bg-white">
       <div ref={reveal} className="container-shell reveal grid gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
         <div className="relative">
-          <LocalImage src="/images/factory-exterior.jpg" alt={zh?'丰泰纺织工厂外景':'Fengtai Textile factory exterior'} className="aspect-[4/3] w-full object-cover"/>
+          <LocalImage src="/images/factory-exterior.jpg" alt={zh?'丰泰永晟工厂外景':'Fengtai Yongsheng factory exterior'} className="aspect-[4/3] w-full object-cover"/>
           <div className="absolute -bottom-5 right-0 bg-accent px-6 py-5 text-white md:right-[-1rem]"><strong>{company.location}</strong><span className="block text-xs opacity-80">{zh?'办公与生产协同':'Office and production coordination'}</span></div>
         </div>
         <div>
