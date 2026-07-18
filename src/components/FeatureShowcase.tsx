@@ -75,9 +75,9 @@ export function FeatureShowcase(){
     <div className="container-shell grid gap-12 py-20 lg:grid-cols-[20rem_minmax(0,1fr)] lg:gap-16 lg:py-28">
       <aside className="lg:sticky lg:top-24 lg:flex lg:min-h-[calc(100vh-7rem)] lg:flex-col lg:self-start lg:py-10">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[.24em] text-amber-400">{zh?'功能展示':'Feature Showcase'}</p>
-          <h2 className="mt-5 text-4xl font-bold leading-[1.08] tracking-[-.04em] sm:text-5xl">{zh?'让制造能力被清晰看见':'Make manufacturing capabilities visible'}</h2>
-          <p className="mt-6 leading-7 text-white/65">{zh?'以真实视频展示工厂环境、生产流程与品质管理。所有内容发布前均需确认。':'Use authentic footage to present facilities, workflow, and quality management. Verify all content before publishing.'}</p>
+          <p className="text-xs font-bold uppercase tracking-[.24em] text-amber-400">{zh?'制造能力':'Manufacturing Capability'}</p>
+          <h2 className="mt-5 text-4xl font-bold leading-[1.08] tracking-[-.04em] sm:text-5xl">{zh?'让采购商看懂工厂能力':'Make factory capability clear for buyers'}</h2>
+          <p className="mt-6 leading-7 text-white/65">{zh?'围绕现货、定织、品控和出货展示关键能力，帮助客户更快判断合作路径。':'Present stock, custom weaving, quality, and shipment capability so buyers can choose a cooperation path faster.'}</p>
         </div>
 
         <nav className="mt-10 hidden gap-2 lg:grid" aria-label={zh?'功能卡片导航':'Feature card navigation'}>
@@ -97,8 +97,8 @@ export function FeatureShowcase(){
         </nav>
 
         <div className="mt-auto hidden border-t border-white/15 pt-8 lg:block">
-          <p className="mb-5 text-sm leading-6 text-white/65">{zh?'希望了解具体产品和订单可行性？':'Need to discuss a product or order plan?'}</p>
-          <PrimaryButton to="/orders">{zh?'提交订单需求':'Submit Requirements'}<ArrowUpRight size={17}/></PrimaryButton>
+          <p className="mb-5 text-sm leading-6 text-white/65">{zh?'希望了解具体产品和定织可行性？':'Need to discuss a fabric or custom weaving plan?'}</p>
+          <PrimaryButton to="/contact#inquiry">{zh?'发送询盘':'Send Inquiry'}<ArrowUpRight size={17}/></PrimaryButton>
         </div>
       </aside>
 
@@ -121,7 +121,7 @@ export function FeatureShowcase(){
             </article>
           </div>;
         })}
-        <div className="lg:hidden"><PrimaryButton to="/orders" className="w-full">{zh?'提交订单需求':'Submit Requirements'}<ArrowUpRight size={17}/></PrimaryButton></div>
+        <div className="lg:hidden"><PrimaryButton to="/contact#inquiry" className="w-full">{zh?'发送询盘':'Send Inquiry'}<ArrowUpRight size={17}/></PrimaryButton></div>
       </div>
     </div>
   </section>;

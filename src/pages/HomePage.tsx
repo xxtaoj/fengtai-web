@@ -1,10 +1,10 @@
-import { ArrowDown } from 'lucide-react';
+import { ArrowDown, ArrowUpRight, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { company } from '../data/company';
 import { products } from '../data/products';
 import { news } from '../data/news';
 import { useLanguage } from '../i18n/useLanguage';
-import { PrimaryButton,SecondaryButton } from '../components/Button';
+import { PrimaryButton, SecondaryButton } from '../components/Button';
 import { LocalImage } from '../components/Media';
 import { ProductCard } from '../components/ProductCard';
 import { NewsCard } from '../components/NewsCard';
@@ -20,9 +20,12 @@ export function HomePage(){
   const {language,t}=useLanguage();
   const zh=language==='zh';
   const reveal=useScrollReveal<HTMLDivElement>();
+  const advantages = zh
+    ? ['源头织布工厂，业务沟通更直接','常规在机现货，便于快速寄样和报价','支持来样定织，适配混纺与交织开发','面向海内外采购商，产品层级简洁清楚']
+    : ['Source weaving factory with direct communication','Regular running stock for faster samples and quotes','Sample-based custom weaving for blended and interwoven fabrics','Simple product hierarchy for domestic and overseas buyers'];
 
   return <>
-    <Seo title={{zh:'首页',en:'Home'}} description={{zh:'[工厂中文名称]专业制造官网。',en:'Official manufacturing website of [English Company Name].'}}/>
+    <Seo title={{zh:'首页',en:'Home'}} description={{zh:'丰泰纺织织造工厂官网，展示现货面料、来样定织、工厂实景和在线询盘。',en:'Official website of Fengtai Textile Weaving Factory, showing ready-stock fabrics, custom weaving, factory scenes, and online inquiry.'}}/>
 
     <section className="relative flex min-h-[92vh] items-end overflow-hidden bg-ink pb-20 pt-32 text-white">
       <video src="/videos/factory-hero.mp4" poster="/images/hero-poster.jpg" autoPlay muted loop playsInline className="absolute inset-0 size-full object-cover" aria-label={zh?'工厂生产场景视频':'Factory production video'}>Your browser does not support video.</video>
@@ -33,38 +36,73 @@ export function HomePage(){
           <p className="mb-6 text-xs font-bold uppercase tracking-[.25em] text-amber-400">{t.home.eyebrow}</p>
           <h1 className="display font-bold">{t.home.title}</h1>
           <p className="mt-7 max-w-2xl text-base leading-8 text-slate-200 md:text-lg">{t.home.desc}</p>
-          <div className="mt-9 flex flex-wrap gap-3"><PrimaryButton to="/orders">{t.common.quote}</PrimaryButton><SecondaryButton to="/contact">{zh?'了解我们的工厂':'Explore Our Factory'}</SecondaryButton></div>
+          <div className="mt-9 flex flex-wrap gap-3">
+            <PrimaryButton to="/contact#inquiry">{t.common.quote}</PrimaryButton>
+            <SecondaryButton to="/products">{zh?'查看面料分类':'View Fabric Categories'}</SecondaryButton>
+          </div>
         </div>
-        <div className="hidden border-l border-white/25 pl-6 text-sm text-slate-300 lg:block"><p>{zh?'滚动了解制造能力':'Scroll to explore our capabilities'}</p><ArrowDown className="mt-5 animate-bounce text-amber-400"/></div>
+        <div className="hidden border-l border-white/25 pl-6 text-sm text-slate-300 lg:block"><p>{zh?'滚动了解工厂与产品':'Scroll to explore factory and products'}</p><ArrowDown className="mt-5 animate-bounce text-amber-400"/></div>
       </div>
     </section>
 
     <section id="about" className="section-pad scroll-mt-28 bg-white">
       <div ref={reveal} className="container-shell reveal grid gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
-        <div className="relative"><LocalImage src="/images/factory-exterior.jpg" alt={zh?'[工厂中文名称]厂区外景':'Exterior of [English Company Name]'} className="aspect-[4/3] w-full object-cover"/><div className="absolute -bottom-5 right-0 bg-accent px-6 py-5 text-white md:right-[-1rem]"><strong>{company.location}</strong><span className="block text-xs opacity-80">{zh?'工厂所在地':'Factory location'}</span></div></div>
-        <div><SectionHeading eyebrow={zh?'关于工厂':'About the Factory'} title={zh?'稳定制造，清晰协作':'Stable production. Clear collaboration.'} description={zh?'[请填写工厂发展历程、生产基础、团队经验和服务理念。所有占位信息发布前均需替换。]':'[Add the factory history, production foundation, team experience, and service philosophy. Replace all placeholders before publishing.]'}/><dl className="mt-8 grid gap-4 sm:grid-cols-2">{[[zh?'主营产品':'Main Products',company.mainProducts],[zh?'出口市场':'Export Markets',company.exportMarkets],[zh?'国内市场':'Domestic Markets',company.domesticMarkets],[zh?'工厂认证':'Certifications',company.certifications.join(' · ')]].map(([key,value])=><div key={key} className="border-t border-line pt-4"><dt className="text-xs font-semibold uppercase tracking-wide text-muted">{key}</dt><dd className="mt-2 font-semibold text-ink">{value}</dd></div>)}</dl></div>
+        <div className="relative">
+          <LocalImage src="/images/factory-exterior.jpg" alt={zh?'丰泰纺织工厂外景':'Fengtai Textile factory exterior'} className="aspect-[4/3] w-full object-cover"/>
+          <div className="absolute -bottom-5 right-0 bg-accent px-6 py-5 text-white md:right-[-1rem]"><strong>{company.location}</strong><span className="block text-xs opacity-80">{zh?'办公与生产协同':'Office and production coordination'}</span></div>
+        </div>
+        <div>
+          <SectionHeading eyebrow={zh?'企业核心优势':'Core Advantages'} title={zh?'以面料采购效率为中心组织内容':'Organized around fabric sourcing efficiency'} description={zh?'首页整合企业核心优势、主力面料、工厂实拍和业务联系方式，让采购商尽快进入询盘或寄样沟通。':'The home page combines advantages, main fabrics, factory visuals, and contact paths so buyers can move quickly into inquiry or sample discussion.'}/>
+          <div className="mt-8 grid gap-3">
+            {advantages.map(item=><div key={item} className="flex items-start gap-3 border-t border-line pt-4">
+              <CheckCircle2 className="mt-1 shrink-0 text-success" size={20}/>
+              <span className="font-semibold text-ink">{item}</span>
+            </div>)}
+          </div>
+        </div>
       </div>
       <div className="container-shell mt-16"><StatsSection/></div>
     </section>
 
     <section className="section-pad">
       <div className="container-shell">
-        <div className="flex flex-col gap-7 md:flex-row md:items-end md:justify-between"><SectionHeading eyebrow={zh?'产品中心':'Products'} title={zh?'面向真实采购需求的产品呈现':'Products organized for real buying decisions'} description={zh?'产品名称、参数和图片均使用可编辑本地数据。':'Names, specifications, and images are managed as editable local data.'}/><SecondaryButton to="/orders">{t.common.quote}</SecondaryButton></div>
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{products.map(product=><ProductCard key={product.id} product={product}/>)}</div>
+        <div className="flex flex-col gap-7 md:flex-row md:items-end md:justify-between">
+          <SectionHeading eyebrow={zh?'主力面料':'Main Fabrics'} title={zh?'按海外客户浏览习惯分类':'Categories shaped for overseas buyers'} description={zh?'产品先分现货与定织，再进入床品、服装、混纺、交织四个方向。':'Products start with stock or custom weaving, then move into bedding, apparel, blended, and interwoven fabrics.'}/>
+          <SecondaryButton to="/products">{zh?'查看全部产品':'View All Products'}</SecondaryButton>
+        </div>
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{products.slice(0,6).map(product=><ProductCard key={product.id} product={product}/>)}</div>
       </div>
     </section>
 
     <FeatureShowcase/>
 
     <section className="section-pad bg-white">
-      <div className="container-shell grid gap-10 lg:grid-cols-2 lg:items-center"><div><SectionHeading eyebrow={zh?'工厂视频':'Factory Video'} title={zh?'走进生产现场':'Step inside the production floor'} description={zh?'请用真实工厂视频替换本地文件，展示厂区、设备、生产流程和质量管理。':'Replace the local file with authentic footage showing facilities, equipment, workflow, and quality control.'}/><PrimaryButton to="/contact" className="mt-8">{zh?'预约参观工厂':'Arrange a Factory Visit'}</PrimaryButton></div><VideoBlock src="/videos/factory-tour.mp4" poster="/images/factory-interior.jpg" title={zh?'工厂参观视频':'Factory tour video'}/></div>
+      <div className="container-shell grid gap-10 lg:grid-cols-2 lg:items-center">
+        <div>
+          <SectionHeading eyebrow={zh?'工厂实拍':'Factory Visuals'} title={zh?'用真实场景建立采购信任':'Build sourcing trust with real scenes'} description={zh?'生产现场、仓储、样品和团队内容用于强化源头工厂背书。':'Production, warehouse, samples, and team content strengthen the source factory proof.'}/>
+          <PrimaryButton to="/company#factory-sites" className="mt-8">{zh?'查看工厂实景':'View Factory Sites'}</PrimaryButton>
+        </div>
+        <VideoBlock src="/videos/factory-tour.mp4" poster="/images/factory-interior.jpg" title={zh?'工厂参观视频':'Factory tour video'}/>
+      </div>
     </section>
 
     <section className="grid min-h-[34rem] lg:grid-cols-2">
-      {[["/images/export-banner.jpg",zh?'外贸业务':'Export Services',zh?'为海外客户提供产品开发、报价、生产、验货、报关及出货支持。':'Supporting international customers from product development and quotation to production, inspection, customs documentation, and shipment.','/export'],['/images/domestic-banner.jpg',zh?'内销业务':'Domestic Sales',zh?'服务国内经销商、品牌方、工程项目及企业采购客户。':'Serving domestic distributors, brands, engineering projects, and corporate buyers.','/domestic']].map(([image,title,description,to])=><Link to={to} key={to} className="group relative flex min-h-80 items-end overflow-hidden p-8 text-white md:p-12"><LocalImage src={image} alt={title} className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105"/><div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/55 to-transparent"/><div className="relative max-w-lg"><h2 className="text-3xl font-bold md:text-4xl">{title}</h2><p className="mt-4 leading-7 text-slate-200">{description}</p><span className="mt-7 inline-block border-b border-amber-400 pb-1 font-semibold">{t.common.learnMore}</span></div></Link>)}
+      {[['/images/warehouse.jpg',zh?'常规在机现货产品':'Regular In-stock Products',zh?'床品面料、服装面料等常规方向，适合快速看样、确认规格和推进报价。':'Bedding and apparel fabrics for fast sampling, spec confirmation, and quotation.','/products#ready-stock'],['/images/quality-control.jpg',zh?'定制织造产品':'Custom Weaving Products',zh?'根据来样、成分、组织和用途评估混纺、交织等定织方案。':'Evaluate blended and interwoven custom weaving by samples, composition, structure, and application.','/products#custom-weaving']].map(([image,title,description,to])=><Link to={to} key={to} className="group relative flex min-h-80 items-end overflow-hidden p-8 text-white md:p-12">
+        <LocalImage src={image} alt={title} className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105"/>
+        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/55 to-transparent"/>
+        <div className="relative max-w-lg"><h2 className="text-3xl font-bold md:text-4xl">{title}</h2><p className="mt-4 leading-7 text-slate-200">{description}</p><span className="mt-7 inline-flex items-center gap-1 border-b border-amber-400 pb-1 font-semibold">{t.common.learnMore}<ArrowUpRight size={16}/></span></div>
+      </Link>)}
     </section>
 
-    <section className="section-pad"><div className="container-shell"><div className="flex flex-col gap-7 md:flex-row md:items-end md:justify-between"><SectionHeading eyebrow={zh?'最新动态':'Latest News'} title={zh?'来自工厂与行业的一线信息':'Updates from the factory and the industry'}/><SecondaryButton to="/news">{zh?'查看全部新闻':'View All News'}</SecondaryButton></div><div className="mt-12 grid gap-6 md:grid-cols-3">{news.slice(0,3).map(article=><NewsCard key={article.id} article={article}/>)}</div></div></section>
+    <section className="section-pad">
+      <div className="container-shell">
+        <div className="flex flex-col gap-7 md:flex-row md:items-end md:justify-between">
+          <SectionHeading eyebrow={zh?'公司活动':'Company Activities'} title={zh?'展会、客户来访与企业动态强化工厂背书':'Trade shows, visits, and updates strengthen factory proof'}/>
+          <SecondaryButton to="/activity">{zh?'查看全部活动':'View All Activities'}</SecondaryButton>
+        </div>
+        <div className="mt-12 grid gap-6 md:grid-cols-3">{news.slice(0,3).map(article=><NewsCard key={article.id} article={article}/>)}</div>
+      </div>
+    </section>
     <QuoteCTA/>
   </>;
 }

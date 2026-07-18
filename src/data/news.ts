@@ -1,7 +1,130 @@
 import type { NewsArticle } from '../types/news';
-const categories = [['company','公司新闻','Company News'],['factory','工厂动态','Factory Updates'],['product','产品资讯','Product Updates'],['industry','行业资讯','Industry News'],['exhibition','展会信息','Exhibition News'],['export','外贸资讯','Export News']];
-export const news: NewsArticle[] = categories.map((c,i)=>({
-  id:i+1, slug:`news-${String(i+1).padStart(2,'0')}`, category:c[0], categoryZh:c[1], categoryEn:c[2], date:'[发布日期]', image:`/images/news/news-${String(i+1).padStart(2,'0')}.jpg`,
-  titleZh:`[新闻标题 ${i+1}]`, titleEn:`[News Article Title ${i+1}]`, summaryZh:'[请在此填写新闻摘要。内容发布前请替换此占位信息。]', summaryEn:'[Add the news summary here. Replace this placeholder before publishing.]',
-  contentZh:['[新闻正文第一段，请替换。]','[新闻正文第二段，请替换。]'], contentEn:['[News article paragraph one — replace before publishing.]','[News article paragraph two — replace before publishing.]']
-}));
+
+export const news: NewsArticle[] = [
+  {
+    id: 1,
+    slug: 'asia-europe-expo-fabric-sourcing',
+    category: 'exhibition',
+    categoryZh: '展会参展动态',
+    categoryEn: 'Trade Shows',
+    date: '2026-03-12',
+    image: '/images/news/news-01.jpg',
+    titleZh: '亚欧博览会参展动态',
+    titleEn: 'Asia-Europe Expo Participation Update',
+    summaryZh: '围绕床品面料、服装面料及定制织造需求，展示源头织布工厂的现货与来样定织能力。',
+    summaryEn: 'Showcasing in-stock bedding and apparel fabrics plus custom weaving capabilities for global buyers.',
+    contentZh: [
+      '公司活动栏目用于记录真实参展过程、展位沟通、样品展示和客户反馈，发布前可补充展位号、展品清单和现场照片。',
+      '重点呈现常规在机现货、来样定织、寄样沟通和外贸采购对接流程，帮助海外客户快速判断合作可行性。',
+    ],
+    contentEn: [
+      'This activity section records verified exhibition participation, booth communication, sample displays, and buyer feedback. Booth details, product lists, and photos can be added before publishing.',
+      'The focus is on regular in-stock fabrics, custom weaving from samples, sample delivery, and export sourcing workflows so overseas buyers can evaluate cooperation quickly.',
+    ],
+  },
+  {
+    id: 2,
+    slug: 'shanghai-intertextile-fabric-fair',
+    category: 'exhibition',
+    categoryZh: '展会参展动态',
+    categoryEn: 'Trade Shows',
+    date: '2026-01-20',
+    image: '/images/news/news-02.jpg',
+    titleZh: '上海面料展产品交流',
+    titleEn: 'Product Exchange at Shanghai Fabric Fair',
+    summaryZh: '面向国内外采购商梳理床品面料、服装面料、混纺与交织定制产品的采购沟通要点。',
+    summaryEn: 'Summarizing sourcing topics for bedding fabrics, apparel fabrics, blended fabrics, and interwoven custom products.',
+    contentZh: [
+      '展会内容可用于展示新品研发、热销规格、样品册更新和业务团队现场接待情况。',
+      '建议补充真实展会照片、客户关注问题和后续询盘转化情况，强化工厂实力背书。',
+    ],
+    contentEn: [
+      'This update can present new product development, popular specifications, sample book updates, and on-site buyer reception.',
+      'Add verified exhibition photos, buyer questions, and inquiry conversion follow-up to strengthen the factory proof points.',
+    ],
+  },
+  {
+    id: 3,
+    slug: 'overseas-buyer-factory-visit',
+    category: 'visit',
+    categoryZh: '客户来访考察',
+    categoryEn: 'Customer Visits',
+    date: '2025-11-18',
+    image: '/images/news/news-03.jpg',
+    titleZh: '海外客户来访考察纪实',
+    titleEn: 'Overseas Buyer Factory Visit',
+    summaryZh: '客户通过办公区沟通、样品确认、生产现场了解和品质流程介绍，进一步确认合作需求。',
+    summaryEn: 'Buyers reviewed samples, production scenes, and quality workflows to clarify cooperation requirements.',
+    contentZh: [
+      '来访纪实适合展示石家庄办公区、喀什工厂和宁夏织造基地的接待流程及真实工厂场景。',
+      '发布时可按实际情况补充客户来源、洽谈产品、寄样安排和后续订单进度。',
+    ],
+    contentEn: [
+      'Visit reports can show the reception workflow and real site scenes from the Shijiazhuang office, Kashgar factory, and Ningxia weaving base.',
+      'Before publishing, add verified buyer origin, discussed products, sample delivery plans, and follow-up order progress.',
+    ],
+  },
+  {
+    id: 4,
+    slug: 'capacity-expansion-and-sample-room',
+    category: 'news-insights',
+    categoryZh: '企业新闻与行业资讯',
+    categoryEn: 'Company & Industry News',
+    date: '2025-09-08',
+    image: '/images/news/news-04.jpg',
+    titleZh: '产能协同与样品间更新',
+    titleEn: 'Capacity Coordination and Sample Room Update',
+    summaryZh: '围绕现货整理、样品归档和定织需求评估，提高采购商询盘后的响应效率。',
+    summaryEn: 'Improving response efficiency through stock organization, sample archiving, and custom weaving evaluation.',
+    contentZh: [
+      '企业新闻可用于发布产能扩建、仓储整理、样品间更新、新品研发等真实动态。',
+      '这类内容能让采购商看到工厂持续运营能力和业务协作方式。',
+    ],
+    contentEn: [
+      'Company news can publish verified updates on capacity expansion, warehousing, sample rooms, and new product development.',
+      'This helps buyers understand ongoing factory operation and collaboration methods.',
+    ],
+  },
+  {
+    id: 5,
+    slug: 'export-policy-and-fabric-sourcing',
+    category: 'news-insights',
+    categoryZh: '企业新闻与行业资讯',
+    categoryEn: 'Company & Industry News',
+    date: '2025-07-16',
+    image: '/images/news/news-05.jpg',
+    titleZh: '外贸政策与面料采购沟通提示',
+    titleEn: 'Export Policy and Fabric Sourcing Notes',
+    summaryZh: '结合外贸订单沟通需求，整理目的港、贸易条款、样品确认和交期计划等基础信息。',
+    summaryEn: 'Organizing destination port, trade terms, sample confirmation, and delivery planning for export orders.',
+    contentZh: [
+      '行业资讯适合整理与海外采购相关的基础知识、政策变化和业务沟通注意事项。',
+      '内容应以真实政策和业务确认信息为准，避免发布未经确认的承诺。',
+    ],
+    contentEn: [
+      'Industry insights can summarize sourcing knowledge, policy changes, and communication notes related to overseas purchasing.',
+      'All content should follow verified policies and business confirmations, avoiding unconfirmed commitments.',
+    ],
+  },
+  {
+    id: 6,
+    slug: 'team-training-for-export-inquiries',
+    category: 'culture',
+    categoryZh: '企业文化动态',
+    categoryEn: 'Culture & Training',
+    date: '2025-05-22',
+    image: '/images/news/news-06.jpg',
+    titleZh: '业务培训与团队协作活动',
+    titleEn: 'Sales Training and Team Collaboration',
+    summaryZh: '通过产品知识、询盘格式、寄样流程和跨部门协作培训，提升外贸采购客户服务体验。',
+    summaryEn: 'Improving buyer service through product knowledge, inquiry format, sample workflow, and team coordination training.',
+    contentZh: [
+      '内部团建和业务培训内容用于体现团队稳定性、服务意识和跨部门响应能力。',
+      '可补充真实培训主题、团队照片和业务流程优化成果。',
+    ],
+    contentEn: [
+      'Culture and training updates show team stability, service awareness, and cross-department response capability.',
+      'Add verified training topics, team photos, and workflow improvements before publishing.',
+    ],
+  },
+];
