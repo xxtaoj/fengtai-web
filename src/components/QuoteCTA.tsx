@@ -7,11 +7,11 @@ export function QuoteCTA(){
   return <section className="bg-accent-soft py-16">
     <div className="container-shell flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
       <div>
-        <h2 className="text-3xl font-bold text-ink">{zh?'需要现货面料或来样定织？':'Need stock fabric or custom weaving?'}</h2>
-        <p className="mt-3 max-w-2xl leading-7 text-muted">{zh?'提交面料类别、规格、数量、用途和样品需求，我们将协助匹配现货或评估定织可行性。':'Send fabric category, specs, quantity, application, and sample needs. We will help match stock or evaluate custom weaving feasibility.'}</p>
+        <h2 className="text-3xl font-bold text-ink">{zh?'告诉我们需要什么面料':'Tell us what fabric you need'}</h2>
+        <p className="mt-3 max-w-2xl leading-7 text-muted">{zh?'发送面料类别、成分、幅宽、密度或克重、数量和用途，我们将根据现货与生产情况协助确认。':'Share the fabric type, composition, width, construction or weight, quantity, and end use. We will check available stock and production options.'}</p>
       </div>
       <div className="flex flex-wrap gap-3">
-        <PrimaryButton to="/contact#inquiry">{zh?'发送询盘':'Send Inquiry'}</PrimaryButton>
+        <PrimaryButton to="/contact#inquiry" className="rounded-md">{zh?'发送面料询盘':'Send Fabric Inquiry'}</PrimaryButton>
         <SecondaryButton to="/products">{zh?'查看产品':'View Products'}</SecondaryButton>
       </div>
     </div>

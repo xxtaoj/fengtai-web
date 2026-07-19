@@ -32,7 +32,7 @@ export function Header(){
     <div className="relative flex min-h-16 items-center justify-between rounded-full border border-white/70 bg-white/95 px-4 shadow-[0_12px_36px_-18px_rgba(15,23,42,.4)] backdrop-blur-xl sm:px-6">
       <Link to="/" className="flex min-w-0 items-center gap-3" aria-label={zh?'返回首页':'Back to home'}>
         <span className="grid size-8 shrink-0 place-items-center rounded-full bg-ink text-[10px] font-bold tracking-widest text-white">{company.brandName.slice(0,2)}</span>
-        <span className="truncate text-sm font-bold text-ink sm:text-base">{zh?company.chineseName:company.englishName}</span>
+        <span className="truncate text-sm font-bold text-ink sm:text-base"><span className="sm:hidden">{zh?company.chineseName:'FENGTAI YONGSHENG'}</span><span className="hidden sm:inline">{zh?company.chineseName:company.englishName}</span></span>
       </Link>
 
       <button
@@ -56,7 +56,7 @@ export function Header(){
       <nav className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label={zh?'站点导航':'Site navigation'}>
         {capsuleMenuItems.map(item=><article
           key={item.href}
-          className="rounded-2xl bg-slate-50 p-4 transition-colors hover:bg-accent-soft"
+          className="rounded-xl bg-slate-50 p-4 transition-colors hover:bg-accent-soft"
         >
           <a
             href={item.href}
@@ -79,7 +79,7 @@ export function Header(){
       </nav>
       <div className="mt-4 flex flex-col gap-3 border-t border-line pt-4 sm:flex-row sm:items-center sm:justify-between">
         <LanguageSwitcher/>
-        <Link to="/contact#inquiry" onClick={()=>setOpen(false)} tabIndex={open?0:-1} className="inline-flex min-h-11 items-center justify-center rounded-full bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent-hover">{zh?'发送询盘':'Send Inquiry'}</Link>
+        <Link to="/contact#inquiry" onClick={()=>setOpen(false)} tabIndex={open?0:-1} className="inline-flex min-h-11 items-center justify-center rounded-md bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2">{zh?'发送面料询盘':'Send Fabric Inquiry'}</Link>
       </div>
     </div>
   </header>;

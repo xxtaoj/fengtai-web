@@ -27,7 +27,7 @@ export function ContactPage(){
   const zh=language==='zh';
   return <>
     <Seo title={{zh:'联系我们',en:'Contact Us'}} description={{zh:'丰泰永晟办公及工厂地址、客服联络方式和在线业务询盘格式表。',en:'Fengtai Yongsheng office and factory addresses, service contacts, and online inquiry format.'}}/>
-    <PageHero image="/images/contact-banner.jpg" eyebrow={zh?'联系我们':'Contact Us'} title={t.pages.contact} description={zh?'联系板块重点服务询盘、寄样和来样定织转化，请尽量提供面料规格、数量、用途和交付要求。':'The contact section focuses on inquiry, sample delivery, and custom weaving conversion. Please include fabric specs, quantity, application, and delivery requirements.'}/>
+    <PageHero image="/images/contact-banner.jpg" eyebrow={zh?'联系我们':'Contact Us'} title={t.pages.contact} description={zh?'如需询价、寄样或来样定织，请提供面料规格、数量、用途和交付要求。':'For quotations, samples, or custom weaving, please include fabric specifications, quantity, end use, and delivery requirements.'}/>
 
     <main>
       <section id="addresses" className="section-pad scroll-mt-28 bg-white">

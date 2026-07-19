@@ -26,7 +26,7 @@ export function NewsPage(){
 
   return <>
     <Seo title={{zh:'公司活动',en:'Company Activities'}} description={{zh:'展会参展、客户来访、企业新闻、行业资讯、团建和业务培训动态。',en:'Trade shows, customer visits, company news, industry insights, team building, and training updates.'}}/>
-    <PageHero image="/images/news-banner.jpg" eyebrow={zh?'公司活动':'Company Activities'} title={t.pages.activity} description={zh?'活动页面用于强化工厂实力背书，让海外客户通过展会、来访、企业动态和团队培训了解真实运营状态。':'The activity page strengthens factory proof through trade shows, buyer visits, company updates, and team training.'}/>
+    <PageHero image="/images/news-banner.jpg" eyebrow={zh?'公司活动':'Company Activities'} title={t.pages.activity} description={zh?'查看展会交流、客户来访、企业动态和团队培训记录，了解我们的产品沟通与日常协作。':'See trade-show conversations, buyer visits, company updates, and team training records.'}/>
     <main className="section-pad">
       <div className="container-shell">
         <article className="mb-14 grid overflow-hidden border border-line bg-white lg:grid-cols-2">

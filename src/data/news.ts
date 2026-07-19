@@ -36,11 +36,11 @@ export const news: NewsArticle[] = [
     summaryEn: 'Summarizing sourcing topics for bedding fabrics, apparel fabrics, blended fabrics, and interwoven custom products.',
     contentZh: [
       '展会内容可用于展示新品研发、热销规格、样品册更新和业务团队现场接待情况。',
-      '建议补充真实展会照片、客户关注问题和后续询盘转化情况，强化工厂实力背书。',
+      '现场沟通重点包括客户关注的面料规格、样品安排和后续询盘衔接。',
     ],
     contentEn: [
       'This update can present new product development, popular specifications, sample book updates, and on-site buyer reception.',
-      'Add verified exhibition photos, buyer questions, and inquiry conversion follow-up to strengthen the factory proof points.',
+      'On-site discussions focus on fabric specifications, sample arrangements, and inquiry follow-up.',
     ],
   },
   {

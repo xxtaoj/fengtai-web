@@ -18,7 +18,7 @@ button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
 .bg-ink .heading { color: #fff; }
 .bg-ink .heading + div { color: #cbd5e1; }
 section:has(> video[autoplay]) { background-image: url('/images/hero-poster.jpg'); background-position: center; background-size: cover; }
-.media-placeholder { background: linear-gradient(135deg,#1F2937,#111827); }
+.media-placeholder { background-color: #111827; background-image: repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 8px),repeating-linear-gradient(90deg,rgba(217,119,6,.05) 0 1px,transparent 1px 10px); }
 .reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s cubic-bezier(.22,1,.36,1); }
 .reveal.is-visible { opacity: 1; transform: none; }
 .prose-factory p { margin: 0 0 1.25rem; line-height: 1.9; }
