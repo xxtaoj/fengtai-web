@@ -1,7 +1,7 @@
-import { ArrowDown, ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { ArrowUpRight, CheckCircle2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { company } from '../data/company';
-import { products } from '../data/products';
+import { useCatalog } from '../context/CatalogContext';
 import { news } from '../data/news';
 import { useLanguage } from '../i18n/useLanguage';
 import { PrimaryButton, SecondaryButton } from '../components/Button';
@@ -18,8 +18,11 @@ import { useScrollReveal } from '../hooks/useScrollReveal';
 
 export function HomePage(){
   const {language,t}=useLanguage();
+  const {catalog}=useCatalog();
+  const {products}=catalog;
   const zh=language==='zh';
   const reveal=useScrollReveal<HTMLDivElement>();
+  const heroTitleParts=zh?t.home.title.split('-'):null;
   const advantages = zh
     ? ['源头织布工厂，业务沟通更直接','常规在机现货，便于快速寄样和报价','支持来样定织，适配混纺与交织开发','面向海内外采购商，产品层级简洁清楚']
     : ['Source weaving factory with direct communication','Regular running stock for faster samples and quotes','Sample-based custom weaving for blended and interwoven fabrics','Simple product hierarchy for domestic and overseas buyers'];
@@ -27,21 +30,24 @@ export function HomePage(){
   return <>
     <Seo title={{zh:'首页',en:'Home'}} description={{zh:'丰泰永晟织造工厂官网，展示现货面料、来样定织、工厂实景和在线询盘。',en:'Official website of Fengtai Yongsheng weaving factory, showing ready-stock fabrics, custom weaving, factory scenes, and online inquiry.'}}/>
 
-    <section className="relative flex min-h-[92vh] items-end overflow-hidden bg-ink pb-20 pt-32 text-white">
-      <video src="/videos/factory-hero.mp4" poster="/images/hero-poster.jpg" autoPlay muted loop playsInline className="absolute inset-0 size-full object-cover" aria-label={zh?'工厂生产场景视频':'Factory production video'}>Your browser does not support video.</video>
-      <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/75 to-ink/20"/>
-      <div className="industrial-grid absolute inset-0"/>
-      <div className="container-shell relative grid items-end gap-12 lg:grid-cols-[1fr_17rem]">
-        <div className="max-w-5xl">
-          <p className="mb-6 text-xs font-bold uppercase tracking-[.25em] text-amber-400">{t.home.eyebrow}</p>
-          <h1 className="display font-bold">{t.home.title}</h1>
-          <p className="mt-7 max-w-2xl text-base leading-8 text-slate-200 md:text-lg">{t.home.desc}</p>
-          <div className="mt-9 flex flex-wrap gap-3">
-            <PrimaryButton to="/contact#inquiry">{t.common.quote}</PrimaryButton>
-            <SecondaryButton to="/products">{zh?'查看面料分类':'View Fabric Categories'}</SecondaryButton>
+    <section className="relative min-h-[100svh] overflow-hidden bg-ink text-white">
+      <video src="/videos/factory-hero.mp4" poster="/images/hero-poster.jpg" autoPlay muted loop playsInline className="absolute inset-0 size-full object-cover object-bottom" aria-label={zh?'工厂生产场景视频':'Factory production video'}>Your browser does not support video.</video>
+      <div className="absolute inset-0 bg-black/40"/>
+      <div className="relative z-10 mx-auto flex min-h-[100svh] w-[min(calc(100%-2rem),115rem)] items-center pb-8 pt-28 sm:pb-0 sm:pt-32">
+        <div className="max-w-[60rem]">
+          <p className="mb-4 text-xs font-bold text-white sm:mb-7 sm:text-base">{t.home.eyebrow}</p>
+          <h1 className="max-w-[50rem] text-[2.35rem] font-medium leading-[1.06] tracking-normal sm:text-6xl sm:leading-[1.12] lg:text-[4.25rem] xl:text-[4.75rem]">
+            {heroTitleParts&&heroTitleParts.length===2?<>{heroTitleParts[0]}-<br/>{heroTitleParts[1]}</>:t.home.title}
+          </h1>
+          <p className="mt-5 max-w-2xl text-[0.95rem] leading-7 text-white/85 sm:mt-7 sm:text-base sm:leading-8 md:text-lg">{t.home.desc}</p>
+          <div className="mt-7 flex flex-wrap gap-3 sm:mt-9 sm:gap-4">
+            <Link to="/contact#inquiry" className="inline-flex min-h-11 items-center justify-center gap-2 rounded-md bg-accent px-5 py-2.5 text-sm font-bold text-white transition hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent sm:min-h-12 sm:px-6 sm:py-3">
+              {t.common.quote}
+              <ArrowUpRight size={17}/>
+            </Link>
+            <SecondaryButton to="/products" className="min-h-11 border-white/80 bg-white/90 px-5 py-2.5 sm:min-h-12 sm:px-6 sm:py-3">{zh?'查看面料分类':'View Fabric Categories'}</SecondaryButton>
           </div>
         </div>
-        <div className="hidden border-l border-white/25 pl-6 text-sm text-slate-300 lg:block"><p>{zh?'滚动了解工厂与产品':'Scroll to explore factory and products'}</p><ArrowDown className="mt-5 animate-bounce text-amber-400"/></div>
       </div>
     </section>
 
@@ -49,7 +55,7 @@ export function HomePage(){
       <div ref={reveal} className="container-shell reveal grid gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
         <div className="relative">
           <LocalImage src="/images/factory-exterior.jpg" alt={zh?'丰泰永晟工厂外景':'Fengtai Yongsheng factory exterior'} className="aspect-[4/3] w-full object-cover"/>
-          <div className="absolute -bottom-5 right-0 bg-accent px-6 py-5 text-white md:right-[-1rem]"><strong>{company.location}</strong><span className="block text-xs opacity-80">{zh?'办公与生产协同':'Office and production coordination'}</span></div>
+          <div className="absolute -bottom-5 right-0 bg-accent px-6 py-5 text-white md:right-[-1rem]"><strong>{zh?company.location:company.locationEn}</strong><span className="block text-xs opacity-80">{zh?'办公与生产协同':'Office and production coordination'}</span></div>
         </div>
         <div>
           <SectionHeading eyebrow={zh?'企业核心优势':'Core Advantages'} title={zh?'现货、定织与交付，一次看清':'Stock, custom weaving, and delivery at a glance'} description={zh?'从常规在机现货到来样定织，采购商可根据用途、规格和交期选择对应的合作方式。':'From available fabrics to sample-based custom weaving, buyers can choose a path by application, specification, and delivery needs.'}/>

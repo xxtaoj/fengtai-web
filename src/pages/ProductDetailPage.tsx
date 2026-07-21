@@ -1,6 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { Check, PackageSearch } from 'lucide-react';
-import { products } from '../data/products';
+import { useCatalog } from '../context/CatalogContext';
 import { company } from '../data/company';
 import { useLanguage } from '../i18n/useLanguage';
 import { Breadcrumbs } from '../components/Breadcrumbs';
@@ -13,6 +13,8 @@ import { Seo } from '../components/Seo';
 export function ProductDetailPage(){
   const {slug}=useParams();
   const {language}=useLanguage();
+  const {catalog}=useCatalog();
+  const {products}=catalog;
   const zh=language==='zh';
   const p=products.find(x=>x.slug===slug);
   if(!p)return <main className="section-pad pt-40"><ErrorState title={zh?'产品未找到':'Product not found'} message={zh?'该产品链接无效。':'This product link is invalid.'}/></main>;
@@ -20,8 +22,8 @@ export function ProductDetailPage(){
   const specs=[
     [zh?'产品分类':'Category',zh?p.categoryZh:p.categoryEn],
     [zh?'业务路径':'Business Path',businessPath],
-    [zh?'起订与排产':'MOQ & Scheduling',company.moq],
-    [zh?'交期':'Lead Time',company.leadTime],
+    [zh?'起订与排产':'MOQ & Scheduling',zh?company.moq:company.moqEn],
+    [zh?'交期':'Lead Time',zh?company.leadTime:company.leadTimeEn],
     [zh?'样品方式':'Sample Method',zh?'可寄样、看样或来样评估':'Sample delivery, sample review, or buyer sample evaluation'],
     [zh?'询盘建议':'Inquiry Suggestion',zh?'请提供成分、纱支、密度、门幅、克重、数量和用途':'Provide composition, yarn count, density, width, weight, quantity, and application'],
   ];

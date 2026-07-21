@@ -10,9 +10,10 @@ import { ProductsPage } from './pages/ProductsPage';
 import { ContactPage } from './pages/ContactPage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { AdminPage } from './pages/AdminPage';
 
 export function App(){
-  return <><ScrollToTop/><Routes><Route path="*" element={<SiteRoutes/>}/></Routes></>;
+  return <><ScrollToTop/><Routes><Route path="/admin" element={<AdminPage/>}/><Route path="*" element={<SiteRoutes/>}/></Routes></>;
 }
 
 function SiteRoutes(){

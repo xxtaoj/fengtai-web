@@ -1,5 +1,5 @@
 export type ProductGroup = 'ready-stock' | 'custom-weaving';
-export type ProductSubcategory = 'bedding-fabric' | 'apparel-fabric' | 'blended-fabric' | 'interwoven-fabric';
+export type ProductSubcategory = string;
 
 export type Product = {
   id: number;

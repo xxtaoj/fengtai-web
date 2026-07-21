@@ -2,12 +2,14 @@ import { Link } from 'react-router-dom';
 import { ArrowUpRight, Factory, Mail, MapPin, Phone } from 'lucide-react';
 import { company } from '../data/company';
 import { navigation } from '../data/navigation';
-import { products } from '../data/products';
+import { useCatalog } from '../context/CatalogContext';
 import { useLanguage } from '../i18n/useLanguage';
 import { PrimaryButton, SecondaryButton } from './Button';
 
 export function Footer(){
   const {language,t}=useLanguage();
+  const {catalog}=useCatalog();
+  const {products}=catalog;
   const zh=language==='zh';
   return <footer className="bg-ink text-white">
     <section className="border-b border-white/10">
@@ -40,13 +42,13 @@ export function Footer(){
         <h3 className="font-semibold">{zh?'联系工厂':'Contact Factory'}</h3>
         <div className="mt-4 grid gap-3 text-sm text-slate-400">
           <span className="flex gap-2"><MapPin className="shrink-0" size={17}/>{company.headOfficeAddress}</span>
-          <span className="flex gap-2"><Factory className="shrink-0" size={17}/>{company.location}</span>
+          <span className="flex gap-2"><Factory className="shrink-0" size={17}/>{zh?company.location:company.locationEn}</span>
           <span className="flex gap-2"><span className="shrink-0">•</span>{company.contactPerson} · {company.contactTitle}</span>
           <span className="flex gap-2"><Phone size={17}/>{company.phone}</span>
           <span>WhatsApp: {company.whatsapp}</span>
           <span>WeChat: {company.wechat}</span>
           <span className="flex gap-2"><Mail size={17}/>{company.email}</span>
-          <span>{zh?'服务时间':'Business Hours'}: {company.businessHours}</span>
+          <span>{zh?'服务时间':'Business Hours'}: {zh?company.businessHours:company.businessHoursEn}</span>
         </div>
       </div>
     </div>
