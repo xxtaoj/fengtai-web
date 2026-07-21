@@ -1,11 +1,11 @@
 import { Clock, Mail, MapPin, MessageCircle, Phone, Send, Warehouse } from 'lucide-react';
 import { company } from '../data/company';
 import { useLanguage } from '../i18n/useLanguage';
-import { ContactForm } from '../forms/ContactForm';
 import { PageHero } from '../components/PageHero';
 import { SectionHeading } from '../components/SectionHeading';
 import { ContactCard } from '../components/ContactCard';
 import { Seo } from '../components/Seo';
+import { InquiryComposer } from '../components/InquiryComposer';
 
 const addresses = [
   {titleZh:'石家庄总部',titleEn:'Shijiazhuang Headquarters',nameZh:company.headOfficeName,nameEn:company.headOfficeName,addressZh:company.headOfficeAddress,addressEn:company.headOfficeAddress},
@@ -13,21 +13,12 @@ const addresses = [
   {titleZh:'宁夏生产基地',titleEn:'Ningxia Production Base',nameZh:company.ningxiaFactoryName,nameEn:company.ningxiaFactoryName,addressZh:company.ningxiaFactoryAddress,addressEn:company.ningxiaFactoryAddress},
 ];
 
-const inquiryFormat = [
-  ['产品分类','Product category','床品面料 / 服装面料 / 混纺面料 / 交织面料','Bedding fabrics / apparel fabrics / blended fabrics / interwoven fabrics'],
-  ['面料规格','Fabric specs','成分、纱支、密度、门幅、克重、组织结构','Composition, yarn count, density, width, weight, and weave structure'],
-  ['采购数量','Quantity','米数、公斤数、柜量或预计批量','Meters, kilograms, container volume, or estimated order quantity'],
-  ['样品需求','Sample request','寄样、来样定织、样品照片或样布信息','Sample delivery, custom weaving from samples, sample photos, or swatch details'],
-  ['交付信息','Delivery details','目的国家、目的港、目标交期、贸易条款','Destination country, destination port, target lead time, and trade terms'],
-  ['联系方式','Contact details','手机号、企业邮箱、微信或 WhatsApp','Mobile number, business email, WeChat, or WhatsApp'],
-];
-
 export function ContactPage(){
   const {language,t}=useLanguage();
   const zh=language==='zh';
   return <>
     <Seo title={{zh:'联系我们',en:'Contact Us'}} description={{zh:'丰泰永晟办公及工厂地址、客服联络方式和在线业务询盘格式表。',en:'Fengtai Yongsheng office and factory addresses, service contacts, and online inquiry format.'}}/>
-    <PageHero image="/images/contact-banner.jpg" eyebrow={zh?'联系我们':'Contact Us'} title={t.pages.contact} description={zh?'如需询价、寄样或来样定织，请提供面料规格、数量、用途和交付要求。':'For quotations, samples, or custom weaving, please include fabric specifications, quantity, end use, and delivery requirements.'}/>
+    <PageHero image="/images/factory-exterior.jpg" eyebrow={zh?'联系我们':'Contact Us'} title={t.pages.contact} description={zh?'如需询价、寄样或来样定织，请提供面料规格、数量、用途和交付要求。':'For quotations, samples, or custom weaving, please include fabric specifications, quantity, end use, and delivery requirements.'}/>
 
     <main>
       <section id="addresses" className="section-pad scroll-mt-28 bg-white">
@@ -64,17 +55,9 @@ export function ContactPage(){
       </section>
 
       <section id="inquiry" className="section-pad scroll-mt-28 bg-white">
-        <div className="container-shell grid gap-12 lg:grid-cols-[.8fr_1.2fr]">
-          <div>
-            <SectionHeading eyebrow={zh?'在线业务询盘格式表':'Online Inquiry Form'} title={zh?'按面料采购格式提交，沟通更高效':'Submit in a fabric sourcing format for faster communication'} description={zh?'下方表单为前端演示，正式上线前可接入企业邮箱、CRM 或后台。':'The form below is a front-end demo. Connect it to business email, CRM, or a backend before launch.'}/>
-            <div className="mt-8 grid gap-3">
-              {inquiryFormat.map(([zhLabel,enLabel,zhExample,enExample])=><div key={zhLabel} className="border-t border-line pt-4">
-                <dt className="text-xs font-semibold uppercase text-muted">{zh?zhLabel:enLabel}</dt>
-                <dd className="mt-1 font-semibold text-ink">{zh?zhExample:enExample}</dd>
-              </div>)}
-            </div>
-          </div>
-          <ContactForm/>
+        <div className="container-shell">
+          <SectionHeading eyebrow={zh?'询盘编排器':'Inquiry Composer'} title={zh?'先说明采购目的，再整理有效信息':'Start with the sourcing purpose, then organize the useful details'} description={zh?'填写内容只用于生成询盘摘要，不会在未接入后端的情况下显示虚假提交成功。':'Your entries prepare a sourcing summary. The page does not claim a successful submission without a connected backend.'}/>
+          <div className="mt-10"><InquiryComposer/></div>
         </div>
       </section>
     </main>

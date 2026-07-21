@@ -15,6 +15,10 @@ button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
 .display { font-size: clamp(2.55rem, 6.5vw, 5.8rem); line-height: .98; letter-spacing: -.045em; text-wrap: balance; }
 .heading { font-size: clamp(2rem, 4vw, 3.35rem); line-height: 1.08; letter-spacing: -.035em; text-wrap: balance; }
 .industrial-grid { background-image: linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px); background-size: 48px 48px; }
+.broken-thread::before { content: ''; position: absolute; inset: 1.5rem 0; background-image: repeating-linear-gradient(0deg,transparent 0 23px,rgba(255,255,255,.12) 23px 24px),repeating-linear-gradient(90deg,transparent 0 47px,rgba(217,119,6,.2) 47px 48px); }
+.broken-thread::after { content: ''; position: absolute; left: 50%; top: 1rem; bottom: 1rem; width: clamp(3rem,10vw,8rem); transform: translateX(-50%) rotate(4deg); background: #111827; border-left: 1px solid rgba(217,119,6,.55); border-right: 1px solid rgba(217,119,6,.25); }
+.activity-filter-scroll { scrollbar-width: none; }
+.activity-filter-scroll::-webkit-scrollbar { display: none; }
 .bg-ink .heading { color: #fff; }
 .bg-ink .heading + div { color: #cbd5e1; }
 section:has(> video[autoplay]) { background-image: url('/images/hero-poster.jpg'); background-position: center; background-size: cover; }

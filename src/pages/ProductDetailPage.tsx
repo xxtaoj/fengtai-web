@@ -1,7 +1,7 @@
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Check, PackageSearch } from 'lucide-react';
+import { ArrowUpRight, PackageSearch } from 'lucide-react';
 import { useCatalog } from '../context/CatalogContext';
-import { company } from '../data/company';
 import { useLanguage } from '../i18n/useLanguage';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { ErrorState } from '../components/ErrorState';
@@ -10,49 +10,84 @@ import { PrimaryButton, SecondaryButton } from '../components/Button';
 import { ProductCard } from '../components/ProductCard';
 import { Seo } from '../components/Seo';
 
+type PassportRow = {
+  label: string;
+  value: string;
+  mono?: boolean;
+};
+
 export function ProductDetailPage(){
   const {slug}=useParams();
   const {language}=useLanguage();
   const {catalog}=useCatalog();
   const {products}=catalog;
   const zh=language==='zh';
-  const p=products.find(x=>x.slug===slug);
-  if(!p)return <main className="section-pad pt-40"><ErrorState title={zh?'产品未找到':'Product not found'} message={zh?'该产品链接无效。':'This product link is invalid.'}/></main>;
-  const businessPath=zh?(p.group==='ready-stock'?'常规在机现货产品':'定制织造产品'):(p.group==='ready-stock'?'Regular In-stock Product':'Custom Weaving Product');
-  const specs=[
-    [zh?'产品分类':'Category',zh?p.categoryZh:p.categoryEn],
-    [zh?'业务路径':'Business Path',businessPath],
-    [zh?'起订与排产':'MOQ & Scheduling',zh?company.moq:company.moqEn],
-    [zh?'交期':'Lead Time',zh?company.leadTime:company.leadTimeEn],
-    [zh?'样品方式':'Sample Method',zh?'可寄样、看样或来样评估':'Sample delivery, sample review, or buyer sample evaluation'],
-    [zh?'询盘建议':'Inquiry Suggestion',zh?'请提供成分、纱支、密度、门幅、克重、数量和用途':'Provide composition, yarn count, density, width, weight, quantity, and application'],
-  ];
-  const related=products.filter(x=>x.id!==p.id&&(x.subcategory===p.subcategory||x.group===p.group)).slice(0,3);
+  const product=products.find(item=>item.slug===slug);
+  const [activeImage,setActiveImage]=useState(0);
+  if(!product)return <main className="section-pad pt-40"><ErrorState title={zh?'产品未找到':'Product not found'} message={zh?'该产品链接无效。':'This product link is invalid.'}/></main>;
+
+  const businessPath=zh?(product.group==='ready-stock'?'常规产品':'来样定织'):(product.group==='ready-stock'?'Regular product':'Custom weaving');
+  const passportRows:PassportRow[]=[
+    {label:zh?'档案编号':'Record number',value:`P-${String(product.id).padStart(2,'0')}`,mono:true},
+    {label:zh?'产品分类':'Category',value:zh?product.categoryZh:product.categoryEn},
+    {label:zh?'供货路径':'Supply path',value:businessPath},
+    ...(product.specifications??[]).map(specification=>({label:zh?specification.labelZh:specification.labelEn,value:zh?specification.valueZh:specification.valueEn})),
+  ].filter(row=>row.value.trim());
+  const images=[product.image,...(product.gallery??[]).filter(image=>image!==product.image)];
+  const related=products.filter(item=>item.id!==product.id&&(item.subcategory===product.subcategory||item.group===product.group)).slice(0,3);
+  const inquiryTarget=`/contact?intent=product&product=${encodeURIComponent(zh?product.nameZh:product.nameEn)}&productId=${product.id}#inquiry`;
+
   return <>
-    <Seo title={{zh:p.nameZh,en:p.nameEn}} description={{zh:p.summaryZh,en:p.summaryEn}}/>
-    <main className="pb-24 pt-32">
+    <Seo title={{zh:product.nameZh,en:product.nameEn}} description={{zh:product.summaryZh,en:product.summaryEn}}/>
+    <main className="bg-white pb-24 pt-32">
       <div className="container-shell">
-        <Breadcrumbs items={[{label:zh?'公司产品':'Products',to:'/products'},{label:zh?p.nameZh:p.nameEn}]}/>
-        <section className="mt-10 grid gap-12 lg:grid-cols-2">
-          <LocalImage src={p.image} alt={zh?`${p.nameZh}产品主图`:`Main image of ${p.nameEn}`} className="aspect-square w-full object-cover"/>
-          <div className="py-4">
-            <p className="text-xs font-bold uppercase tracking-[.22em] text-accent">{zh?p.categoryZh:p.categoryEn}</p>
-            <h1 className="mt-5 text-4xl font-bold text-ink md:text-6xl">{zh?p.nameZh:p.nameEn}</h1>
-            <p className="mt-6 text-lg leading-8 text-muted">{zh?p.summaryZh:p.summaryEn}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <PrimaryButton to="/contact#inquiry">{zh?'询盘此面料':'Inquire This Fabric'}</PrimaryButton>
-              <SecondaryButton to="/products">{zh?'返回产品分类':'Back to Products'}</SecondaryButton>
+        <Breadcrumbs items={[{label:zh?'公司产品':'Products',to:'/products'},{label:zh?product.nameZh:product.nameEn}]}/>
+
+        <section aria-labelledby="fabric-passport-title" className="mt-10 border-y border-slate-300 py-8 lg:py-12">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-slate-300 pb-5">
+            <div>
+              <p className="font-mono text-xs font-bold uppercase tracking-[.18em] text-accent">{zh?'面料技术护照':'Fabric passport'} · P-{String(product.id).padStart(2,'0')}</p>
+              <p className="mt-2 text-sm text-muted">{zh?'目录信息仅展示当前已确认字段':'Only currently available catalogue fields are shown'}</p>
             </div>
-            <dl className="mt-10 grid border-l border-t border-line sm:grid-cols-2">{specs.map(([k,v])=><div key={k} className="border-b border-r border-line p-5"><dt className="text-xs text-muted">{k}</dt><dd className="mt-1 font-bold text-ink">{v}</dd></div>)}</dl>
+            <span className="font-mono text-xs text-muted">{businessPath}</span>
+          </div>
+
+          <div className="grid gap-12 lg:grid-cols-[1.08fr_.92fr] lg:gap-16">
+            <div>
+              <LocalImage loading="eager" src={images[activeImage]} alt={zh?`${product.nameZh}面料图片 ${activeImage+1}`:`${product.nameEn} fabric image ${activeImage+1}`} className="aspect-[4/3] w-full bg-canvas object-cover"/>
+              {images.length>1&&<div className="mt-4 grid grid-cols-4 gap-3" aria-label={zh?'选择产品图片':'Select a product image'}>
+                {images.map((image,index)=><button key={image} type="button" aria-pressed={activeImage===index} onClick={()=>setActiveImage(index)} className={`min-h-11 border p-1 transition-colors ${activeImage===index?'border-accent':'border-slate-300 hover:border-ink'}`}><LocalImage loading="lazy" src={image} alt="" className="aspect-square w-full object-cover"/></button>)}
+              </div>}
+            </div>
+
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[.16em] text-accent">{zh?product.categoryZh:product.categoryEn}</p>
+              <h1 id="fabric-passport-title" className="mt-4 text-4xl font-bold leading-tight tracking-tight text-ink md:text-5xl">{zh?product.nameZh:product.nameEn}</h1>
+              <p className="mt-5 text-base leading-8 text-muted">{zh?product.summaryZh:product.summaryEn}</p>
+
+              <dl className="mt-8 border-t border-slate-400">
+                {passportRows.map(row=><div key={row.label} className="grid gap-2 border-b border-slate-200 py-4 sm:grid-cols-[8rem_1fr] sm:gap-6">
+                  <dt className="text-xs font-bold uppercase tracking-[.08em] text-muted">{row.label}</dt>
+                  <dd className={`text-sm font-semibold leading-6 text-ink ${row.mono?'font-mono':''}`}>{row.value}</dd>
+                </div>)}
+              </dl>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <PrimaryButton to={inquiryTarget}>{zh?'携带此产品发起询盘':'Start an inquiry with this product'}<ArrowUpRight size={16}/></PrimaryButton>
+                <SecondaryButton to="/products">{zh?'返回产品分类':'Back to products'}</SecondaryButton>
+              </div>
+            </div>
           </div>
         </section>
+
         <section className="section-pad grid gap-12 lg:grid-cols-[.7fr_1.3fr]">
-          <div><PackageSearch className="text-accent" size={36}/><h2 className="mt-5 text-3xl font-bold text-ink">{zh?'产品说明':'Product Details'}</h2></div>
-          <div className="grid gap-4 sm:grid-cols-2">{(zh?p.specsZh:p.specsEn).map(item=><div key={item} className="flex gap-3 border-t border-line pt-5"><Check className="shrink-0 text-success" size={20}/><span className="font-semibold text-ink">{item}</span></div>)}</div>
+          <div><PackageSearch className="text-accent" size={32}/><h2 className="mt-5 text-3xl font-bold text-ink">{zh?'询盘前确认':'Before inquiry'}</h2><p className="mt-4 max-w-sm text-sm leading-7 text-muted">{zh?'以下内容来自当前产品资料，具体规格仍需结合样品或询盘确认。':'The following notes come from the current product record. Final specifications still depend on the sample or inquiry review.'}</p></div>
+          <div className="grid gap-x-8 sm:grid-cols-2">{(zh?product.specsZh:product.specsEn).map((item,index)=><div key={item} className="grid grid-cols-[2rem_1fr] gap-2 border-t border-line py-5"><span className="font-mono text-xs text-accent">{String(index+1).padStart(2,'0')}</span><span className="font-semibold leading-6 text-ink">{item}</span></div>)}</div>
         </section>
-        <section>
-          <h2 className="text-2xl font-bold text-ink">{zh?'相关产品':'Related Products'}</h2>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">{related.map(x=><ProductCard key={x.id} product={x}/>)}</div>
+
+        <section className="border-t border-slate-300 pt-10">
+          <h2 className="text-2xl font-bold text-ink">{zh?'相关产品':'Related products'}</h2>
+          <div className="mt-8 grid gap-6 md:grid-cols-3">{related.map(item=><ProductCard key={item.id} product={item}/>)}</div>
         </section>
       </div>
     </main>

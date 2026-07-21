@@ -6,6 +6,7 @@ import { SectionHeading } from '../components/SectionHeading';
 import { StatsSection } from '../components/StatsSection';
 import { LocalImage } from '../components/Media';
 import { Seo } from '../components/Seo';
+import { InternationalCertifications } from '../components/InternationalCertifications';
 
 type InfoCard = {
   icon: LucideIcon;
@@ -23,16 +24,10 @@ export function CompanyPage(){
     {icon:ShieldCheck,titleZh:'现货与定织并重',titleEn:'Stock and Custom Weaving',descriptionZh:'常规在机现货便于快速筛选，来样定织适配混纺、交织和特殊规格开发。',descriptionEn:'Regular in-stock items support quick screening, while sample-based weaving fits blended, interwoven, and special specs.'},
     {icon:Building2,titleZh:'多地业务与生产协同',titleEn:'Multi-site Coordination',descriptionZh:'石家庄办公区、喀什工厂和宁夏织造基地共同承接业务沟通、生产排期与交付协作。',descriptionEn:'The Shijiazhuang office, Kashgar factory, and Ningxia weaving base coordinate sales communication, production scheduling, and delivery.'},
   ];
-  const history = zh
-    ? ['建立织造业务基础，聚焦常规面料供应与客户样品沟通。','完善石家庄办公区与生产基地协作机制，提高询盘响应效率。','围绕海外采购习惯梳理产品分类、样品寄送和定织评估流程。','持续补充工厂实景、展会活动和客户来访内容，强化采购信任。']
-    : ['Built the weaving business foundation around regular fabric supply and buyer sample communication.','Improved coordination between the Shijiazhuang office and production bases for faster inquiry response.','Organized product categories, sample delivery, and custom weaving evaluation around overseas sourcing habits.','Continues to add factory scenes, trade show updates, and customer visit content to strengthen buyer trust.'];
-  const certificates = zh
-    ? ['营业执照及生产经营资料','质量管理、检测或行业相关证书','展会、客户认可及合作荣誉资料','证书图片、编号、有效期等信息待上传']
-    : ['Business license and production operation documents','Quality, testing, or industry-related certificates','Trade show, customer recognition, and cooperation honors','Certificate images, numbers, and validity details to upload'];
   const sites = [
     {image:'/images/factory-exterior.jpg',titleZh:'石家庄办公区',titleEn:'Shijiazhuang Office',descZh:'用于客户接待、样品沟通、业务对接与订单资料整理。',descEn:'For buyer reception, sample discussion, sales coordination, and order documentation.'},
-    {image:'/images/factory-interior.jpg',titleZh:'新疆喀什工厂',titleEn:'Kashgar Factory',descZh:'承接织造生产、工厂实景展示和生产流程背书。',descEn:'Supports weaving production, factory scene display, and production workflow proof.'},
-    {image:'/images/warehouse.jpg',titleZh:'宁夏织造基地',titleEn:'Ningxia Weaving Base',descZh:'用于补充织造产能、现货整理和定织排产协同。',descEn:'Adds weaving capacity, stock organization, and custom production coordination.'},
+    {image:'',titleZh:'新疆喀什工厂',titleEn:'Kashgar Factory',descZh:'承接织造生产、工厂实景展示和生产流程背书。',descEn:'Supports weaving production, factory scene display, and production workflow proof.'},
+    {image:'',titleZh:'宁夏织造基地',titleEn:'Ningxia Weaving Base',descZh:'用于补充织造产能、现货整理和定织排产协同。',descEn:'Adds weaving capacity, stock organization, and custom production coordination.'},
   ];
   const teams:InfoCard[] = [
     {icon:UsersRound,titleZh:'外贸业务团队',titleEn:'Export Sales Team',descriptionZh:'负责海外询盘、英文沟通、样品寄送和贸易条款确认。',descriptionEn:'Handles overseas inquiries, English communication, sample delivery, and trade term confirmation.'},
@@ -59,37 +54,15 @@ export function CompanyPage(){
         </div>
       </section>
 
-      <section id="history" className="section-pad scroll-mt-28">
-        <div className="container-shell grid gap-12 lg:grid-cols-[.7fr_1.3fr]">
-          <SectionHeading eyebrow={zh?'发展历程':'Development History'} title={zh?'围绕织造产能、样品服务和外贸采购持续完善':'Improving around weaving capacity, samples, and export sourcing'} description={zh?'具体年份、节点和图片可在后台资料完善后替换。':'Specific years, milestones, and images can be replaced after verification.'}/>
-          <ol className="grid gap-4">
-            {history.map((item,index)=><li key={item} className="grid gap-4 border-l-2 border-accent bg-white p-6 sm:grid-cols-[4rem_1fr]">
-              <span className="text-2xl font-bold text-accent">{String(index+1).padStart(2,'0')}</span>
-              <p className="leading-7 text-body">{item}</p>
-            </li>)}
-          </ol>
-        </div>
-      </section>
-
-      <section id="certificates" className="section-pad scroll-mt-28 bg-white">
-        <div className="container-shell grid gap-12 lg:grid-cols-[.8fr_1.2fr]">
-          <SectionHeading eyebrow={zh?'资质与荣誉证书':'Certificates & Honors'} title={zh?'用可核验证书增强采购信任':'Use verifiable certificates to build buyer trust'} description={zh?'这里预留证书与荣誉展示位，建议上传清晰扫描件或现场照片。':'This area is prepared for certificate and honor uploads. Clear scans or verified photos are recommended.'}/>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {certificates.map(item=><div key={item} className="flex items-start gap-3 border border-line bg-canvas p-5">
-              <ShieldCheck className="mt-1 shrink-0 text-accent" size={20}/>
-              <span className="font-semibold text-ink">{item}</span>
-            </div>)}
-          </div>
-        </div>
-      </section>
+      <InternationalCertifications/>
 
       <section id="factory-sites" className="section-pad scroll-mt-28">
         <div className="container-shell">
           <SectionHeading eyebrow={zh?'生产工厂实景':'Factory Sites'} title={zh?'石家庄办公区、喀什工厂、宁夏织造基地':'Shijiazhuang office, Kashgar factory, and Ningxia weaving base'} description={zh?'通过真实照片展示办公接待、生产现场、仓储与发货能力。':'Use real photos to show office reception, production scenes, warehousing, and delivery capability.'}/>
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             {sites.map(site=><article key={site.titleZh} className="bg-white shadow-sm">
-              <LocalImage src={site.image} alt={zh?site.titleZh:site.titleEn} className="aspect-[4/3] w-full object-cover"/>
-              <div className="border border-t-0 border-line p-6">
+              {site.image&&<LocalImage loading="lazy" src={site.image} alt={zh?site.titleZh:site.titleEn} className="aspect-[4/3] w-full object-cover"/>}
+              <div className={`border border-line p-6 ${site.image?'border-t-0':''}`}>
                 <h3 className="text-xl font-bold text-ink">{zh?site.titleZh:site.titleEn}</h3>
                 <p className="mt-3 text-sm leading-6 text-muted">{zh?site.descZh:site.descEn}</p>
               </div>

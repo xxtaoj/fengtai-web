@@ -1,13 +1,13 @@
-import { ArrowUpRight, CheckCircle2, PackageSearch, Ruler, Scissors } from 'lucide-react';
+import { CheckCircle2, Ruler } from 'lucide-react';
 import { useCatalog } from '../context/CatalogContext';
 import { useLanguage } from '../i18n/useLanguage';
-import type { ProductGroup } from '../types/product';
 import type { ProductCategory } from '../types/catalog';
 import { PageHero } from '../components/PageHero';
 import { SectionHeading } from '../components/SectionHeading';
 import { ProductCard } from '../components/ProductCard';
 import { PrimaryButton, SecondaryButton } from '../components/Button';
 import { Seo } from '../components/Seo';
+import { SourcingDesk } from '../components/SourcingDesk';
 
 const inquiryTips = [
   ['面料用途','Fabric application'],
@@ -45,28 +45,10 @@ export function ProductsPage(){
 
   return <>
     <Seo title={{zh:'公司产品',en:'Products'}} description={{zh:'常规在机现货产品和定制织造产品，覆盖床品面料、服装面料、混纺面料和交织面料。',en:'Regular in-stock products and custom weaving products, covering bedding, apparel, blended, and interwoven fabrics.'}}/>
-    <PageHero image="/images/production-line.jpg" eyebrow={zh?'公司产品':'Products'} title={t.pages.products} description={zh?'产品分类优先适配海外采购商浏览习惯，按现货与定织两条路径快速找到所需面料。':'Product categories are organized around overseas sourcing habits, helping buyers find fabrics by stock or custom weaving path.'}/>
+    <PageHero image="/images/hero-poster.jpg" eyebrow={zh?'公司产品':'Products'} title={t.pages.products} description={zh?'产品分类优先适配海外采购商浏览习惯，按现货与定织两条路径快速找到所需面料。':'Product categories are organized around overseas sourcing habits, helping buyers find fabrics by stock or custom weaving path.'}/>
 
     <main>
-      <section className="section-pad bg-white">
-        <div className="container-shell grid gap-10 lg:grid-cols-[.75fr_1.25fr]">
-          <SectionHeading eyebrow={zh?'采购路径':'Sourcing Paths'} title={zh?'先判断现货，或进入来样定织':'Start with stock, or move into custom weaving'} description={zh?'首页和产品页都围绕“现货充足、可来样定织”两个核心卖点组织。':'The home and product pages are organized around two selling points: ready stock and sample-based custom weaving.'}/>
-          <div className="grid gap-4 md:grid-cols-2">
-            <a href="#ready-stock" className="group border border-line bg-canvas p-6 hover:border-accent">
-              <PackageSearch className="text-accent" size={30}/>
-              <h3 className="mt-5 text-xl font-bold text-ink">{zh?'常规在机现货产品':'Regular In-stock Products'}</h3>
-              <p className="mt-3 text-sm leading-6 text-muted">{zh?'优先匹配床品面料、服装面料等常规规格，便于快速看样与报价。':'Prioritize regular bedding and apparel fabric specs for fast sampling and quotation.'}</p>
-              <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-accent">{t.common.learnMore}<ArrowUpRight size={16}/></span>
-            </a>
-            <a href="#custom-weaving" className="group border border-line bg-canvas p-6 hover:border-accent">
-              <Scissors className="text-accent" size={30}/>
-              <h3 className="mt-5 text-xl font-bold text-ink">{zh?'定制织造产品':'Custom Weaving Products'}</h3>
-              <p className="mt-3 text-sm leading-6 text-muted">{zh?'根据客户来样、目标成分和技术指标，评估混纺或交织面料开发方案。':'Evaluate blended or interwoven fabric development by buyer samples, target composition, and technical specs.'}</p>
-              <span className="mt-5 inline-flex items-center gap-1 text-sm font-semibold text-accent">{t.common.learnMore}<ArrowUpRight size={16}/></span>
-            </a>
-          </div>
-        </div>
-      </section>
+      <SourcingDesk/>
 
       <section id="ready-stock" className="section-pad scroll-mt-28">
         <div className="container-shell">
