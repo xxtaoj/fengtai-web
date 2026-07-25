@@ -34,6 +34,11 @@ export const company = {
   domesticContact: '刘妍 Maggie',
   phone: '+86 189-3199-8919',
   whatsapp: '+86 189-3199-8919',
+  socialLinks: {
+    whatsapp: 'https://api.whatsapp.com/qr/ITFXU5TMRDECM1?autoload=1&app_absent=0',
+    facebook: 'https://www.facebook.com/share/18huRduyg8/?mibextid=wwXIfr',
+    linkedin: 'https://www.linkedin.com/in/maggie-liu-46b2832b/',
+  },
   wechat: '+86 189-3199-8919',
   email: 'maggieliu@fonter.net.cn',
   businessHours: '周一至周六 9:00-18:00',

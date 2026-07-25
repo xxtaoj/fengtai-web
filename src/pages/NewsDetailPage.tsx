@@ -30,7 +30,6 @@ export function NewsDetailPage(){
     article.followUp&&{label:zh?'后续安排':'Follow-up',value:zh?article.followUp.zh:article.followUp.en},
   ].filter((item):item is FieldNote=>Boolean(item));
   const notes:FieldNote[]=[
-    {label:zh?'档案编号':'Record',value:String(article.id).padStart(2,'0')},
     {label:zh?'记录日期':'Date',value:article.date},
     {label:zh?'记录分类':'Category',value:zh?article.categoryZh:article.categoryEn},
     ...optionalNotes,
@@ -45,11 +44,11 @@ export function NewsDetailPage(){
           <header className="grid gap-10 border-b border-slate-300 pb-10 lg:grid-cols-[1fr_18rem] lg:items-end">
             <div>
               <p className="text-xs font-bold uppercase tracking-[.18em] text-accent">{zh?article.categoryZh:article.categoryEn}</p>
-              <h1 className="mt-5 max-w-5xl text-4xl font-bold leading-tight tracking-tight text-ink md:text-6xl">{zh?article.titleZh:article.titleEn}</h1>
+              <h1 className="mt-5 max-w-5xl text-[2rem] font-bold leading-[1.2] tracking-tight text-ink md:text-6xl">{zh?article.titleZh:article.titleEn}</h1>
               <p className="mt-6 max-w-3xl text-lg leading-8 text-muted">{zh?article.summaryZh:article.summaryEn}</p>
             </div>
-            <div className="border-l-2 border-accent pl-5">
-              <p className="font-mono text-xs font-bold tracking-[.14em] text-muted">{zh?'现场记录':'FIELD RECORD'}</p>
+            <div className="activity-detail-stamp border-l-2 border-accent py-2 pl-5">
+              <p className="text-xs font-bold tracking-[.12em] text-muted">{zh?'记录日期':'DATE FILED'}</p>
               <time className="mt-3 block text-2xl font-bold text-ink">{article.date}</time>
             </div>
           </header>
@@ -58,7 +57,7 @@ export function NewsDetailPage(){
 
           <div className="mt-10 grid gap-10 border-b border-slate-300 pb-14 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-20 lg:pb-20">
             <aside aria-labelledby="field-notes-title" className="self-start border-t border-slate-400 lg:sticky lg:top-28">
-              <h2 id="field-notes-title" className="border-b border-slate-300 py-4 text-xs font-bold uppercase tracking-[.18em] text-accent">{zh?'现场证据栏':'Field notes'}</h2>
+              <h2 id="field-notes-title" className="border-b border-slate-300 py-4 text-xs font-bold tracking-[.14em] text-accent">{zh?(optionalNotes.length?'现场信息':'活动信息'):(optionalNotes.length?'Field notes':'Activity details')}</h2>
               <dl>
                 {notes.map(note=><div key={note.label} className="border-b border-slate-200 py-4">
                   <dt className="text-[11px] font-bold uppercase tracking-[.1em] text-muted">{note.label}</dt>
@@ -68,8 +67,8 @@ export function NewsDetailPage(){
             </aside>
             <div>
               <div className="mb-7 flex items-center gap-4 border-b border-slate-200 pb-4">
-                <span className="font-mono text-xs font-bold text-accent">{String(article.id).padStart(2,'0')}</span>
-                <h2 className="text-xs font-bold uppercase tracking-[.16em] text-muted">{zh?'活动正文':'Activity record'}</h2>
+                <span className="h-px w-9 bg-accent" aria-hidden="true"/>
+                <h2 className="text-xs font-bold tracking-[.14em] text-muted">{zh?'记录内容':'WHAT HAPPENED'}</h2>
               </div>
               <div className="prose-factory max-w-3xl text-lg text-body">{(zh?article.contentZh:article.contentEn).map((paragraph,index)=><p key={index}>{paragraph}</p>)}</div>
               {article.gallery?.length?<div className="mt-12 grid gap-4 sm:grid-cols-2">
@@ -89,8 +88,7 @@ export function NewsDetailPage(){
             <h2 className="text-2xl font-bold text-ink">{zh?'相关活动':'Related activities'}</h2>
             <Link to="/activity" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-ink hover:text-accent">{zh?'返回工作日志':'Back to journal'}<ArrowUpRight size={16}/></Link>
           </div>
-          <div className="mt-8 border-y border-slate-300">{news.filter(item=>item.id!==article.id).slice(0,3).map((item,index)=><article key={item.id} className="group grid gap-4 border-t border-slate-200 py-6 first:border-t-0 sm:grid-cols-[3rem_8rem_minmax(0,1fr)_3rem] sm:items-center">
-            <span className="font-mono text-xs font-bold text-accent">{String(index+1).padStart(2,'0')}</span>
+          <div className="mt-8 border-y border-slate-300">{news.filter(item=>item.id!==article.id).slice(0,3).map(item=><article key={item.id} className="group grid gap-4 border-t border-slate-200 py-6 first:border-t-0 sm:grid-cols-[8rem_minmax(0,1fr)_3rem] sm:items-center">
             <time className="font-mono text-xs text-muted">{item.date}</time>
             <div><p className="text-[10px] font-bold uppercase tracking-[.12em] text-muted">{zh?item.categoryZh:item.categoryEn}</p><h3 className="mt-1 text-lg font-bold leading-snug text-ink"><Link to={`/activity/${item.slug}`} className="transition-colors group-hover:text-accent">{zh?item.titleZh:item.titleEn}</Link></h3></div>
             <Link to={`/activity/${item.slug}`} aria-label={`${zh?'阅读':'Read'}: ${zh?item.titleZh:item.titleEn}`} className="inline-flex size-11 items-center justify-center border border-slate-300 text-ink transition-colors group-hover:border-accent group-hover:text-accent"><ArrowUpRight size={16}/></Link>
