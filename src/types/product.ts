@@ -9,6 +9,13 @@ export type ProductSpecification = {
   valueEn: string;
 };
 
+export type BeddingSpecification = {
+  labelZh: string;
+  labelEn: string;
+  valueZh: string;
+  valueEn: string;
+};
+
 export type Product = {
   id: number;
   slug: string;
@@ -25,4 +32,5 @@ export type Product = {
   specsEn: string[];
   gallery?: string[];
   specifications?: ProductSpecification[];
+  beddingSpecifications?: BeddingSpecification[];
 };

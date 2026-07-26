@@ -57,8 +57,11 @@ export function Header(){
       </nav>
 
       <div className="ml-auto hidden items-center gap-5 lg:flex">
-        <Link to="/contact#inquiry" className="inline-flex min-h-12 items-center justify-center rounded-md bg-accent px-6 text-base font-bold text-white transition hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35 focus-visible:ring-offset-2">
-          {zh?'接触':'Contact'}
+        <Link to="/contact#inquiry" className="group inline-flex min-h-12 items-center gap-2 text-sm font-bold tracking-[.04em] text-[#0B4AA2] transition-colors hover:text-[#0D56BA] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4AA2]/35 focus-visible:ring-offset-2">
+          <span>{zh?'业务咨询':'Contact sales'}</span>
+          <span className="grid size-8 place-items-center rounded-full bg-[#E5EEF9] text-[#0B4AA2] transition duration-300 group-hover:translate-x-0.5 group-hover:bg-[#0B4AA2] group-hover:text-white">
+            <ArrowUpRight size={16}/>
+          </span>
         </Link>
         <div className="relative">
           <button
@@ -128,7 +131,7 @@ export function Header(){
           <button type="button" onClick={()=>setLanguage('zh')} tabIndex={open?0:-1} className={`min-h-10 rounded px-3 ${zh?'bg-accent-soft text-accent':'hover:bg-slate-50'}`} aria-pressed={zh}>中文</button>
           <button type="button" onClick={()=>setLanguage('en')} tabIndex={open?0:-1} className={`min-h-10 rounded px-3 ${!zh?'bg-accent-soft text-accent':'hover:bg-slate-50'}`} aria-pressed={!zh}>English</button>
         </div>
-        <Link to="/contact#inquiry" onClick={()=>setOpen(false)} tabIndex={open?0:-1} className="inline-flex min-h-11 items-center justify-center rounded-md bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/35 focus-visible:ring-offset-2">{zh?'接触':'Contact'}</Link>
+        <Link to="/contact#inquiry" onClick={()=>setOpen(false)} tabIndex={open?0:-1} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-[#0B4AA2]/15 bg-[#E5EEF9] px-5 text-sm font-bold text-[#0B4AA2] transition hover:bg-[#0B4AA2] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0B4AA2]/35 focus-visible:ring-offset-2">{zh?'业务咨询':'Contact sales'}<ArrowUpRight size={16}/></Link>
       </div>
     </div>
   </header>;

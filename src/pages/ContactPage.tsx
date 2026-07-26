@@ -56,8 +56,14 @@ export function ContactPage(){
 
       <section id="inquiry" className="section-pad scroll-mt-28 bg-white">
         <div className="container-shell">
-          <SectionHeading eyebrow={zh?'询盘编排器':'Inquiry Composer'} title={zh?'先说明采购目的，再整理有效信息':'Start with the sourcing purpose, then organize the useful details'} description={zh?'填写内容只用于生成询盘摘要，不会在未接入后端的情况下显示虚假提交成功。':'Your entries prepare a sourcing summary. The page does not claim a successful submission without a connected backend.'}/>
-          <div className="mt-10"><InquiryComposer/></div>
+          <header className="grid gap-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,.75fr)] lg:items-end">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[.22em] text-accent">{zh?'询价与寄样':'Inquiry & samples'}</p>
+              <h2 className="mt-4 max-w-4xl text-4xl font-bold leading-[1.08] tracking-[-.035em] text-ink md:text-5xl">{zh?'把手头有的资料发来，剩下的我们一起确认':'Send what you have. We’ll confirm the rest together.'}</h2>
+            </div>
+            <p className="max-w-xl text-base leading-8 text-muted">{zh?'产品名称、规格表、图片或实物样，手头有什么就先提供什么。缺少的规格，业务会在后续沟通中逐项确认。':'A product name, specification sheet, photo, or physical sample is enough to get started. Our team will confirm any missing details with you.'}</p>
+          </header>
+          <div className="mt-10 lg:mt-12"><InquiryComposer/></div>
         </div>
       </section>
     </main>

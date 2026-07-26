@@ -15,6 +15,16 @@ export const products: Product[] = [
     summaryEn: 'For sheets, duvet covers, pillowcases, and home textile orders, with width, density, finishing, and packing options to confirm.',
     specsZh: ['常规现货优先匹配', '可寄样确认手感与组织', '支持后整理需求沟通'],
     specsEn: ['Regular stock matching first', 'Samples available for hand-feel and weave check', 'Finishing requirements can be discussed'],
+    beddingSpecifications: [
+      { labelZh: '成分', labelEn: 'Composition', valueZh: '100% 棉', valueEn: '100% cotton' },
+      {
+        labelZh: '图片所示规格',
+        labelEn: 'Specifications shown',
+        valueZh: 'CF 40×40 · 133×72 · 105″ · 2/1\nCF 40×40 · 133×100 · 105″ · 1/1\nCF 40×40 · 120×90 · 105″ · 双层',
+        valueEn: 'CF 40×40 · 133×72 · 105″ · 2/1\nCF 40×40 · 133×100 · 105″ · 1/1\nCF 40×40 · 120×90 · 105″ · double-layer',
+      },
+      { labelZh: '适用床品', labelEn: 'Bedding use', valueZh: '床单、被套、枕套等', valueEn: 'Sheets, duvet covers, pillowcases, and related bedding' },
+    ],
   },
   {
     id: 2,
@@ -30,6 +40,12 @@ export const products: Product[] = [
     summaryEn: 'For hotel, dormitory, and home textile channels, balancing durability, cost control, and batch delivery efficiency.',
     specsZh: ['适配批量采购', '可沟通成分比例', '支持来样对色对版'],
     specsEn: ['Suitable for bulk purchasing', 'Blend ratio can be discussed', 'Sample color and pattern matching supported'],
+    beddingSpecifications: [
+      { labelZh: '成分', labelEn: 'Composition', valueZh: '涤棉混纺，比例按产品批次确认', valueEn: 'Poly-cotton blend; ratio confirmed by product lot' },
+      { labelZh: '纱支 / 密度', labelEn: 'Yarn count / Construction', valueZh: '按现货批次或来样要求确认', valueEn: 'Confirmed by stock lot or buyer sample' },
+      { labelZh: '门幅', labelEn: 'Width', valueZh: '按产品批次与订单要求确认', valueEn: 'Confirmed by product lot and order requirement' },
+      { labelZh: '适用床品', labelEn: 'Bedding use', valueZh: '酒店、宿舍及家居床品', valueEn: 'Hotel, dormitory, and home bedding' },
+    ],
   },
   {
     id: 3,

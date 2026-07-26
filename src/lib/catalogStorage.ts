@@ -42,6 +42,21 @@ function isCatalog(value: unknown): value is Catalog {
     });
 }
 
+function hydrateCatalog(catalog: Catalog): Catalog {
+  const seedsById = new Map(seedProducts.map(product => [product.id, product]));
+  return {
+    ...catalog,
+    products: catalog.products.map(product => {
+      const seed = seedsById.get(product.id);
+      if (product.beddingSpecifications || !seed?.beddingSpecifications) return product;
+      return {
+        ...product,
+        beddingSpecifications: seed.beddingSpecifications.map(specification => ({ ...specification })),
+      };
+    }),
+  };
+}
+
 export function cloneDefaultCatalog(): Catalog {
   return JSON.parse(JSON.stringify(defaultCatalog)) as Catalog;
 }
@@ -52,7 +67,7 @@ export function loadCatalog(): Catalog {
     const raw = window.localStorage.getItem(catalogStorageKey);
     if (!raw) return cloneDefaultCatalog();
     const parsed: unknown = JSON.parse(raw);
-    return isCatalog(parsed) ? parsed : cloneDefaultCatalog();
+    return isCatalog(parsed) ? hydrateCatalog(parsed) : cloneDefaultCatalog();
   } catch {
     return cloneDefaultCatalog();
   }
@@ -87,7 +102,7 @@ export function readCatalogFile(file: File): Promise<Catalog> {
       try {
         const parsed: unknown = JSON.parse(String(reader.result));
         if (!isCatalog(parsed)) throw new Error('Invalid catalog');
-        resolve(parsed);
+        resolve(hydrateCatalog(parsed));
       } catch {
         reject(new Error('Invalid catalog'));
       }

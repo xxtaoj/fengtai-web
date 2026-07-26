@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { ArrowUpRight, Factory, Mail, MapPin, Phone } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { ArrowUpRight, Clock3, Factory, Mail, MapPin, MessageCircle, Phone, UserRound } from 'lucide-react';
 import { company } from '../data/company';
 import { navigation } from '../data/navigation';
 import { useCatalog } from '../context/CatalogContext';
@@ -32,71 +32,90 @@ const socialChannels = [
 
 export function Footer(){
   const {language,t}=useLanguage();
+  const {pathname}=useLocation();
   const {catalog}=useCatalog();
   const {products}=catalog;
   const zh=language==='zh';
+  const showInquiryPrompt=pathname!=='/products';
   return <footer className="bg-ink text-white">
-    <section className="border-b border-white/10">
-      <div className="container-shell grid gap-8 py-14 lg:grid-cols-[1fr_auto] lg:items-center">
+    {showInquiryPrompt&&<section className="border-b border-white/10">
+      <div className="container-shell grid gap-8 py-11 md:py-12 lg:grid-cols-[1fr_auto] lg:items-end">
         <div>
           <p className="mb-3 text-xs font-bold uppercase tracking-[.22em] text-amber-400">{zh?'询盘与寄样':'Inquiry and Samples'}</p>
-          <h2 className="max-w-3xl text-2xl font-semibold leading-tight md:text-4xl">{zh?'告诉我们面料类别、规格、数量和用途，业务团队将协助匹配现货或评估来样定织。':'Send fabric category, specs, quantity, and application. The sales team will match stock or evaluate custom weaving.'}</h2>
+          <h2 className="max-w-3xl text-2xl font-semibold leading-tight md:text-3xl">{zh?'有规格表、产品图片或实物样，直接发给业务团队。':'Send your specification sheet, product image, or physical sample directly to our sales team.'}</h2>
+          <p className="mt-3 text-sm leading-6 text-slate-400">{zh?'我们会按现货或来样定织方向回复。':'We will reply with a stock or sample-based custom-weaving route.'}</p>
         </div>
         <div className="flex flex-wrap gap-3">
           <PrimaryButton to="/contact#inquiry">{t.common.quote}<ArrowUpRight size={17}/></PrimaryButton>
           <SecondaryButton to="/products">{zh?'查看产品':'View Products'}</SecondaryButton>
         </div>
       </div>
-    </section>
-    <div className="container-shell grid gap-10 py-16 md:grid-cols-2 lg:grid-cols-[1fr_.75fr_.9fr_1.55fr]">
-      <div>
-        <h3 className="text-xl font-bold">{company.brandName}</h3>
-        <p className="mt-4 text-sm leading-7 text-slate-400">{zh?'源头织布工厂，面向海内外外贸采购商，主营床品面料、服装面料，并支持混纺、交织等来样定织。':'A source weaving factory for domestic and overseas buyers, focused on bedding and apparel fabrics with blended and interwoven custom weaving support.'}</p>
-        <p className="mt-4 text-sm text-slate-400">{company.chineseName}<br/>{company.englishName}</p>
-      </div>
-      <div>
-        <h3 className="font-semibold">{zh?'网站导航':'Navigation'}</h3>
-        <div className="mt-4 grid gap-3 text-sm text-slate-400">{navigation.map(n=><Link key={n.to} to={n.to} className="hover:text-white">{zh?n.zh:n.en}</Link>)}</div>
-      </div>
-      <div>
-        <h3 className="font-semibold">{zh?'主营产品':'Main Products'}</h3>
-        <div className="mt-4 grid gap-3 text-sm text-slate-400">{products.slice(0,4).map(p=><Link key={p.id} to={`/products/${p.slug}`} className="hover:text-white">{zh?p.nameZh:p.nameEn}</Link>)}</div>
-      </div>
-      <div>
-        <h3 className="font-semibold">{zh?'联系工厂':'Contact Factory'}</h3>
-        <div className="mt-4 grid gap-3 text-sm text-slate-400">
-          <span className="flex gap-2"><MapPin className="shrink-0" size={17}/>{company.headOfficeAddress}</span>
-          <span className="flex gap-2"><Factory className="shrink-0" size={17}/>{zh?company.location:company.locationEn}</span>
-          <span className="flex gap-2"><span className="shrink-0">•</span>{company.contactPerson} · {company.contactTitle}</span>
-          <span className="flex gap-2"><Phone size={17}/>{company.phone}</span>
-          <span>WeChat: {company.wechat}</span>
-          <span className="flex gap-2"><Mail size={17}/>{company.email}</span>
-          <span>{zh?'服务时间':'Business Hours'}: {zh?company.businessHours:company.businessHoursEn}</span>
+    </section>}
+    <div className="container-shell py-14 md:py-16">
+      <div className="grid gap-10 lg:grid-cols-[.72fr_1.28fr] lg:gap-16">
+        <div>
+          <p className="font-mono text-[11px] font-bold uppercase tracking-[.16em] text-amber-400">{zh?'源头织布工厂':'Source weaving factory'}</p>
+          <h3 className="mt-5 text-3xl font-bold tracking-tight">{company.brandName}</h3>
+          <p className="mt-4 max-w-md text-sm leading-7 text-slate-300">{zh?'主营床品和服装面料，也承接混纺、交织等来样定织。采购商可直接发送产品名称、规格或实物样信息。':'Bedding and apparel fabrics, plus sample-based custom weaving for blended and interwoven constructions. Buyers can send a product name, specification, or physical sample.'}</p>
+          <p className="mt-5 font-mono text-[11px] uppercase leading-5 tracking-[.08em] text-slate-500">{company.chineseName}<br/>{company.englishName}</p>
         </div>
-        <div aria-label={zh?'社交媒体联系方式':'Social media contacts'} className="mt-6 flex w-full max-w-72 flex-col items-start gap-3">
-          <Link
-            to="/contact"
-            className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[#0B4AA2] px-5 text-sm font-bold tracking-[.08em] text-white shadow-[0_12px_28px_-18px_rgba(11,74,162,.95)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#0D56BA] active:translate-y-0"
-          >
-            {t.common.contact}
-          </Link>
-          <div className="flex w-full items-center justify-between">
-            {socialChannels.map(({label,href,Icon})=><a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={zh?`在新窗口打开 ${label}`:`Open ${label} in a new tab`}
-              title={label}
-              className="flex h-12 w-12 items-center justify-center rounded-full p-2.5 text-white transition duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:text-[#7DB2F2] active:translate-y-0"
-            ><Icon/></a>)}
+
+        <div className="grid gap-9 sm:grid-cols-2 sm:gap-10">
+          <section className="sm:pr-4">
+            <p className="text-xs font-bold uppercase tracking-[.14em] text-white">{zh?'办公与生产':'Office & production'}</p>
+            <div className="mt-5 grid gap-4 text-sm leading-6 text-slate-300">
+              <p className="flex gap-3"><MapPin className="mt-0.5 shrink-0 text-amber-400" size={17}/><span>{company.headOfficeAddress}</span></p>
+              <p className="flex gap-3"><Factory className="mt-0.5 shrink-0 text-amber-400" size={17}/><span>{zh?company.location:company.locationEn}</span></p>
+            </div>
+          </section>
+
+          <section className="sm:pl-4">
+            <p className="text-xs font-bold uppercase tracking-[.14em] text-white">{zh?'业务联系人':'Business contact'}</p>
+            <div className="mt-5 grid gap-3 text-sm text-slate-300">
+              <p className="flex min-h-7 items-center gap-3"><UserRound className="shrink-0 text-amber-400" size={17}/><span>{company.contactPerson} · {company.contactTitle}</span></p>
+              <a href={`tel:${company.phone.replace(/[^\d+]/g,'')}`} className="flex min-h-7 items-center gap-3 transition-colors hover:text-white"><Phone className="shrink-0 text-amber-400" size={17}/><span>{company.phone}</span></a>
+              <p className="flex min-h-7 items-center gap-3"><MessageCircle className="shrink-0 text-amber-400" size={17}/><span>WeChat: {company.wechat}</span></p>
+              <a href={`mailto:${company.email}`} className="flex min-h-7 items-center gap-3 break-all transition-colors hover:text-white"><Mail className="shrink-0 text-amber-400" size={17}/><span>{company.email}</span></a>
+              <p className="flex min-h-7 items-center gap-3"><Clock3 className="shrink-0 text-amber-400" size={17}/><span>{zh?company.businessHours:company.businessHoursEn}</span></p>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <div className="mt-12 grid gap-10 lg:grid-cols-[.8fr_.9fr_1.1fr] lg:gap-12">
+        <nav aria-label={zh?'页脚网站导航':'Footer navigation'}>
+          <h3 className="text-xs font-bold uppercase tracking-[.14em] text-white">{zh?'网站导航':'Navigation'}</h3>
+          <div className="mt-4 grid grid-cols-2 gap-x-5 text-sm text-slate-300">{navigation.map(n=><Link key={n.to} to={n.to} className="inline-flex min-h-11 items-center transition-colors hover:text-amber-400">{zh?n.zh:n.en}</Link>)}</div>
+        </nav>
+
+        <nav aria-label={zh?'页脚主营产品':'Footer main products'}>
+          <h3 className="text-xs font-bold uppercase tracking-[.14em] text-white">{zh?'主营产品':'Main products'}</h3>
+          <div className="mt-4 grid text-sm text-slate-300">{products.slice(0,4).map(p=><Link key={p.id} to={`/products/${p.slug}`} className="inline-flex min-h-11 items-center transition-colors hover:text-amber-400">{zh?p.nameZh:p.nameEn}</Link>)}</div>
+        </nav>
+
+        <section className="lg:pl-4">
+          <p className="text-xs font-bold uppercase tracking-[.14em] text-white">{zh?'直接联系业务':'Contact the sales team'}</p>
+          <p className="mt-4 max-w-md text-sm leading-7 text-slate-300">{zh?'有规格表、产品图片或实物样？可以直接发来，我们会按现货或定织方向回复。':'Have a specification sheet, product image, or physical sample? Send it directly and we will reply with a stock or custom-weaving route.'}</p>
+          <div className="mt-5 w-full max-w-[15rem]">
+            <Link to="/contact" className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[#0B4AA2] px-5 text-sm font-bold tracking-[.08em] text-white shadow-[0_12px_28px_-18px_rgba(11,74,162,.95)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#0D56BA] active:translate-y-0">{t.common.contact}</Link>
+            <div aria-label={zh?'社交媒体联系方式':'Social media contacts'} className="mt-3 flex items-center justify-center gap-5">
+              {socialChannels.map(({label,href,Icon})=><a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={zh?`在新窗口打开 ${label}`:`Open ${label} in a new tab`}
+                title={label}
+                className="flex h-11 w-11 items-center justify-center rounded-full p-2.5 text-white transition duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:text-[#7DB2F2] active:translate-y-0"
+              ><Icon/></a>)}
+            </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
     <div className="border-t border-white/10">
       <div className="container-shell flex flex-col gap-3 py-6 text-xs text-slate-500 md:flex-row md:justify-between">
-        <span>© {new Date().getFullYear()} {company.englishName}. {zh?'版权所有。':'All rights reserved.'}</span>
+        <span className="flex flex-wrap gap-x-2 gap-y-1"><span>© {new Date().getFullYear()} {company.englishName}</span><span>{zh?'版权所有。':'All rights reserved.'}</span></span>
         <span>{zh?'隐私政策 · 使用条款':'Privacy Policy · Terms of Use'}</span>
       </div>
     </div>
