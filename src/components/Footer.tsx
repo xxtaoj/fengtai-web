@@ -45,9 +45,12 @@ export function Footer(){
           <h2 className="max-w-3xl text-2xl font-semibold leading-tight md:text-3xl">{zh?'有规格表、产品图片或实物样，直接发给业务团队。':'Send your specification sheet, product image, or physical sample directly to our sales team.'}</h2>
           <p className="mt-3 text-sm leading-6 text-slate-400">{zh?'我们会按现货或来样定织方向回复。':'We will reply with a stock or sample-based custom-weaving route.'}</p>
         </div>
-        <div className="flex flex-wrap gap-3">
-          <PrimaryButton to="/contact#inquiry">{t.common.quote}<ArrowUpRight size={17}/></PrimaryButton>
-          <SecondaryButton to="/products">{zh?'查看产品':'View Products'}</SecondaryButton>
+        <div className="flex w-full flex-col gap-1.5 rounded-[1.5rem] bg-white/[.06] p-1.5 ring-1 ring-inset ring-white/10 sm:w-auto sm:flex-row sm:rounded-full">
+          <PrimaryButton to="/contact#inquiry" className="group min-h-12 w-full rounded-full !px-2 shadow-[0_12px_28px_-18px_rgba(217,119,6,.9)] hover:-translate-y-0.5 sm:w-auto">
+            <span className="pl-4">{t.common.quote}</span>
+            <span className="ml-1 grid size-8 place-items-center rounded-full bg-white/15 transition-transform duration-300 group-hover:rotate-6" aria-hidden="true"><ArrowUpRight size={16}/></span>
+          </PrimaryButton>
+          <SecondaryButton to="/products" className="min-h-12 w-full rounded-full !border-transparent !bg-white !px-6 !text-ink hover:!border-transparent hover:!bg-slate-100 hover:!text-ink sm:w-auto">{zh?'查看产品':'View Products'}</SecondaryButton>
         </div>
       </div>
     </section>}
