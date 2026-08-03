@@ -31,7 +31,7 @@ export function HomePage(){
     <Seo title={{zh:'首页',en:'Home'}} description={{zh:'丰泰永晟织造工厂官网，展示现货面料、来样定织、工厂实景和在线询盘。',en:'Official website of Fengtai Yongsheng weaving factory, showing ready-stock fabrics, custom weaving, factory scenes, and online inquiry.'}}/>
 
     <section className="relative min-h-[100svh] overflow-hidden bg-ink text-white">
-      <video src="/videos/factory-hero.mp4" poster="/images/hero-poster.jpg" autoPlay muted loop playsInline className="absolute inset-0 size-full object-cover object-bottom" aria-label={zh?'工厂生产场景视频':'Factory production video'}>Your browser does not support video.</video>
+      <video src="/videos/home-hero.mp4" poster="/images/hero-poster.jpg" autoPlay muted loop playsInline className="absolute inset-0 size-full origin-center scale-[1.34] object-cover object-[50%_48%]" aria-label={zh?'工厂生产场景视频':'Factory production video'}>Your browser does not support video.</video>
       <div className="absolute inset-0 bg-black/40"/>
       <div className="relative z-10 mx-auto flex min-h-[100svh] w-[min(calc(100%-2rem),115rem)] items-center pb-8 pt-28 sm:pb-0 sm:pt-32">
         <div className="max-w-[60rem]">

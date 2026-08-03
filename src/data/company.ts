@@ -38,6 +38,8 @@ export const company = {
     whatsapp: 'https://api.whatsapp.com/qr/ITFXU5TMRDECM1?autoload=1&app_absent=0',
     facebook: 'https://www.facebook.com/share/18huRduyg8/?mibextid=wwXIfr',
     linkedin: 'https://www.linkedin.com/in/maggie-liu-46b2832b/',
+    xiaohongshu: 'https://xhslink.cn/m/25I0lKFStbT',
+    wechatQr: '/images/wechat-official-account.jpg',
   },
   wechat: '+86 189-3199-8919',
   email: 'maggieliu@fonter.net.cn',

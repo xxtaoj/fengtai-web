@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ArrowUpRight, Clock3, Factory, Mail, MapPin, MessageCircle, Phone, UserRound } from 'lucide-react';
 import { company } from '../data/company';
@@ -5,32 +6,44 @@ import { navigation } from '../data/navigation';
 import { useCatalog } from '../context/CatalogContext';
 import { useLanguage } from '../i18n/useLanguage';
 import { PrimaryButton, SecondaryButton } from './Button';
+import { ImageModal } from './ImageModal';
 
 function WhatsAppIcon(){
-  return <svg aria-hidden="true" viewBox="0 0 32 32" className="h-full w-full fill-current">
+  return <svg aria-hidden="true" viewBox="0 0 32 32" className="h-10 w-10 fill-current">
     <path d="M16.02 3.2A12.73 12.73 0 0 0 5.1 22.48L3.2 29.4l7.08-1.86a12.74 12.74 0 1 0 5.74-24.34Zm0 23.16c-1.9 0-3.76-.52-5.38-1.5l-.4-.24-4.2 1.1 1.12-4.1-.27-.42a10.42 10.42 0 1 1 9.13 5.16Zm5.72-7.8c-.31-.16-1.85-.91-2.14-1.02-.29-.1-.5-.16-.71.16-.21.31-.81 1.02-1 1.23-.18.2-.36.23-.67.08-.31-.16-1.32-.49-2.51-1.55a9.43 9.43 0 0 1-1.74-2.16c-.18-.31-.02-.48.14-.64.14-.14.31-.36.47-.55.16-.18.21-.31.31-.52.11-.21.05-.39-.02-.55-.08-.16-.71-1.72-.98-2.35-.26-.62-.52-.54-.71-.55h-.61c-.21 0-.55.08-.84.39-.29.31-1.11 1.09-1.11 2.66s1.14 3.08 1.3 3.29c.16.21 2.24 3.42 5.43 4.8.76.33 1.35.52 1.81.67.76.24 1.45.21 2 .13.61-.09 1.85-.76 2.11-1.49.26-.73.26-1.36.18-1.49-.08-.13-.29-.21-.6-.36Z"/>
   </svg>;
 }
 
 function FacebookIcon(){
-  return <svg aria-hidden="true" viewBox="0 0 32 32" className="h-full w-full fill-current">
+  return <svg aria-hidden="true" viewBox="0 0 32 32" className="h-10 w-10 fill-current">
     <path d="M29 16.08C29 8.85 23.18 3 16 3S3 8.85 3 16.08c0 6.53 4.75 11.94 10.97 12.92v-9.14h-3.3v-3.78h3.3V13.2c0-3.28 1.94-5.09 4.91-5.09 1.42 0 2.91.26 2.91.26v3.22h-1.64c-1.61 0-2.12 1.01-2.12 2.04v2.45h3.61l-.58 3.78h-3.03V29C24.25 28.02 29 22.61 29 16.08Z"/>
   </svg>;
 }
 
 function LinkedInIcon(){
-  return <svg aria-hidden="true" viewBox="0 0 32 32" className="h-full w-full fill-current">
+  return <svg aria-hidden="true" viewBox="0 0 32 32" className="h-10 w-10 fill-current">
     <path d="M7.19 4.5A2.7 2.7 0 1 1 7.2 9.9a2.7 2.7 0 0 1-.01-5.4ZM4.86 11.93h4.65V27.5H4.86V11.93Zm7.54 0h4.46v2.13h.06c.62-1.18 2.14-2.42 4.4-2.42 4.71 0 5.58 3.12 5.58 7.17v8.69h-4.64v-7.71c0-1.84-.03-4.2-2.55-4.2-2.56 0-2.95 2-2.95 4.07v7.84H12.4V11.93Z"/>
   </svg>;
+}
+
+function XiaohongshuIcon(){
+  return <img aria-hidden="true" src="/images/social/xiaohongshu-icon.png" alt="" className="h-12 w-12 shrink-0 object-contain" draggable={false}/>;
+}
+
+function WeChatIcon(){
+  return <img aria-hidden="true" src="/images/social/wechat-icon.png" alt="" className="h-12 w-12 shrink-0 object-contain" draggable={false}/>;
 }
 
 const socialChannels = [
   {label:'WhatsApp',href:company.socialLinks.whatsapp,Icon:WhatsAppIcon},
   {label:'Facebook',href:company.socialLinks.facebook,Icon:FacebookIcon},
   {label:'LinkedIn',href:company.socialLinks.linkedin,Icon:LinkedInIcon},
+  {label:'小红书',href:company.socialLinks.xiaohongshu,Icon:XiaohongshuIcon},
+  {label:'微信公众号',qr:company.socialLinks.wechatQr,Icon:WeChatIcon},
 ];
 
 export function Footer(){
+  const [wechatOpen,setWechatOpen]=useState(false);
   const {language,t}=useLanguage();
   const {pathname}=useLocation();
   const {catalog}=useCatalog();
@@ -101,21 +114,31 @@ export function Footer(){
           <p className="mt-4 max-w-md text-sm leading-7 text-slate-300">{zh?'有规格表、产品图片或实物样？可以直接发来，我们会按现货或定织方向回复。':'Have a specification sheet, product image, or physical sample? Send it directly and we will reply with a stock or custom-weaving route.'}</p>
           <div className="mt-5 w-full max-w-[15rem]">
             <Link to="/contact" className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[#0B4AA2] px-5 text-sm font-bold tracking-[.08em] text-white shadow-[0_12px_28px_-18px_rgba(11,74,162,.95)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#0D56BA] active:translate-y-0">{t.common.contact}</Link>
-            <div aria-label={zh?'社交媒体联系方式':'Social media contacts'} className="mt-3 flex items-center justify-center gap-5">
-              {socialChannels.map(({label,href,Icon})=><a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={zh?`在新窗口打开 ${label}`:`Open ${label} in a new tab`}
-                title={label}
-                className="flex h-11 w-11 items-center justify-center rounded-full p-2.5 text-white transition duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:text-[#7DB2F2] active:translate-y-0"
-              ><Icon/></a>)}
+            <div aria-label={zh?'社交媒体联系方式':'Social media contacts'} className="mt-3 flex items-center justify-center gap-6">
+              {socialChannels.map(({label,href,qr,Icon})=>qr
+                ? <button
+                    key={label}
+                    type="button"
+                    onClick={()=>setWechatOpen(true)}
+                    aria-label={zh?'查看微信公众号二维码':'View WeChat Official Account QR code'}
+                    title={label}
+                    className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/0 text-white transition duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:text-[#7DB2F2] active:translate-y-0"
+                  ><Icon/></button>
+                : <a
+                    key={label}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={zh?`在新窗口打开 ${label}`:`Open ${label} in a new tab`}
+                    title={label}
+                    className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/0 text-white transition duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:text-[#7DB2F2] active:translate-y-0"
+                  ><Icon/></a>)}
             </div>
           </div>
         </section>
       </div>
     </div>
+    {wechatOpen&&<ImageModal src={company.socialLinks.wechatQr} alt={zh?'微信公众号二维码':'WeChat Official Account QR code'} onClose={()=>setWechatOpen(false)}/>}
     <div className="border-t border-white/10">
       <div className="container-shell flex flex-col gap-3 py-6 text-xs text-slate-500 md:flex-row md:justify-between">
         <span className="flex flex-wrap gap-x-2 gap-y-1"><span>© {new Date().getFullYear()} {company.englishName}</span><span>{zh?'版权所有。':'All rights reserved.'}</span></span>
