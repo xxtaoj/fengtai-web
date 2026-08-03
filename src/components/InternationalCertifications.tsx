@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ArrowUpRight } from 'lucide-react';
+import { useRef, useState, type MouseEvent, type TouchEvent } from 'react';
+import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useLanguage } from '../i18n/useLanguage';
 import { LocalImage } from './Media';
 
@@ -117,8 +117,8 @@ const certifications: Certification[] = [
   },
 ];
 
-function CertificatePreview({ image, label, href, alt }: { image: string; label: string; href: string; alt: string }) {
-  return <a href={href} target="_blank" rel="noreferrer" className="group block min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4">
+function CertificatePreview({ image, label, href, alt, onClick }: { image: string; label: string; href: string; alt: string; onClick?: (event: MouseEvent<HTMLAnchorElement>) => void }) {
+  return <a href={href} target="_blank" rel="noreferrer" onClick={onClick} className="group block min-w-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-4">
     <span className="mb-2 flex items-center justify-between gap-2 text-[11px] font-bold uppercase tracking-[.16em] text-body">
       {label}<ArrowUpRight size={14} className="shrink-0 text-accent transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
     </span>
@@ -132,10 +132,147 @@ export function InternationalCertifications() {
   const { language } = useLanguage();
   const zh = language === 'zh';
   const [activeId, setActiveId] = useState(certifications[0].id);
+  const [previewLanguage, setPreviewLanguage] = useState<'zh' | 'en'>('zh');
+  const [slideDirection, setSlideDirection] = useState<'next' | 'previous'>('next');
+  const touchStartX = useRef<number | null>(null);
+  const swiped = useRef(false);
   const active = certifications.find((item) => item.id === activeId) ?? certifications[0];
+  const activeIndex = Math.max(0, certifications.findIndex((item) => item.id === active.id));
+  const details = [
+    [zh ? '证书持有人' : 'Certificate holder', zh ? active.holderZh : active.holderEn],
+    [zh ? '证书编号' : 'Certificate number', active.registration],
+    [zh ? '认证范围' : 'Certified scope', zh ? active.scopeZh : active.scopeEn],
+    [zh ? '有效期' : 'Validity', zh ? active.validityZh : active.validityEn],
+    [zh ? '发证机构' : 'Certification body', zh ? active.issuerZh : active.issuerEn],
+  ];
+
+  function moveCertificate(direction: -1 | 1) {
+    const nextIndex = (activeIndex + direction + certifications.length) % certifications.length;
+    setSlideDirection(direction > 0 ? 'next' : 'previous');
+    setActiveId(certifications[nextIndex].id);
+  }
+
+  function selectCertificate(index: number) {
+    setSlideDirection(index >= activeIndex ? 'next' : 'previous');
+    setActiveId(certifications[index].id);
+  }
+
+  function handleTouchStart(event: TouchEvent<HTMLElement>) {
+    touchStartX.current = event.touches[0]?.clientX ?? null;
+    swiped.current = false;
+  }
+
+  function handleTouchEnd(event: TouchEvent<HTMLElement>) {
+    if (touchStartX.current === null) return;
+    const endX = event.changedTouches[0]?.clientX ?? touchStartX.current;
+    const distance = endX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(distance) < 48) return;
+    swiped.current = true;
+    moveCertificate(distance < 0 ? 1 : -1);
+  }
+
+  function handlePreviewClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (!swiped.current) return;
+    event.preventDefault();
+    swiped.current = false;
+  }
+
+  const mobileImage = previewLanguage === 'zh' ? active.imageZh : active.imageEn;
+  const mobilePdf = previewLanguage === 'zh' ? active.pdfZh : active.pdfEn;
+  const mobileLabel = previewLanguage === 'zh'
+    ? (zh ? '中文原件' : 'Chinese original')
+    : (zh ? '英文原件' : 'English original');
 
   return <section id="certificates" className="section-pad scroll-mt-28 bg-white">
-    <div className="container-shell grid gap-12 lg:grid-cols-[minmax(0,1.08fr)_minmax(23rem,.92fr)] lg:items-start lg:gap-16">
+    <div className="container-shell lg:hidden">
+      <p className="text-sm font-bold text-accent">{zh ? '国际认证' : 'International certifications'}</p>
+      <h2 className="mt-3 text-3xl font-bold leading-tight tracking-tight text-ink">{zh ? '管理体系与产品安全认证' : 'Management systems and product safety certificates'}</h2>
+      <p className="mt-4 text-sm leading-7 text-muted">{zh ? '左右滑动切换认证，选择中文或英文查看对应证书原件。' : 'Swipe between certifications and choose the Chinese or English original.'}</p>
+
+      <div className="mt-8 flex items-center justify-between gap-4 border-y border-slate-300 py-4">
+        <div className="min-w-0">
+          <p className="font-mono text-base font-bold tracking-tight text-accent">{active.standard}</p>
+          <p className="mt-1 truncate text-sm text-muted">{zh ? active.nameZh : active.nameEn}</p>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          <button type="button" onClick={() => moveCertificate(-1)} aria-label={zh ? '上一项认证' : 'Previous certification'} className="grid size-11 place-items-center rounded-full border border-slate-300 text-ink transition-colors hover:border-accent hover:text-accent">
+            <ChevronLeft size={19} />
+          </button>
+          <span className="min-w-12 text-center font-mono text-xs text-muted">{String(activeIndex + 1).padStart(2, '0')} / {String(certifications.length).padStart(2, '0')}</span>
+          <button type="button" onClick={() => moveCertificate(1)} aria-label={zh ? '下一项认证' : 'Next certification'} className="grid size-11 place-items-center rounded-full border border-slate-300 text-ink transition-colors hover:border-accent hover:text-accent">
+            <ChevronRight size={19} />
+          </button>
+        </div>
+      </div>
+
+      <div id="certificate-panel-mobile" aria-live="polite" className="mt-5">
+        <article
+          key={`${active.id}-${previewLanguage}`}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          className={`touch-pan-y rounded-2xl bg-[#EEF1F3] p-4 ${slideDirection === 'next' ? 'certificate-slide-next' : 'certificate-slide-previous'}`}
+        >
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <p className="text-xs font-bold tracking-[.14em] text-body">{zh ? '证书原件' : 'CERTIFICATE ORIGINAL'}</p>
+            <div role="group" aria-label={zh ? '选择证书语言' : 'Choose certificate language'} className="flex rounded-full bg-white p-1">
+              {(['zh', 'en'] as const).map((documentLanguage) => {
+                const selected = previewLanguage === documentLanguage;
+                return <button
+                  key={documentLanguage}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => setPreviewLanguage(documentLanguage)}
+                  className={`min-h-9 rounded-full px-3 text-xs font-bold transition-colors ${selected ? 'bg-ink text-white' : 'text-muted hover:text-ink'}`}
+                >
+                  {documentLanguage === 'zh' ? (zh ? '中文' : 'Chinese') : (zh ? '英文' : 'English')}
+                </button>;
+              })}
+            </div>
+          </div>
+
+          <CertificatePreview
+            image={mobileImage}
+            label={mobileLabel}
+            href={mobilePdf}
+            alt={`${active.standard} ${previewLanguage === 'zh' ? '中文证书' : 'English certificate'}`}
+            onClick={handlePreviewClick}
+          />
+
+          <div className="mt-5 flex items-center justify-between gap-3">
+            <span className="text-xs text-muted">{zh ? '左右滑动切换认证' : 'Swipe to change certification'}</span>
+            <a href={`${active.pdf}#page=${previewLanguage === 'zh' ? active.zhPage : active.enPage}`} target="_blank" rel="noreferrer" className="inline-flex min-h-11 items-center gap-1.5 border-b border-ink text-xs font-bold text-ink transition-colors hover:border-accent hover:text-accent">
+              {zh ? '完整 PDF' : 'Full PDF'}<ArrowUpRight size={14} />
+            </a>
+          </div>
+        </article>
+
+        <div className="mt-5 flex items-center justify-center gap-2" aria-label={zh ? '选择认证资料' : 'Select a certification record'}>
+          {certifications.map((item, index) => {
+            const selected = item.id === active.id;
+            return <button
+              key={item.id}
+              type="button"
+              onClick={() => selectCertificate(index)}
+              aria-label={`${zh ? '查看' : 'View'} ${item.standard}`}
+              aria-pressed={selected}
+              aria-controls="certificate-panel-mobile"
+              className={`h-2 rounded-full transition-[width,background-color] ${selected ? 'w-7 bg-accent' : 'w-2 bg-slate-300'}`}
+            />;
+          })}
+        </div>
+      </div>
+
+      <dl className="mt-8 border-y border-slate-300">
+        {details.map(([label, value]) => <div key={label} className="border-b border-slate-200 py-4 last:border-b-0">
+          <dt className="text-xs font-bold uppercase tracking-[.08em] text-muted">{label}</dt>
+          <dd className={`mt-2 text-sm leading-6 text-ink ${label === (zh ? '证书编号' : 'Certificate number') ? 'font-mono' : ''}`}>{value}</dd>
+        </div>)}
+      </dl>
+      <p className="mt-5 text-xs leading-5 text-muted">{zh ? '证书主体、范围和有效期以 PDF 原件为准。' : 'Certificate holder, scope, and validity are subject to the original PDF.'}</p>
+    </div>
+
+    <div className="container-shell hidden gap-12 lg:grid lg:grid-cols-[minmax(0,1.08fr)_minmax(23rem,.92fr)] lg:items-start lg:gap-16">
       <div className="lg:sticky lg:top-28">
         <div className="flex items-end justify-between gap-5 border-b border-slate-300 pb-4">
           <div>
@@ -145,7 +282,7 @@ export function InternationalCertifications() {
           <span className="shrink-0 font-mono text-xs text-muted">{zh ? '4 项认证' : '4 RECORDS'}</span>
         </div>
 
-        <div id="certificate-panel" aria-live="polite" className="mt-5 bg-[#EEF1F3] p-4 sm:p-7">
+        <div id="certificate-panel-desktop" aria-live="polite" className="mt-5 bg-[#EEF1F3] p-4 sm:p-7">
           <div key={active.id} className="grid grid-cols-2 items-start gap-3 sm:gap-6">
             <CertificatePreview image={active.imageZh} label={zh ? '中文原件' : 'Chinese original'} href={active.pdfZh} alt={`${active.standard} 中文证书`} />
             <CertificatePreview image={active.imageEn} label={zh ? '英文原件' : 'English original'} href={active.pdfEn} alt={`${active.standard} English certificate`} />
@@ -168,7 +305,7 @@ export function InternationalCertifications() {
               key={item.id}
               type="button"
               aria-pressed={selected}
-              aria-controls="certificate-panel"
+              aria-controls="certificate-panel-desktop"
               onClick={() => setActiveId(item.id)}
               className="group block min-h-20 w-full border-b border-slate-300 py-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent"
             >
@@ -181,13 +318,7 @@ export function InternationalCertifications() {
         </div>
 
         <dl className="mt-9 border-y border-slate-300">
-          {[
-            [zh ? '证书持有人' : 'Certificate holder', zh ? active.holderZh : active.holderEn],
-            [zh ? '证书编号' : 'Certificate number', active.registration],
-            [zh ? '认证范围' : 'Certified scope', zh ? active.scopeZh : active.scopeEn],
-            [zh ? '有效期' : 'Validity', zh ? active.validityZh : active.validityEn],
-            [zh ? '发证机构' : 'Certification body', zh ? active.issuerZh : active.issuerEn],
-          ].map(([label, value]) => <div key={label} className="grid gap-2 border-b border-slate-200 py-4 last:border-b-0 sm:grid-cols-[7.5rem_1fr] sm:gap-5">
+          {details.map(([label, value]) => <div key={label} className="grid gap-2 border-b border-slate-200 py-4 last:border-b-0 sm:grid-cols-[7.5rem_1fr] sm:gap-5">
             <dt className="text-xs font-bold uppercase tracking-[.08em] text-muted">{label}</dt>
             <dd className={`text-sm leading-6 text-ink ${label === (zh ? '证书编号' : 'Certificate number') ? 'font-mono' : ''}`}>{value}</dd>
           </div>)}

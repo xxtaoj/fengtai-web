@@ -11,12 +11,12 @@ export function QuoteCTA(){
         <h2 className="text-3xl font-bold text-ink">{zh?'告诉我们需要什么面料':'Tell us what fabric you need'}</h2>
         <p className="mt-3 max-w-2xl leading-7 text-muted">{zh?'发送面料类别、成分、幅宽、密度或克重、数量和用途，我们将根据现货与生产情况协助确认。':'Share the fabric type, composition, width, construction or weight, quantity, and end use. We will check available stock and production options.'}</p>
       </div>
-      <div className="flex w-full flex-col gap-1.5 rounded-[1.5rem] border border-amber-900/10 bg-white/75 p-1.5 shadow-[0_16px_40px_-28px_rgba(17,24,39,.45)] sm:w-auto sm:flex-row sm:rounded-full">
+      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:gap-3">
         <PrimaryButton to="/contact#inquiry" className="group min-h-12 w-full rounded-full !px-2 shadow-[0_10px_24px_-16px_rgba(180,83,9,.9)] hover:-translate-y-0.5 sm:w-auto">
           <span className="pl-4">{zh?'发送面料询盘':'Send Fabric Inquiry'}</span>
           <span className="ml-1 grid size-8 place-items-center rounded-full bg-white/15 transition-transform duration-300 group-hover:rotate-6" aria-hidden="true"><ArrowUpRight size={16}/></span>
         </PrimaryButton>
-        <SecondaryButton to="/products" className="min-h-12 w-full rounded-full !border-transparent !bg-transparent px-6 hover:!border-transparent hover:!bg-white hover:!text-ink sm:w-auto">{zh?'查看产品':'View Products'}</SecondaryButton>
+        <SecondaryButton to="/products" className="min-h-12 w-full rounded-full !border-slate-200 !bg-white px-6 shadow-[0_10px_24px_-20px_rgba(17,24,39,.55)] hover:!border-slate-300 hover:!bg-slate-50 hover:!text-ink sm:w-auto">{zh?'查看产品':'View Products'}</SecondaryButton>
       </div>
     </div>
   </section>;

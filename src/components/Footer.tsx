@@ -58,7 +58,7 @@ export function Footer(){
           <h2 className="max-w-3xl text-2xl font-semibold leading-tight md:text-3xl">{zh?'有规格表、产品图片或实物样，直接发给业务团队。':'Send your specification sheet, product image, or physical sample directly to our sales team.'}</h2>
           <p className="mt-3 text-sm leading-6 text-slate-400">{zh?'我们会按现货或来样定织方向回复。':'We will reply with a stock or sample-based custom-weaving route.'}</p>
         </div>
-        <div className="flex w-full flex-col gap-1.5 rounded-[1.5rem] bg-white/[.06] p-1.5 ring-1 ring-inset ring-white/10 sm:w-auto sm:flex-row sm:rounded-full">
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:gap-3">
           <PrimaryButton to="/contact#inquiry" className="group min-h-12 w-full rounded-full !px-2 shadow-[0_12px_28px_-18px_rgba(217,119,6,.9)] hover:-translate-y-0.5 sm:w-auto">
             <span className="pl-4">{t.common.quote}</span>
             <span className="ml-1 grid size-8 place-items-center rounded-full bg-white/15 transition-transform duration-300 group-hover:rotate-6" aria-hidden="true"><ArrowUpRight size={16}/></span>
@@ -112,9 +112,9 @@ export function Footer(){
         <section className="lg:pl-4">
           <p className="text-xs font-bold uppercase tracking-[.14em] text-white">{zh?'直接联系业务':'Contact the sales team'}</p>
           <p className="mt-4 max-w-md text-sm leading-7 text-slate-300">{zh?'有规格表、产品图片或实物样？可以直接发来，我们会按现货或定织方向回复。':'Have a specification sheet, product image, or physical sample? Send it directly and we will reply with a stock or custom-weaving route.'}</p>
-          <div className="mt-5 w-full max-w-[15rem]">
+          <div className="mt-5 w-full max-w-[26rem]">
             <Link to="/contact" className="inline-flex min-h-11 w-full items-center justify-center rounded-full bg-[#0B4AA2] px-5 text-sm font-bold tracking-[.08em] text-white shadow-[0_12px_28px_-18px_rgba(11,74,162,.95)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#0D56BA] active:translate-y-0">{t.common.contact}</Link>
-            <div aria-label={zh?'社交媒体联系方式':'Social media contacts'} className="mt-3 flex items-center justify-center gap-6">
+            <div aria-label={zh?'社交媒体联系方式':'Social media contacts'} className="mt-3 flex items-center justify-center gap-2">
               {socialChannels.map(({label,href,qr,Icon})=>qr
                 ? <button
                     key={label}
@@ -122,7 +122,7 @@ export function Footer(){
                     onClick={()=>setWechatOpen(true)}
                     aria-label={zh?'查看微信公众号二维码':'View WeChat Official Account QR code'}
                     title={label}
-                    className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/0 text-white transition duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:text-[#7DB2F2] active:translate-y-0"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/0 text-white transition duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:text-[#7DB2F2] active:translate-y-0"
                   ><Icon/></button>
                 : <a
                     key={label}
@@ -131,7 +131,7 @@ export function Footer(){
                     rel="noopener noreferrer"
                     aria-label={zh?`在新窗口打开 ${label}`:`Open ${label} in a new tab`}
                     title={label}
-                    className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white/0 text-white transition duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:text-[#7DB2F2] active:translate-y-0"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/0 text-white transition duration-300 hover:-translate-y-0.5 hover:bg-white/10 hover:text-[#7DB2F2] active:translate-y-0"
                   ><Icon/></a>)}
             </div>
           </div>
