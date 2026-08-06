@@ -1,0 +1,1091 @@
+{
+  "company": {
+    "logo": "/images/logo.png",
+    "chineseName": "丰泰永晟集团有限公司",
+    "englishName": "FENGTAI YONGSHENG GROUP CO., LTD.",
+    "brandName": "丰泰永晟",
+    "mainProducts": "床品面料、服装面料、混纺面料、交织面料",
+    "mainProductsEn": "Bedding fabrics, apparel fabrics, blended fabrics, and interwoven fabrics",
+    "establishedYear": "源头织布工厂",
+    "establishedYearEn": "Source Weaving Factory",
+    "location": "石家庄总部 / 新疆喀什工厂 / 宁夏织造基地",
+    "locationEn": "Shijiazhuang Headquarters / Kashgar Factory / Ningxia Weaving Base",
+    "address": "Room 706, 7th Floor, Gerui Mansion, No.227 South Tiyu Street, Yuhua District, Shijiazhuang City, Hebei Province, China.",
+    "headOfficeName": "FENGTAI YONGSHENG GROUP CO., LTD.",
+    "headOfficeAddress": "Room 706, 7th Floor, Gerui Mansion, No.227 South Tiyu Street, Yuhua District, Shijiazhuang City, Hebei Province, China.",
+    "xinjiangFactoryName": "Xinjiang Fengtai Yongsheng Textile Technology Co., Ltd.",
+    "xinjiangFactoryAddress": "Office 101, No. 6 Factory, Weaving Area, Textile and Home Textile Industrial Park, Lingang Logistics Industry Development Center, Kashgar Economic Development Zone, Kashgar Prefecture, Xinjiang, China.",
+    "ningxiaFactoryName": "Ningxia Fengtai Yongsheng Textile Technology Co., Ltd.",
+    "ningxiaFactoryAddress": "Phase II, Textile Industrial Park, Litong District, Wuzhong City, Ningxia, China.",
+    "factoryArea": "三地协同办公与生产",
+    "factoryAreaEn": "Three-site office and production coordination",
+    "employeeCount": "业务、织造、品控、仓储团队",
+    "employeeCountEn": "Sales, weaving, quality control, and warehousing teams",
+    "monthlyCapacity": "常规现货 + 来样定织排产",
+    "monthlyCapacityEn": "Regular stock + custom weaving scheduling",
+    "exportMarkets": "面向海内外外贸采购商",
+    "exportMarketsEn": "For domestic and overseas sourcing buyers",
+    "domesticMarkets": "服务贸易商、品牌方、加工客户",
+    "domesticMarketsEn": "Serving traders, brands, and manufacturing clients",
+    "certifications": [
+      "资质证书待上传",
+      "荣誉证书待补充"
+    ],
+    "moq": "按现货或定织方案确认",
+    "leadTime": "现货快速发样，定织按规格排产",
+    "contactPerson": "刘妍 Maggie",
+    "contactTitle": "Marketing manager",
+    "exportContact": "刘妍 Maggie",
+    "domesticContact": "刘妍 Maggie",
+    "phone": "+86 189-3199-8919",
+    "whatsapp": "+86 189-3199-8919",
+    "socialLinks": {
+      "whatsapp": "https://api.whatsapp.com/qr/ITFXU5TMRDECM1?autoload=1&app_absent=0",
+      "facebook": "https://www.facebook.com/share/18huRduyg8/?mibextid=wwXIfr",
+      "linkedin": "https://www.linkedin.com/in/maggie-liu-46b2832b/",
+      "xiaohongshu": "https://xhslink.cn/m/25I0lKFStbT",
+      "wechatQr": "/images/wechat-official-account.jpg"
+    },
+    "wechat": "+86 189-3199-8919",
+    "email": "maggieliu@fonter.net.cn",
+    "businessHours": "周一至周六 9:00-18:00",
+    "businessHoursEn": "Monday to Saturday, 9:00-18:00",
+    "exportPort": "按订单目的港确认",
+    "exportPortEn": "Confirmed by destination port",
+    "incoterms": "FOB / CIF / EXW 可沟通",
+    "payment": "按合同约定",
+    "paymentEn": "As agreed in the contract",
+    "moqEn": "Confirmed by stock or custom weaving plan",
+    "leadTimeEn": "Fast sample dispatch for stock; custom weaving scheduled by specification"
+  },
+  "navigation": [
+    {
+      "to": "/",
+      "zh": "首页",
+      "en": "Home",
+      "eyebrowZh": "网站入口",
+      "eyebrowEn": "Entry"
+    },
+    {
+      "to": "/company",
+      "zh": "公司简介",
+      "en": "Company Profile",
+      "eyebrowZh": "企业介绍",
+      "eyebrowEn": "About",
+      "children": [
+        {
+          "href": "/company#overview",
+          "zh": "企业概况",
+          "en": "Company Overview"
+        },
+        {
+          "href": "/company#history",
+          "zh": "发展历程",
+          "en": "Development History"
+        },
+        {
+          "href": "/company#certificates",
+          "zh": "资质与荣誉证书",
+          "en": "Certificates & Honors"
+        },
+        {
+          "href": "/company#factory-sites",
+          "zh": "生产工厂实景",
+          "en": "Factory Sites"
+        },
+        {
+          "href": "/company#team",
+          "zh": "组织架构或核心业务团队",
+          "en": "Core Business Team"
+        }
+      ]
+    },
+    {
+      "to": "/activity",
+      "zh": "公司活动",
+      "en": "Company Activities",
+      "eyebrowZh": "实力背书",
+      "eyebrowEn": "Proof",
+      "children": [
+        {
+          "href": "/activity#exhibitions",
+          "zh": "国内外展会参展动态",
+          "en": "Trade Shows"
+        },
+        {
+          "href": "/activity#visits",
+          "zh": "海内外客户来访考察纪实",
+          "en": "Customer Visits"
+        },
+        {
+          "href": "/activity#news-insights",
+          "zh": "企业新闻与行业资讯",
+          "en": "Company & Industry News"
+        },
+        {
+          "href": "/activity#culture",
+          "zh": "内部团建、业务培训等企业文化动态",
+          "en": "Culture & Training"
+        }
+      ]
+    },
+    {
+      "to": "/products",
+      "zh": "公司产品",
+      "en": "Products",
+      "eyebrowZh": "面料分类",
+      "eyebrowEn": "Fabrics",
+      "children": [
+        {
+          "href": "/products#ready-stock",
+          "zh": "常规在机现货产品",
+          "en": "Regular In-stock Products",
+          "children": [
+            {
+              "href": "/products#bedding-fabric",
+              "zh": "床品面料",
+              "en": "Bedding Fabric"
+            },
+            {
+              "href": "/products#apparel-fabric",
+              "zh": "服装面料",
+              "en": "Apparel Fabric"
+            }
+          ]
+        },
+        {
+          "href": "/products#custom-weaving",
+          "zh": "定制织造产品",
+          "en": "Custom Weaving Products",
+          "children": [
+            {
+              "href": "/products#blended-fabric",
+              "zh": "混纺面料",
+              "en": "Blended Fabric"
+            },
+            {
+              "href": "/products#interwoven-fabric",
+              "zh": "交织面料",
+              "en": "Interwoven Fabric"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "to": "/contact",
+      "zh": "联系我们",
+      "en": "Contact Us",
+      "eyebrowZh": "询盘寄样",
+      "eyebrowEn": "Inquiry",
+      "children": [
+        {
+          "href": "/contact#addresses",
+          "zh": "办公及工厂详细地址",
+          "en": "Office & Factory Addresses"
+        },
+        {
+          "href": "/contact#channels",
+          "zh": "客服联络方式",
+          "en": "Service Contacts"
+        },
+        {
+          "href": "/contact#inquiry",
+          "zh": "在线业务询盘格式表",
+          "en": "Online Inquiry Form"
+        }
+      ]
+    }
+  ],
+  "news": [
+    {
+      "id": 1,
+      "slug": "asia-europe-expo-fabric-sourcing",
+      "category": "exhibition",
+      "categoryZh": "展会参展动态",
+      "categoryEn": "Trade Shows",
+      "date": "2026-03-12",
+      "image": "",
+      "titleZh": "亚欧博览会现场交流",
+      "titleEn": "Fabric Discussions at the Asia-Europe Expo",
+      "summaryZh": "本次展会带去了床品、服装面料样品，也现场沟通了现货和来样定织需求。",
+      "summaryEn": "We brought bedding and apparel fabric samples to the expo and discussed both regular stock and sample-based weaving.",
+      "contentZh": [
+        "展会现场主要沟通床品面料、服装面料、常规在机产品和来样定织。",
+        "采购商关心的问题集中在面料方向、寄样方式和后续规格确认。"
+      ],
+      "contentEn": [
+        "The exhibition discussions covered bedding and apparel fabrics, regular running stock, and custom weaving from buyer samples.",
+        "Conversations focused on fabric directions, sample confirmation, and the next sourcing steps."
+      ]
+    },
+    {
+      "id": 2,
+      "slug": "shanghai-intertextile-fabric-fair",
+      "category": "exhibition",
+      "categoryZh": "展会参展动态",
+      "categoryEn": "Trade Shows",
+      "date": "2026-01-20",
+      "image": "",
+      "titleZh": "上海面料展现场交流",
+      "titleEn": "Fabric Discussions at the Shanghai Fair",
+      "summaryZh": "现场交流以床品、服装、混纺和交织面料为主，重点确认采购规格和寄样安排。",
+      "summaryEn": "Discussions covered bedding, apparel, blended, and interwoven fabrics, with a focus on specifications and sample arrangements.",
+      "contentZh": [
+        "现场展示了床品、服装、混纺和交织面料。",
+        "采购沟通主要围绕面料规格、寄样安排和后续询盘。"
+      ],
+      "contentEn": [
+        "The product exchange covered sourcing directions for bedding, apparel, blended, and interwoven fabrics.",
+        "Discussions focused on fabric specifications, sample arrangements, and inquiry follow-up."
+      ]
+    },
+    {
+      "id": 3,
+      "slug": "overseas-buyer-factory-visit",
+      "category": "visit",
+      "categoryZh": "客户来访考察",
+      "categoryEn": "Customer Visits",
+      "date": "2025-11-18",
+      "image": "",
+      "titleZh": "海外客户来访考察纪实",
+      "titleEn": "Overseas Buyer Factory Visit",
+      "summaryZh": "客户到访期间看了样品、生产现场和品控流程，并进一步确认了合作需求。",
+      "summaryEn": "During the visit, the buyer reviewed samples, the production floor, and the quality-control process before discussing the next steps.",
+      "contentZh": [
+        "来访期间，客户了解了办公沟通、样品确认、生产现场和品质流程。",
+        "双方围绕合作需求与样品安排进行了沟通。"
+      ],
+      "contentEn": [
+        "During the visit, the buyer reviewed business communication, sample confirmation, production scenes, and quality workflows.",
+        "Both sides discussed sourcing requirements and sample arrangements."
+      ]
+    },
+    {
+      "id": 4,
+      "slug": "capacity-expansion-and-sample-room",
+      "category": "news-insights",
+      "categoryZh": "企业新闻与行业资讯",
+      "categoryEn": "Company & Industry News",
+      "date": "2025-09-08",
+      "image": "",
+      "titleZh": "样品间与现货资料整理",
+      "titleEn": "Sample Room and Stock Records Update",
+      "summaryZh": "样品间重新整理了现货与定织资料，业务人员查找样品和回复询盘更直接。",
+      "summaryEn": "The sample room reorganized stock and custom-weaving records so the sales team can find samples and answer inquiries more directly.",
+      "contentZh": [
+        "本次更新围绕现货整理、样品归档和定织需求评估展开。",
+        "相关工作用于改善询盘后的内部衔接与资料查找效率。"
+      ],
+      "contentEn": [
+        "This update covers stock organization, sample archiving, and custom weaving evaluation.",
+        "The work supports clearer internal handover and faster document retrieval after an inquiry."
+      ]
+    },
+    {
+      "id": 5,
+      "slug": "export-policy-and-fabric-sourcing",
+      "category": "news-insights",
+      "categoryZh": "企业新闻与行业资讯",
+      "categoryEn": "Company & Industry News",
+      "date": "2025-07-16",
+      "image": "",
+      "titleZh": "外贸面料询盘信息整理",
+      "titleEn": "Information Needed for Export Fabric Inquiries",
+      "summaryZh": "整理外贸订单沟通中经常确认的目的港、贸易条款、样品和交期信息。",
+      "summaryEn": "A practical list of the port, trade terms, sample details, and timing usually confirmed for export fabric inquiries.",
+      "contentZh": [
+        "外贸面料询盘通常需要先确认目的国家、目的港、贸易条款和样品信息。",
+        "具体交期与合作条件需结合产品规格和订单要求逐项确认。"
+      ],
+      "contentEn": [
+        "Export fabric inquiries normally begin with the destination country, port, trade terms, and sample information.",
+        "Lead time and cooperation terms are confirmed against the product specification and order requirements."
+      ]
+    },
+    {
+      "id": 6,
+      "slug": "team-training-for-export-inquiries",
+      "category": "culture",
+      "categoryZh": "企业文化动态",
+      "categoryEn": "Culture & Training",
+      "date": "2025-05-22",
+      "image": "",
+      "titleZh": "产品与寄样流程培训",
+      "titleEn": "Product and Sample Workflow Training",
+      "summaryZh": "业务和生产岗位一起梳理产品知识、询盘格式和寄样衔接。",
+      "summaryEn": "Sales and production staff reviewed product knowledge, inquiry formats, and the sample handover process together.",
+      "contentZh": [
+        "本次培训围绕产品知识、询盘格式、寄样流程和跨部门衔接展开。",
+        "业务与生产相关岗位共同梳理了客户信息传递中的关键事项。"
+      ],
+      "contentEn": [
+        "The training covered product knowledge, inquiry formats, sample workflows, and cross-team handover.",
+        "Sales and production-related roles reviewed the key information needed during buyer communication."
+      ]
+    }
+  ],
+  "features": [
+    {
+      "id": "production-visibility",
+      "tag": "STOCK",
+      "navTitleZh": "常规现货与在机面料",
+      "navTitleEn": "Available & Running Fabrics",
+      "titleZh": "常规现货与在机面料",
+      "titleEn": "Available & Running Fabrics",
+      "descriptionZh": "查看床品和服装面料的常规规格，确认现货、在机情况、样品及报价信息。",
+      "descriptionEn": "Review available and in-production bedding and apparel fabrics, then confirm samples, specifications, and quotation details.",
+      "video": "/videos/factory-hero.mp4",
+      "poster": "/images/hero-poster.jpg"
+    },
+    {
+      "id": "factory-tour",
+      "tag": "CUSTOM",
+      "navTitleZh": "来样定织",
+      "navTitleEn": "Custom Weaving from Sample",
+      "titleZh": "按样品评估定织方案",
+      "titleEn": "Custom Weaving from Your Sample",
+      "descriptionZh": "提供实物样品或目标规格，我们将结合成分、组织结构、手感、用途和数量评估打样与生产方案。",
+      "descriptionEn": "Send us a fabric sample or target specification. We will review the composition, construction, hand feel, end use, and order quantity.",
+      "video": "/videos/factory-tour.mp4",
+      "poster": "/images/factory-interior.jpg"
+    },
+    {
+      "id": "process-control",
+      "tag": "DELIVERY",
+      "navTitleZh": "品控与出货",
+      "navTitleEn": "Quality & Shipment",
+      "titleZh": "生产跟进、品控与出货",
+      "titleEn": "Quality Checks & Shipment",
+      "descriptionZh": "从样品确认到生产跟进、出货检查和包装沟通，协助采购订单稳定推进。",
+      "descriptionEn": "We follow the order from sample approval through production, pre-shipment checks, packing, and delivery coordination.",
+      "video": "/videos/production-process.mp4",
+      "poster": "/images/quality-control.jpg"
+    }
+  ],
+  "exportSteps": [
+    [
+      "客户询盘",
+      "Inquiry"
+    ],
+    [
+      "需求确认",
+      "Requirement Confirmation"
+    ],
+    [
+      "产品报价",
+      "Quotation"
+    ],
+    [
+      "样品确认",
+      "Sample Approval"
+    ],
+    [
+      "合同与定金",
+      "Contract and Deposit"
+    ],
+    [
+      "批量生产",
+      "Mass Production"
+    ],
+    [
+      "品质检验",
+      "Quality Inspection"
+    ],
+    [
+      "包装与出货",
+      "Packaging and Shipment"
+    ],
+    [
+      "单据提供",
+      "Export Documentation"
+    ],
+    [
+      "售后服务",
+      "After-sales Support"
+    ]
+  ],
+  "marketRegions": [
+    "North America",
+    "Europe",
+    "Southeast Asia",
+    "Middle East",
+    "South America",
+    "Africa",
+    "Australia & New Zealand"
+  ],
+  "domesticSteps": [
+    [
+      "提交需求",
+      "Submit Requirements"
+    ],
+    [
+      "产品沟通",
+      "Product Discussion"
+    ],
+    [
+      "报价确认",
+      "Quotation"
+    ],
+    [
+      "样品确认",
+      "Sample Approval"
+    ],
+    [
+      "签订订单",
+      "Order Signing"
+    ],
+    [
+      "安排生产",
+      "Production"
+    ],
+    [
+      "品质检验",
+      "Quality Inspection"
+    ],
+    [
+      "包装发货",
+      "Packaging & Delivery"
+    ],
+    [
+      "售后跟进",
+      "Follow-up"
+    ]
+  ],
+  "faqs": [
+    [
+      "最小起订量是多少？",
+      "What is the MOQ?"
+    ],
+    [
+      "样品是否收费？",
+      "Are samples charged?"
+    ],
+    [
+      "多久可以收到报价？",
+      "How soon can I receive a quote?"
+    ],
+    [
+      "生产周期多久？",
+      "What is the production lead time?"
+    ],
+    [
+      "是否支持定制？",
+      "Is customization available?"
+    ],
+    [
+      "可提供哪些包装？",
+      "What packaging is available?"
+    ],
+    [
+      "付款方式是什么？",
+      "What are the payment terms?"
+    ],
+    [
+      "如何进行质量检验？",
+      "How is quality inspected?"
+    ],
+    [
+      "国内如何配送？",
+      "How are domestic orders delivered?"
+    ],
+    [
+      "国际货运如何安排？",
+      "How is international shipping arranged?"
+    ]
+  ],
+  "copy": {
+    "home": {
+      "hero": {
+        "eyebrowZh": "源头织布工厂 · 面向海内外采购商",
+        "eyebrowEn": "Source weaving factory · For global buyers",
+        "titleZh": "现货供应-也可根据样品定制编织",
+        "titleEn": "Ready stock plus custom weaving from samples",
+        "descZh": "丰泰永晟聚焦床品面料、服装面料、混纺与交织定制，帮助外贸采购商快速确认规格、样品、交期与合作方案。",
+        "descEn": "Fengtai Yongsheng focuses on bedding fabrics, apparel fabrics, blended fabrics, and interwoven custom products, helping buyers confirm specs, samples, lead time, and cooperation plans quickly.",
+        "video": "/videos/home-hero.mp4",
+        "poster": "/images/hero-poster.jpg"
+      },
+      "advantagesZh": [
+        "源头织布工厂，业务沟通更直接",
+        "常规在机现货，便于快速寄样和报价",
+        "支持来样定织，适配混纺与交织开发",
+        "面向海内外采购商，产品层级简洁清楚"
+      ],
+      "advantagesEn": [
+        "Source weaving factory with direct communication",
+        "Regular running stock for faster samples and quotes",
+        "Sample-based custom weaving for blended and interwoven fabrics",
+        "Simple product hierarchy for domestic and overseas buyers"
+      ],
+      "about": {
+        "image": "/images/factory-exterior.jpg",
+        "locationZh": "办公与生产协同",
+        "locationEn": "Office and production coordination"
+      },
+      "mainFabrics": {
+        "eyebrowZh": "主力面料",
+        "eyebrowEn": "Main Fabrics",
+        "titleZh": "按采购用途找到合适面料",
+        "titleEn": "Find fabrics by sourcing need",
+        "descriptionZh": "先选择常规现货或来样定织，再按床品、服装、混纺与交织方向查看产品。",
+        "descriptionEn": "Start with available fabrics or custom weaving, then browse bedding, apparel, blended, and interwoven options."
+      },
+      "factoryVisuals": {
+        "eyebrowZh": "工厂实拍",
+        "eyebrowEn": "Factory Visuals",
+        "titleZh": "看得见的生产、品控与仓储",
+        "titleEn": "Production, quality, and storage you can see",
+        "descriptionZh": "通过织造现场、面料细节、工厂外景和出货记录，了解订单如何从样品走向交付。",
+        "descriptionEn": "See how an order moves from sample to delivery through weaving, fabric details, factory views, and shipment records.",
+        "video": "/videos/factory-tour.mp4",
+        "poster": "/images/factory-interior.jpg"
+      },
+      "splitCards": [
+        {
+          "image": "/images/warehouse.jpg",
+          "titleZh": "常规在机现货产品",
+          "titleEn": "Available & Running Fabrics",
+          "descriptionZh": "床品面料、服装面料等常规方向，适合快速看样、确认规格和推进报价。",
+          "descriptionEn": "Bedding and apparel fabrics for sample review, specification confirmation, and quotation.",
+          "to": "/products#ready-stock"
+        },
+        {
+          "image": "/images/quality-control.jpg",
+          "titleZh": "定制织造产品",
+          "titleEn": "Custom Weaving from Sample",
+          "descriptionZh": "根据来样、成分、组织和用途评估混纺、交织等定织方案。",
+          "descriptionEn": "We review samples, composition, construction, and end use before confirming a custom-weaving plan.",
+          "to": "/products#custom-weaving"
+        }
+      ],
+      "activity": {
+        "eyebrowZh": "公司活动",
+        "eyebrowEn": "Company Activities",
+        "titleZh": "现场见面，持续合作",
+        "titleEn": "Meet in person. Keep business moving."
+      }
+    },
+    "company": {
+      "hero": {
+        "eyebrowZh": "公司简介",
+        "eyebrowEn": "Company Profile",
+        "titleZh": "源头织布工厂，面向海内外采购需求",
+        "titleEn": "A source weaving factory for domestic and overseas buyers",
+        "descriptionZh": "网站内容以采购商快速判断合作可行性为目标，突出常规现货和来样定织两条业务主线。",
+        "descriptionEn": "The website helps buyers evaluate cooperation quickly by emphasizing regular stock and custom weaving from samples.",
+        "image": "/images/factory-exterior.jpg"
+      },
+      "overview": [
+        {
+          "titleZh": "源头织布工厂",
+          "titleEn": "Source Weaving Factory",
+          "descriptionZh": "围绕床品面料、服装面料及定制织造需求，为采购商提供从面料沟通到样品确认的前端支持。",
+          "descriptionEn": "Supporting buyers from fabric discussion to sample confirmation across bedding, apparel, and custom weaving needs."
+        },
+        {
+          "titleZh": "现货与定织并重",
+          "titleEn": "Stock and Custom Weaving",
+          "descriptionZh": "常规在机现货便于快速筛选，来样定织适配混纺、交织和特殊规格开发。",
+          "descriptionEn": "Regular in-stock items support quick screening, while sample-based weaving fits blended, interwoven, and special specs."
+        },
+        {
+          "titleZh": "多地业务与生产协同",
+          "titleEn": "Multi-site Coordination",
+          "descriptionZh": "石家庄办公区、喀什工厂和宁夏织造基地共同承接业务沟通、生产排期与交付协作。",
+          "descriptionEn": "The Shijiazhuang office, Kashgar factory, and Ningxia weaving base coordinate sales communication, production scheduling, and delivery."
+        }
+      ],
+      "sites": [
+        {
+          "image": "/images/factory-exterior.jpg",
+          "titleZh": "石家庄办公区",
+          "titleEn": "Shijiazhuang Office",
+          "descZh": "用于客户接待、样品沟通、业务对接与订单资料整理。",
+          "descEn": "For buyer reception, sample discussion, sales coordination, and order documentation."
+        },
+        {
+          "image": "",
+          "titleZh": "新疆喀什工厂",
+          "titleEn": "Kashgar Factory",
+          "descZh": "承接织造生产、工厂实景展示和生产流程背书。",
+          "descEn": "Supports weaving production, factory scene display, and production workflow proof."
+        },
+        {
+          "image": "",
+          "titleZh": "宁夏织造基地",
+          "titleEn": "Ningxia Weaving Base",
+          "descZh": "用于补充织造产能、现货整理和定织排产协同。",
+          "descEn": "Adds weaving capacity, stock organization, and custom production coordination."
+        }
+      ],
+      "team": [
+        {
+          "titleZh": "外贸业务团队",
+          "titleEn": "Export Sales Team",
+          "descriptionZh": "负责海外询盘、英文沟通、样品寄送和贸易条款确认。",
+          "descriptionEn": "Handles overseas inquiries, English communication, sample delivery, and trade term confirmation."
+        },
+        {
+          "titleZh": "生产与排单团队",
+          "titleEn": "Production Planning Team",
+          "descriptionZh": "根据现货、来样定织、交期和数量评估生产可行性。",
+          "descriptionEn": "Evaluates production feasibility by stock, custom samples, lead time, and quantity."
+        },
+        {
+          "titleZh": "品控与仓储团队",
+          "titleEn": "Quality and Warehouse Team",
+          "descriptionZh": "配合样品确认、出货前检查、包装和仓储发货。",
+          "descriptionEn": "Supports sample confirmation, pre-shipment checks, packing, warehousing, and delivery."
+        }
+      ]
+    },
+    "contact": {
+      "hero": {
+        "eyebrowZh": "联系我们",
+        "eyebrowEn": "Contact Us",
+        "titleZh": "如需询价、寄样或来样定织，请提供面料规格、数量、用途和交付要求。",
+        "titleEn": "For quotations, samples, or custom weaving, please include fabric specifications, quantity, end use, and delivery requirements.",
+        "descriptionZh": "如需询价、寄样或来样定织，请提供面料规格、数量、用途和交付要求。",
+        "descriptionEn": "For quotations, samples, or custom weaving, please include fabric specifications, quantity, end use, and delivery requirements.",
+        "image": "/images/factory-exterior.jpg"
+      },
+      "addresses": [
+        {
+          "titleZh": "石家庄总部",
+          "titleEn": "Shijiazhuang Headquarters",
+          "nameZh": "FENGTAI YONGSHENG GROUP CO., LTD.",
+          "nameEn": "FENGTAI YONGSHENG GROUP CO., LTD.",
+          "addressZh": "Room 706, 7th Floor, Gerui Mansion, No.227 South Tiyu Street, Yuhua District, Shijiazhuang City, Hebei Province, China.",
+          "addressEn": "Room 706, 7th Floor, Gerui Mansion, No.227 South Tiyu Street, Yuhua District, Shijiazhuang City, Hebei Province, China."
+        },
+        {
+          "titleZh": "新疆喀什厂区",
+          "titleEn": "Kashgar Factory",
+          "nameZh": "Xinjiang Fengtai Yongsheng Textile Technology Co., Ltd.",
+          "nameEn": "Xinjiang Fengtai Yongsheng Textile Technology Co., Ltd.",
+          "addressZh": "Office 101, No. 6 Factory, Weaving Area, Textile and Home Textile Industrial Park, Lingang Logistics Industry Development Center, Kashgar Economic Development Zone, Kashgar Prefecture, Xinjiang, China.",
+          "addressEn": "Office 101, No. 6 Factory, Weaving Area, Textile and Home Textile Industrial Park, Lingang Logistics Industry Development Center, Kashgar Economic Development Zone, Kashgar Prefecture, Xinjiang, China."
+        },
+        {
+          "titleZh": "宁夏生产基地",
+          "titleEn": "Ningxia Production Base",
+          "nameZh": "Ningxia Fengtai Yongsheng Textile Technology Co., Ltd.",
+          "nameEn": "Ningxia Fengtai Yongsheng Textile Technology Co., Ltd.",
+          "addressZh": "Phase II, Textile Industrial Park, Litong District, Wuzhong City, Ningxia, China.",
+          "addressEn": "Phase II, Textile Industrial Park, Litong District, Wuzhong City, Ningxia, China."
+        }
+      ],
+      "channels": [
+        {
+          "titleZh": "联系人",
+          "titleEn": "Contact",
+          "value": "刘妍 Maggie · Marketing manager"
+        },
+        {
+          "titleZh": "手机号",
+          "titleEn": "Mobile",
+          "value": "+86 189-3199-8919",
+          "href": "tel:+86 189-3199-8919"
+        },
+        {
+          "titleZh": "企业邮箱",
+          "titleEn": "Business Email",
+          "value": "maggieliu@fonter.net.cn",
+          "href": "mailto:maggieliu@fonter.net.cn"
+        },
+        {
+          "titleZh": "WeChat / WhatsApp",
+          "titleEn": "WeChat / WhatsApp",
+          "value": "+86 189-3199-8919 / +86 189-3199-8919"
+        },
+        {
+          "titleZh": "服务时间",
+          "titleEn": "Business Hours",
+          "value": "周一至周六 9:00-18:00"
+        },
+        {
+          "titleZh": "办公地址",
+          "titleEn": "Office Address",
+          "value": "Room 706, 7th Floor, Gerui Mansion, No.227 South Tiyu Street, Yuhua District, Shijiazhuang City, Hebei Province, China."
+        },
+        {
+          "titleZh": "工厂位置",
+          "titleEn": "Factory Locations",
+          "value": "石家庄总部 / 新疆喀什工厂 / 宁夏织造基地"
+        }
+      ],
+      "inquiry": {
+        "eyebrowZh": "询价与寄样",
+        "eyebrowEn": "Inquiry & samples",
+        "titleZh": "把手头有的资料发来，剩下的我们一起确认",
+        "titleEn": "Send what you have. We’ll confirm the rest together.",
+        "descriptionZh": "产品名称、规格表、图片或实物样，手头有什么就先提供什么。缺少的规格，业务会在后续沟通中逐项确认。",
+        "descriptionEn": "A product name, specification sheet, photo, or physical sample is enough to get started. Our team will confirm any missing details with you."
+      }
+    },
+    "products": {
+      "hero": {
+        "eyebrowZh": "工厂面料样册",
+        "eyebrowEn": "Factory fabric range",
+        "titleZh": "公司产品",
+        "titleEn": "Products",
+        "descriptionZh": "先按用途看床品、服装等常备方向；手里有实物样或明确参数，再进入混纺、交织定织。",
+        "descriptionEn": "Browse regular bedding and apparel fabrics by end use. If you have a physical sample or defined specification, move on to blended or interwoven custom weaving.",
+        "image": "/images/products/product-01.jpg"
+      },
+      "sourcing": {
+        "eyebrowZh": "从哪里开始",
+        "eyebrowEn": "Where to begin",
+        "titleZh": "先看你手里有什么",
+        "titleEn": "Start with what you already have",
+        "descriptionZh": "有明确用途，可以先翻现有样册；有实物样或技术参数，就直接谈定织。库存、价格和排期仍以当次询盘为准。",
+        "descriptionEn": "If the end use is clear, start with the current range. If you have a sample or technical specification, move directly to custom weaving. Stock, price, and scheduling are confirmed with each inquiry."
+      },
+      "buyerNotes": {
+        "eyebrowZh": "采购资料",
+        "eyebrowEn": "Buyer notes",
+        "titleZh": "询价不用一次写全",
+        "titleEn": "You do not need every detail to start",
+        "descriptionZh": "先把手头已有的规格、图片或样品发来。缺少的项目，业务会在确认时逐项补齐。",
+        "descriptionEn": "Send the specifications, images, or sample you already have. Our sales team will help complete the missing details."
+      },
+      "sourcingDesk": {
+        "eyebrowZh": "从哪里开始",
+        "eyebrowEn": "Where to begin",
+        "titleZh": "先看你手里有什么",
+        "titleEn": "Start with what you already have",
+        "descriptionZh": "有明确用途，可以先翻现有样册；有实物样或技术参数，就直接谈定织。库存、价格和排期仍以当次询盘为准。",
+        "descriptionEn": "If the end use is clear, start with the current range. If you have a sample or technical specification, move directly to custom weaving. Stock, price, and scheduling are confirmed with each inquiry.",
+        "paths": [
+          {
+            "id": "ready-stock",
+            "conditionZh": "已经知道用途或面料类别",
+            "conditionEn": "You know the end use or fabric category",
+            "titleZh": "先看现有面料",
+            "titleEn": "Review the current range",
+            "descriptionZh": "从床品和服装面料中找接近的方向，再确认样品、批次规格和交期。",
+            "descriptionEn": "Start with bedding or apparel fabrics, then check samples, lot specifications, and lead time.",
+            "fitsZh": [
+              "床品与服装面料",
+              "先看样，再谈规格",
+              "可直接带产品名称询盘"
+            ],
+            "fitsEn": [
+              "Bedding and apparel",
+              "Sample first, specifications next",
+              "Inquire with a product name"
+            ]
+          },
+          {
+            "id": "custom-weaving",
+            "conditionZh": "手里有实物样或明确参数",
+            "conditionEn": "You have a sample or defined specifications",
+            "titleZh": "评估来样定织",
+            "titleEn": "Evaluate custom weaving",
+            "descriptionZh": "把样品、成分、组织和用途发来，先判断能否打样，再谈批量生产。",
+            "descriptionEn": "Share the sample, composition, construction, and end use. We will review sampling before bulk production.",
+            "fitsZh": [
+              "混纺与交织方向",
+              "特殊组织或手感",
+              "打样后确认批量"
+            ],
+            "fitsEn": [
+              "Blended and interwoven fabrics",
+              "Special construction or hand-feel",
+              "Bulk review after sampling"
+            ]
+          }
+        ]
+      }
+    },
+    "export": {
+      "hero": {
+        "eyebrowZh": "国际业务",
+        "eyebrowEn": "International Business",
+        "titleZh": "定制织造产品",
+        "titleEn": "Custom Weaving Products",
+        "descriptionZh": "从需求确认、打样、生产到检验与出货，为国际客户建立清晰、可追踪的合作流程。",
+        "descriptionEn": "A clear, traceable workflow from requirement confirmation and sampling to production, inspection, and shipment.",
+        "image": "/images/export-banner.jpg"
+      },
+      "trade": {
+        "titleZh": "采购决策所需关键信息",
+        "titleEn": "Key information for purchasing decisions"
+      }
+    },
+    "domestic": {
+      "hero": {
+        "eyebrowZh": "国内业务",
+        "eyebrowEn": "Domestic Business",
+        "titleZh": "常规在机现货产品",
+        "titleEn": "Regular In-stock Products",
+        "descriptionZh": "服务品牌方、经销商、工程项目、电商与企业采购，支持按真实需求评估合作方案。",
+        "descriptionEn": "Supporting brands, distributors, projects, e-commerce, and corporate buyers with requirement-based evaluation.",
+        "image": "/images/domestic-banner.jpg"
+      },
+      "servicesTitleZh": "能力清单，按实际情况启用",
+      "servicesTitleEn": "A service checklist to confirm before use",
+      "processTitleZh": "从提交需求到售后跟进",
+      "processTitleEn": "From requirements to after-sales follow-up"
+    },
+    "activity": {
+      "hero": {
+        "eyebrowZh": "公司活动",
+        "eyebrowEn": "Company Activities",
+        "titleZh": "现场见面，持续合作",
+        "titleEn": "Meet in person. Keep business moving.",
+        "descriptionZh": "记录参展、来访与工厂日常，方便采购商了解我们最近在做什么。",
+        "descriptionEn": "Trade shows, buyer visits, and day-to-day factory work, kept in one place.",
+        "image": "/images/factory-exterior.jpg"
+      }
+    },
+    "orders": {
+      "hero": {
+        "eyebrowZh": "订单需求",
+        "eyebrowEn": "Order Requirements",
+        "titleZh": "在线业务询盘",
+        "titleEn": "Online Inquiry",
+        "descriptionZh": "请提供产品、数量、材料、定制、包装与交期信息，以便进行可行性评估。",
+        "descriptionEn": "Provide product, quantity, material, customization, packaging, and delivery details for evaluation.",
+        "image": "/images/order-banner.jpg"
+      },
+      "process": {
+        "titleZh": "提交之后会发生什么",
+        "titleEn": "What happens after submission"
+      },
+      "faq": {
+        "titleZh": "下单前的常见问题",
+        "titleEn": "Common questions before ordering"
+      }
+    },
+    "quoteCTA": {
+      "titleZh": "告诉我们需要什么面料",
+      "titleEn": "Tell us what fabric you need",
+      "descriptionZh": "发送面料类别、成分、幅宽、密度或克重、数量和用途，我们将根据现货与生产情况协助确认。",
+      "descriptionEn": "Share the fabric type, composition, width, construction or weight, quantity, and end use. We will check available stock and production options."
+    }
+  },
+  "catalog": {
+    "products": [
+      {
+        "id": 1,
+        "slug": "cotton-bedding-greige-fabric",
+        "image": "/images/products/product-01.jpg",
+        "group": "ready-stock",
+        "subcategory": "bedding-fabric",
+        "nameZh": "全棉床品坯布",
+        "nameEn": "Cotton Bedding Greige Fabric",
+        "categoryZh": "常规在机现货 / 床品面料",
+        "categoryEn": "Regular In-stock / Bedding Fabric",
+        "summaryZh": "适用于床单、被套、枕套等家纺订单，可按客户需求沟通幅宽、密度、后整理与包装。",
+        "summaryEn": "For sheets, duvet covers, pillowcases, and home textile orders, with width, density, finishing, and packing options to confirm.",
+        "specsZh": [
+          "常规现货优先匹配",
+          "可寄样确认手感与组织",
+          "支持后整理需求沟通"
+        ],
+        "specsEn": [
+          "Regular stock matching first",
+          "Samples available for hand-feel and weave check",
+          "Finishing requirements can be discussed"
+        ],
+        "beddingSpecifications": [
+          {
+            "labelZh": "成分",
+            "labelEn": "Composition",
+            "valueZh": "100% 棉",
+            "valueEn": "100% cotton"
+          },
+          {
+            "labelZh": "图片所示规格",
+            "labelEn": "Specifications shown",
+            "valueZh": "CF 40×40 · 133×72 · 105″ · 2/1\nCF 40×40 · 133×100 · 105″ · 1/1\nCF 40×40 · 120×90 · 105″ · 双层",
+            "valueEn": "CF 40×40 · 133×72 · 105″ · 2/1\nCF 40×40 · 133×100 · 105″ · 1/1\nCF 40×40 · 120×90 · 105″ · double-layer"
+          },
+          {
+            "labelZh": "适用床品",
+            "labelEn": "Bedding use",
+            "valueZh": "床单、被套、枕套等",
+            "valueEn": "Sheets, duvet covers, pillowcases, and related bedding"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "slug": "poly-cotton-bedding-fabric",
+        "image": "/images/products/product-02.jpg",
+        "group": "ready-stock",
+        "subcategory": "bedding-fabric",
+        "nameZh": "涤棉床品面料",
+        "nameEn": "Poly-cotton Bedding Fabric",
+        "categoryZh": "常规在机现货 / 床品面料",
+        "categoryEn": "Regular In-stock / Bedding Fabric",
+        "summaryZh": "面向酒店、宿舍、家居渠道等采购场景，兼顾耐用性、成本控制与批量交付效率。",
+        "summaryEn": "For hotel, dormitory, and home textile channels, balancing durability, cost control, and batch delivery efficiency.",
+        "specsZh": [
+          "适配批量采购",
+          "可沟通成分比例",
+          "支持来样对色对版"
+        ],
+        "specsEn": [
+          "Suitable for bulk purchasing",
+          "Blend ratio can be discussed",
+          "Sample color and pattern matching supported"
+        ],
+        "beddingSpecifications": [
+          {
+            "labelZh": "成分",
+            "labelEn": "Composition",
+            "valueZh": "涤棉混纺，比例按产品批次确认",
+            "valueEn": "Poly-cotton blend; ratio confirmed by product lot"
+          },
+          {
+            "labelZh": "纱支 / 密度",
+            "labelEn": "Yarn count / Construction",
+            "valueZh": "按现货批次或来样要求确认",
+            "valueEn": "Confirmed by stock lot or buyer sample"
+          },
+          {
+            "labelZh": "门幅",
+            "labelEn": "Width",
+            "valueZh": "按产品批次与订单要求确认",
+            "valueEn": "Confirmed by product lot and order requirement"
+          },
+          {
+            "labelZh": "适用床品",
+            "labelEn": "Bedding use",
+            "valueZh": "酒店、宿舍及家居床品",
+            "valueEn": "Hotel, dormitory, and home bedding"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "slug": "cotton-apparel-fabric",
+        "image": "/images/products/product-03.jpg",
+        "group": "ready-stock",
+        "subcategory": "apparel-fabric",
+        "nameZh": "全棉服装面料",
+        "nameEn": "Cotton Apparel Fabric",
+        "categoryZh": "常规在机现货 / 服装面料",
+        "categoryEn": "Regular In-stock / Apparel Fabric",
+        "summaryZh": "适用于衬衫、休闲服、工装等服装面料采购，便于海外买家快速筛选常规规格。",
+        "summaryEn": "For shirts, casualwear, workwear, and apparel sourcing, helping overseas buyers quickly screen regular specifications.",
+        "specsZh": [
+          "常规规格快速沟通",
+          "支持小样确认",
+          "可配合后整理工艺"
+        ],
+        "specsEn": [
+          "Fast discussion for regular specs",
+          "Sample confirmation supported",
+          "Compatible with finishing processes"
+        ]
+      },
+      {
+        "id": 4,
+        "slug": "workwear-apparel-fabric",
+        "image": "/images/products/product-04.jpg",
+        "group": "ready-stock",
+        "subcategory": "apparel-fabric",
+        "nameZh": "工装服装面料",
+        "nameEn": "Workwear Apparel Fabric",
+        "categoryZh": "常规在机现货 / 服装面料",
+        "categoryEn": "Regular In-stock / Apparel Fabric",
+        "summaryZh": "面向制服、工装及耐磨服装订单，可结合克重、强力、色牢度等要求进行评估。",
+        "summaryEn": "For uniforms, workwear, and durable apparel orders, evaluated by weight, strength, color fastness, and other requirements.",
+        "specsZh": [
+          "适合工装渠道",
+          "可确认克重与强力",
+          "支持功能整理需求沟通"
+        ],
+        "specsEn": [
+          "Suitable for workwear channels",
+          "Weight and strength can be checked",
+          "Functional finishing can be discussed"
+        ]
+      },
+      {
+        "id": 5,
+        "slug": "custom-blended-fabric",
+        "image": "/images/products/product-05.jpg",
+        "group": "custom-weaving",
+        "subcategory": "blended-fabric",
+        "nameZh": "来样混纺定织面料",
+        "nameEn": "Custom Blended Fabric",
+        "categoryZh": "定制织造 / 混纺面料",
+        "categoryEn": "Custom Weaving / Blended Fabric",
+        "summaryZh": "根据客户来样、目标成分、手感和用途评估定织方案，适合有明确规格或复购需求的采购项目。",
+        "summaryEn": "Custom weaving based on buyer samples, target composition, hand-feel, and application, suitable for projects with clear specs or repeat demand.",
+        "specsZh": [
+          "支持来样分析",
+          "成分比例按需求沟通",
+          "打样后确认批量可行性"
+        ],
+        "specsEn": [
+          "Sample analysis supported",
+          "Blend ratio discussed by requirement",
+          "Bulk feasibility confirmed after sampling"
+        ]
+      },
+      {
+        "id": 6,
+        "slug": "custom-interwoven-fabric",
+        "image": "/images/products/product-06.jpg",
+        "group": "custom-weaving",
+        "subcategory": "interwoven-fabric",
+        "nameZh": "交织面料定制织造",
+        "nameEn": "Custom Interwoven Fabric",
+        "categoryZh": "定制织造 / 交织面料",
+        "categoryEn": "Custom Weaving / Interwoven Fabric",
+        "summaryZh": "面向经纬不同原料、组织结构或特殊手感的面料开发需求，按样品与技术指标推进打样。",
+        "summaryEn": "For fabrics with different warp and weft materials, structures, or special hand-feel, developed through samples and technical targets.",
+        "specsZh": [
+          "适合结构型面料开发",
+          "可沟通纱支密度与门幅",
+          "按样品推进打样确认"
+        ],
+        "specsEn": [
+          "For structured fabric development",
+          "Yarn count, density, and width can be discussed",
+          "Sampling proceeds from buyer samples"
+        ]
+      }
+    ],
+    "categories": [
+      {
+        "id": "bedding-fabric",
+        "group": "ready-stock",
+        "titleZh": "床品面料",
+        "titleEn": "Bedding Fabric",
+        "descriptionZh": "适配床单、被套、枕套、酒店及家纺渠道采购。",
+        "descriptionEn": "For sheets, duvet covers, pillowcases, hotel, and home textile sourcing."
+      },
+      {
+        "id": "apparel-fabric",
+        "group": "ready-stock",
+        "titleZh": "服装面料",
+        "titleEn": "Apparel Fabric",
+        "descriptionZh": "适配衬衫、休闲服、制服、工装等服装面料订单。",
+        "descriptionEn": "For shirts, casualwear, uniforms, workwear, and apparel fabric orders."
+      },
+      {
+        "id": "blended-fabric",
+        "group": "custom-weaving",
+        "titleZh": "混纺面料",
+        "titleEn": "Blended Fabric",
+        "descriptionZh": "按成分比例、手感、用途和样品要求评估定织。",
+        "descriptionEn": "Custom evaluated by blend ratio, hand-feel, application, and buyer samples."
+      },
+      {
+        "id": "interwoven-fabric",
+        "group": "custom-weaving",
+        "titleZh": "交织面料",
+        "titleEn": "Interwoven Fabric",
+        "descriptionZh": "适合经纬不同原料、组织结构或特殊性能面料开发。",
+        "descriptionEn": "For warp and weft material differences, structures, or special performance development."
+      }
+    ]
+  }
+}

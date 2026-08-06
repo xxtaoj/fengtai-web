@@ -1,7 +1,7 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { Check, Copy, Factory, Layers3, Mail, Package, Paperclip, Search, type LucideIcon } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
-import { company } from '../data/company';
+import { useSite } from '../context/SiteContext';
 import { useLanguage } from '../i18n/useLanguage';
 import { FileUpload } from './FileUpload';
 import { FormField, SelectInput, TextArea, TextInput } from './FormField';
@@ -36,6 +36,7 @@ function isIntent(value:string|null):value is InquiryIntent{
 export function InquiryComposer(){
   const {language}=useLanguage();
   const zh=language==='zh';
+  const {site}=useSite();
   const [searchParams]=useSearchParams();
   const requestedIntent=searchParams.get('intent');
   const [intent,setIntent]=useState<InquiryIntent>(isIntent(requestedIntent)?requestedIntent:'product');
@@ -87,7 +88,7 @@ export function InquiryComposer(){
     }
   }
 
-  const mailHref=`mailto:${company.email}?subject=${encodeURIComponent(`${zh?'面料询盘':'Fabric inquiry'} · ${values.product||selectedIntent.labelEn}`)}&body=${encodeURIComponent(summaryText)}`;
+  const mailHref=`mailto:${site.company.email}?subject=${encodeURIComponent(`${zh?'面料询盘':'Fabric inquiry'} · ${values.product||selectedIntent.labelEn}`)}&body=${encodeURIComponent(summaryText)}`;
 
   return <section aria-labelledby="inquiry-composer-title" className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-[#F1EEE7]">
     <div className="border-b border-slate-200 px-5 py-6 sm:px-8 sm:py-7">

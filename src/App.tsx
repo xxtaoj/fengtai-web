@@ -11,6 +11,7 @@ import { ContactPage } from './pages/ContactPage';
 import { ProductDetailPage } from './pages/ProductDetailPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { AdminPage } from './pages/AdminPage';
+import { AnalyticsTracker } from './components/AnalyticsTracker';
 
 export function App(){
   return <><ScrollToTop/><Routes><Route path="/admin" element={<AdminPage/>}/><Route path="*" element={<SiteRoutes/>}/></Routes></>;
@@ -18,6 +19,7 @@ export function App(){
 
 function SiteRoutes(){
   return <>
+    <AnalyticsTracker/>
     <Header/>
     <Routes>
       <Route path="/" element={<HomePage/>}/>

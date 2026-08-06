@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { ArrowUpRight, ChevronLeft, ChevronRight } from 'lucide-react';
-import { news } from '../data/news';
+import { useSite } from '../context/SiteContext';
 import { useLanguage } from '../i18n/useLanguage';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 import { ErrorState } from '../components/ErrorState';
@@ -17,6 +17,8 @@ export function NewsDetailPage(){
   const {slug}=useParams();
   const {language}=useLanguage();
   const zh=language==='zh';
+  const {site}=useSite();
+  const news=site.news;
   const i=news.findIndex(item=>item.slug===slug);
   if(i<0)return <main className="section-pad pt-40"><ErrorState title={zh?'活动未找到':'Activity not found'} message={zh?'该链接不存在或内容已被移动。':'This activity does not exist or has moved.'}/></main>;
   const article=news[i];

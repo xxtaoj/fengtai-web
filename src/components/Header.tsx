@@ -1,20 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, ChevronDown } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
-import { company } from '../data/company';
-import { navigation } from '../data/navigation';
 import { useLanguage } from '../i18n/useLanguage';
+import { useSite } from '../context/SiteContext';
 
 export function Header(){
   const {language,setLanguage}=useLanguage();
   const zh=language==='zh';
+  const {site}=useSite();
   const location=useLocation();
   const [open,setOpen]=useState(false);
   const [languageOpen,setLanguageOpen]=useState(false);
   const navigationRef=useRef<HTMLElement>(null);
   const menuId='site-navigation-menu';
   const languageMenuId='site-language-menu';
-  const headerNavigation=navigation.filter(item=>item.to!=='/');
+  const headerNavigation=site.navigation.filter(item=>item.to!=='/');
 
   useEffect(()=>{setOpen(false);setLanguageOpen(false)},[location.pathname,location.hash]);
   useEffect(()=>{
@@ -37,8 +37,8 @@ export function Header(){
     <div className="relative flex min-h-[4.5rem] items-center rounded-md border border-white/80 bg-white/95 px-3 shadow-[0_18px_48px_-28px_rgba(15,23,42,.55)] backdrop-blur-xl sm:px-5">
       <Link to="/" className="mr-6 flex h-16 w-36 shrink-0 items-center justify-start sm:w-40 lg:mr-8" aria-label={zh?'返回首页':'Back to home'}>
         <img
-          src="/images/logo.png"
-          alt={zh?company.chineseName:company.englishName}
+          src={site.company.logo}
+          alt={zh?site.company.chineseName:site.company.englishName}
           className="max-h-14 w-full object-contain object-left drop-shadow-[0_6px_12px_rgba(15,23,42,.12)]"
         />
       </Link>

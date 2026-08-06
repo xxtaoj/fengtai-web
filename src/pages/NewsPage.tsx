@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { ArrowUpRight, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { news } from '../data/news';
+import { useSite } from '../context/SiteContext';
 import { useLanguage } from '../i18n/useLanguage';
 import { EmptyState } from '../components/EmptyState';
 import { LocalImage } from '../components/Media';
@@ -16,6 +16,11 @@ type ActivityFilter = {
 export function NewsPage(){
   const {language,t}=useLanguage();
   const zh=language==='zh';
+  const {site}=useSite();
+  const news=site.news;
+  const copy = site.copy.activity as {
+    hero: { eyebrowZh: string; eyebrowEn: string; titleZh: string; titleEn: string; descriptionZh: string; descriptionEn: string; image: string };
+  };
   const [query,setQuery]=useState('');
   const [category,setCategory]=useState('all');
   const [year,setYear]=useState('all');
@@ -29,8 +34,8 @@ export function NewsPage(){
   const featured=filtered[0];
 
   return <>
-    <Seo title={{zh:'公司活动',en:'Company Activities'}} description={{zh:'展会交流、客户来访、工厂近况和团队培训记录。',en:'Trade-show discussions, buyer visits, factory updates, and team training.'}}/>
-    <PageHero image="/images/factory-exterior.jpg" eyebrow={zh?'公司活动':'Company Activities'} title={t.pages.activity} description={zh?'记录参展、来访与工厂日常，方便采购商了解我们最近在做什么。':'Trade shows, buyer visits, and day-to-day factory work, kept in one place.'}/>
+    <Seo title={{zh:'公司活动',en:'Company Activities'}} description={{zh:copy.hero.descriptionZh,en:copy.hero.descriptionEn}}/>
+    <PageHero image={copy.hero.image} eyebrow={zh?copy.hero.eyebrowZh:copy.hero.eyebrowEn} title={zh?copy.hero.titleZh:copy.hero.titleEn} description={zh?copy.hero.descriptionZh:copy.hero.descriptionEn}/>
 
     <main className="bg-white">
       <section className="section-pad">

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight } from 'lucide-react';
-import { featureShowcaseItems, type FeatureShowcaseItem } from '../data/features';
+import { type FeatureShowcaseItem } from '../types/site';
 import { useLanguage } from '../i18n/useLanguage';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { LocalImage } from './Media';
 import { PrimaryButton } from './Button';
+import { useSite } from '../context/SiteContext';
 
 type FeatureCardElement = HTMLElement | null;
 type VisibleFeatureIds = Set<FeatureShowcaseItem['id']>;
@@ -29,6 +30,8 @@ function FeatureVideo({item,alt}:{item:FeatureShowcaseItem;alt:string}){
 export function FeatureShowcase(){
   const {language}=useLanguage();
   const zh=language==='zh';
+  const {site}=useSite();
+  const featureShowcaseItems=site.features;
   const reducedMotion=useReducedMotion();
   const cardRefs=useRef<FeatureCardElement[]>([]);
   const activeRatios=useRef<Map<FeatureShowcaseItem['id'],number>>(new Map());
