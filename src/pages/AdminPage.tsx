@@ -5,6 +5,8 @@ import { useSite } from '../context/SiteContext';
 import { staticMediaFiles } from '../data/staticMediaManifest';
 import {
   createUser,
+  disableTwoFactor,
+  enableTwoFactor,
   listOperationLogs,
   listRequestLogs,
   listUsers,
@@ -13,6 +15,7 @@ import {
   loadProductAnalytics,
   loginAdmin,
   logoutAdmin,
+  setupTwoFactor,
   updateUser,
   type AdminLog,
   type AdminRole,
@@ -62,6 +65,8 @@ function downloadJson(filename: string, data: unknown) {
 function AdminLogin({ onLogin }: { onLogin: () => Promise<void> }) {
   const [username, setUsername] = useState(defaultUsername);
   const [password, setPassword] = useState('');
+  const [twoFactorCode, setTwoFactorCode] = useState('');
+  const [needsTwoFactor, setNeedsTwoFactor] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -70,10 +75,15 @@ function AdminLogin({ onLogin }: { onLogin: () => Promise<void> }) {
     setLoading(true);
     setError('');
     try {
-      await loginAdmin(username, password);
+      const result = await loginAdmin(username, password, needsTwoFactor ? twoFactorCode : undefined);
+      if ('requiresTwoFactor' in result) {
+        setNeedsTwoFactor(true);
+        setError('');
+        return;
+      }
       await onLogin();
     } catch {
-      setError('账号或密码不正确');
+      setError(needsTwoFactor ? '账号、密码或动态验证码不正确' : '账号或密码不正确');
     } finally {
       setLoading(false);
     }
@@ -97,6 +107,10 @@ function AdminLogin({ onLogin }: { onLogin: () => Promise<void> }) {
         管理员密码
         <input type="password" value={password} onChange={event=>setPassword(event.target.value)} className="mt-2 min-h-12 w-full border border-line px-4 py-3 outline-none focus:border-accent focus:ring-2 focus:ring-orange-100" placeholder={defaultPassword}/>
       </label>
+      {needsTwoFactor&&<label className="mt-5 block text-sm font-semibold text-ink">
+        动态验证码
+        <input inputMode="numeric" autoComplete="one-time-code" value={twoFactorCode} onChange={event=>setTwoFactorCode(event.target.value.replace(/\D/g, '').slice(0, 6))} className="mt-2 min-h-12 w-full border border-line px-4 py-3 tracking-[.25em] outline-none focus:border-accent focus:ring-2 focus:ring-orange-100" placeholder="6 位验证码"/>
+      </label>}
       {error&&<p className="mt-3 text-sm text-red-700" role="alert">{error}</p>}
       <button type="submit" disabled={loading} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 bg-accent px-5 py-3 font-bold text-white hover:bg-accent-hover disabled:opacity-60">
         <Check size={18}/>{loading?'登录中':'进入后台'}
@@ -226,6 +240,7 @@ type ContentModule = {
   description: string;
   path: PathPart[];
 };
+type UploadMediaFn = ReturnType<typeof useSite>['uploadMedia'];
 type SiteMediaItem = {
   url: string;
   kind: string;
@@ -434,6 +449,10 @@ function isMediaKey(key: string) {
   return /image|logo|poster|video|qr|wechatQr/i.test(key);
 }
 
+function isImageUploadKey(key: string) {
+  return /image|logo|poster|qr|wechatQr|gallery/i.test(key) && !/video/i.test(key);
+}
+
 function isLongTextKey(key: string) {
   return /description|summary|content|address|products|markets|hours|payment|title/i.test(key);
 }
@@ -525,7 +544,53 @@ function extractSiteLibrary(site: SiteContent) {
   };
 }
 
-function EditableField({ label, value, onChange, fieldKey }: { label: string; value: string | number | boolean; onChange: (value: string | number | boolean) => void; fieldKey: string }) {
+function ContentImageDropzone({ label, value, uploadMedia, onChange }: { label: string; value: string; uploadMedia?: UploadMediaFn; onChange: (value: string) => void }) {
+  const [dragging, setDragging] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [message, setMessage] = useState('');
+
+  async function acceptFile(file: File | undefined) {
+    if (!file || !uploadMedia) return;
+    if (!file.type.startsWith('image/')) {
+      window.alert('这里只能上传图片文件');
+      return;
+    }
+    setUploading(true);
+    setMessage('');
+    try {
+      const url = await uploadMedia(file);
+      onChange(url);
+      setMessage('图片已上传，保存当前模块后生效');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : '图片上传失败');
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function handleDrop(event: DragEvent<HTMLLabelElement>) {
+    event.preventDefault();
+    setDragging(false);
+    void acceptFile(event.dataTransfer.files[0]);
+  }
+
+  return <label
+    onDragEnter={event => { event.preventDefault(); setDragging(true); }}
+    onDragOver={event => event.preventDefault()}
+    onDragLeave={event => { event.preventDefault(); setDragging(false); }}
+    onDrop={handleDrop}
+    className={`mt-3 block cursor-pointer border-2 border-dashed p-3 transition ${dragging ? 'border-accent bg-orange-50' : 'border-slate-300 bg-slate-50 hover:border-accent hover:bg-orange-50/60'}`}
+  >
+    {value
+      ? <img src={value} alt={label} className="max-h-64 w-full object-contain bg-white p-2"/>
+      : <div className="flex min-h-40 items-center justify-center bg-white text-center text-sm leading-6 text-muted">将图片拖到这里</div>}
+    <p className="mt-3 text-center text-xs font-semibold text-muted">{uploading ? '上传中...' : '拖拽本地图片到这里，或点击选择图片'}</p>
+    {message&&<p className="mt-2 text-center text-xs font-semibold text-accent">{message}</p>}
+    <input type="file" accept="image/*" className="sr-only" onChange={event => { void acceptFile(event.target.files?.[0]); event.target.value = ''; }}/>
+  </label>;
+}
+
+function EditableField({ label, value, onChange, fieldKey, uploadMedia }: { label: string; value: string | number | boolean; onChange: (value: string | number | boolean) => void; fieldKey: string; uploadMedia?: UploadMediaFn }) {
   if (typeof value === 'boolean') {
     return <label className="flex min-h-11 items-center gap-3 border border-line px-3 text-sm font-semibold text-ink">
       <input type="checkbox" checked={value} onChange={event => onChange(event.target.checked)} className="size-4 accent-orange-600"/>
@@ -540,10 +605,11 @@ function EditableField({ label, value, onChange, fieldKey }: { label: string; va
   const textareaClass = "min-h-28 w-full border border-line p-3 text-sm leading-6 outline-none focus:border-accent";
 
   return <ProductEditorField label={label}>
+    {typeof value === 'string' && uploadMedia && isImageUploadKey(fieldKey) && <ContentImageDropzone label={label} value={textValue} uploadMedia={uploadMedia} onChange={next => onChange(next)}/>}
     {longText
       ? <textarea value={textValue} onChange={event => onChange(numeric ? Number(event.target.value) : event.target.value)} className={textareaClass}/>
       : <input type={numeric ? 'number' : 'text'} value={textValue} onChange={event => onChange(numeric ? Number(event.target.value) : event.target.value)} className={inputClass}/>}
-    {typeof value === 'string' && isMediaKey(fieldKey) && textValue && <MediaPreview value={textValue} fieldKey={fieldKey}/>}
+    {typeof value === 'string' && isMediaKey(fieldKey) && textValue && !isImageUploadKey(fieldKey) && <MediaPreview value={textValue} fieldKey={fieldKey}/>}
   </ProductEditorField>;
 }
 
@@ -556,15 +622,38 @@ function MediaPreview({ value, fieldKey }: { value: string; fieldKey: string }) 
   </div>;
 }
 
-function EditableValue({ value, onChange, fieldKey = 'content', depth = 0 }: { value: unknown; onChange: (value: unknown) => void; fieldKey?: string; depth?: number }) {
+function EditableValue({ value, onChange, fieldKey = 'content', depth = 0, uploadMedia }: { value: unknown; onChange: (value: unknown) => void; fieldKey?: string; depth?: number; uploadMedia?: UploadMediaFn }) {
   if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-    return <EditableField label={labelForKey(fieldKey)} value={value} onChange={onChange} fieldKey={fieldKey}/>;
+    return <EditableField label={labelForKey(fieldKey)} value={value} onChange={onChange} fieldKey={fieldKey} uploadMedia={uploadMedia}/>;
   }
 
   if (Array.isArray(value)) {
     const allStrings = value.every(item => typeof item === 'string');
     const allPairs = value.every(item => Array.isArray(item) && item.length === 2 && item.every(part => typeof part === 'string'));
     if (allStrings) {
+      if (uploadMedia && isImageUploadKey(fieldKey)) {
+        return <div>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h3 className="text-sm font-bold text-ink">{labelForKey(fieldKey)}</h3>
+            <button type="button" onClick={() => onChange([...value, ''])} className="border border-line px-3 py-2 text-xs font-bold hover:border-accent hover:text-accent">新增图片位置</button>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-2">
+            {value.map((item, index) => <div key={`${index}-${item}`} className="border border-slate-200 p-4">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <p className="text-xs font-bold uppercase tracking-[.12em] text-muted">第 {index + 1} 张</p>
+                <button type="button" onClick={() => onChange(value.filter((_, itemIndex) => itemIndex !== index))} className="text-xs font-bold text-red-700">删除</button>
+              </div>
+              <EditableField
+                label="图片"
+                value={item}
+                fieldKey="image"
+                uploadMedia={uploadMedia}
+                onChange={next => onChange(value.map((row, rowIndex) => rowIndex === index ? String(next) : row))}
+              />
+            </div>)}
+          </div>
+        </div>;
+      }
       return <ProductEditorField label={`${labelForKey(fieldKey)}，每行一条`}>
         <textarea value={value.join('\n')} onChange={event => onChange(event.target.value.split('\n').map(item => item.trim()).filter(Boolean))} className="min-h-36 w-full border border-line p-3 text-sm leading-6 outline-none focus:border-accent"/>
       </ProductEditorField>;
@@ -582,8 +671,8 @@ function EditableValue({ value, onChange, fieldKey = 'content', depth = 0 }: { v
               <button type="button" onClick={() => onChange(value.filter((_, itemIndex) => itemIndex !== index))} className="text-xs font-bold text-red-700">删除</button>
             </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-2">
-              <EditableField label="中文" value={item[0]} fieldKey="zh" onChange={next => onChange(value.map((row, rowIndex) => rowIndex === index ? [next, row[1]] : row))}/>
-              <EditableField label="英文" value={item[1]} fieldKey="en" onChange={next => onChange(value.map((row, rowIndex) => rowIndex === index ? [row[0], next] : row))}/>
+              <EditableField label="中文" value={item[0]} fieldKey="zh" uploadMedia={uploadMedia} onChange={next => onChange(value.map((row, rowIndex) => rowIndex === index ? [next, row[1]] : row))}/>
+              <EditableField label="英文" value={item[1]} fieldKey="en" uploadMedia={uploadMedia} onChange={next => onChange(value.map((row, rowIndex) => rowIndex === index ? [row[0], next] : row))}/>
             </div>
           </div>)}
         </div>
@@ -608,7 +697,7 @@ function EditableValue({ value, onChange, fieldKey = 'content', depth = 0 }: { v
               <button type="button" onClick={() => onChange(value.filter((_, itemIndex) => itemIndex !== index))} className="border border-red-200 px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-50">删除</button>
             </div>
           </div>
-          <EditableValue value={item} fieldKey={`${fieldKey}-${index + 1}`} depth={depth + 1} onChange={next => onChange(value.map((row, rowIndex) => rowIndex === index ? next : row))}/>
+          <EditableValue value={item} fieldKey={`${fieldKey}-${index + 1}`} depth={depth + 1} uploadMedia={uploadMedia} onChange={next => onChange(value.map((row, rowIndex) => rowIndex === index ? next : row))}/>
         </div>)}
       </div>
     </div>;
@@ -621,9 +710,9 @@ function EditableValue({ value, onChange, fieldKey = 'content', depth = 0 }: { v
         {isRecord(item) || Array.isArray(item)
           ? <div className="border border-slate-200 p-4">
               <h2 className="mb-4 text-base font-bold text-ink">{labelForKey(key)}</h2>
-              <EditableValue value={item} fieldKey={key} depth={depth + 1} onChange={next => onChange({ ...value, [key]: next })}/>
+              <EditableValue value={item} fieldKey={key} depth={depth + 1} uploadMedia={uploadMedia} onChange={next => onChange({ ...value, [key]: next })}/>
             </div>
-          : <EditableValue value={item} fieldKey={key} depth={depth + 1} onChange={next => onChange({ ...value, [key]: next })}/>}
+          : <EditableValue value={item} fieldKey={key} depth={depth + 1} uploadMedia={uploadMedia} onChange={next => onChange({ ...value, [key]: next })}/>}
       </div>)}
     </div>;
   }
@@ -664,7 +753,7 @@ function buildContentModules(site: SiteContent): ContentModule[] {
   ];
 }
 
-function ContentPanel({ site, saveSiteContent, saving }: { site: SiteContent; saveSiteContent: ReturnType<typeof useSite>['saveSiteContent']; saving: boolean }) {
+function ContentPanel({ site, saveSiteContent, uploadMedia, saving }: { site: SiteContent; saveSiteContent: ReturnType<typeof useSite>['saveSiteContent']; uploadMedia: UploadMediaFn; saving: boolean }) {
   const modules = useMemo(() => buildContentModules(site), [site]);
   const [selectedId, setSelectedId] = useState(() => modules[0]?.id || 'company');
   const selected = modules.find(module => module.id === selectedId) || modules[0];
@@ -719,7 +808,7 @@ function ContentPanel({ site, saveSiteContent, saving }: { site: SiteContent; sa
           <h2 className="mt-1 text-2xl font-bold text-ink">{selected.title}</h2>
           <p className="mt-2 text-sm text-muted">{selected.description}</p>
         </div>}
-        <EditableValue value={draft} onChange={setDraft} fieldKey={selected?.id || 'content'}/>
+        <EditableValue value={draft} onChange={setDraft} fieldKey={selected?.id || 'content'} uploadMedia={uploadMedia}/>
         <div className="mt-6 flex justify-end">
           <button onClick={saveModule} disabled={saving} className="inline-flex min-h-11 items-center gap-2 bg-accent px-5 py-3 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-60"><Save size={17}/>{saving?'保存中':'保存当前模块'}</button>
         </div>
@@ -933,7 +1022,71 @@ function ProductPanel({ site, saveSite, uploadMedia, saving }: { site: ReturnTyp
   </section>;
 }
 
-function UsersPanel() {
+function TwoFactorPanel({ currentUser, refreshSession }: { currentUser: AdminUser | null; refreshSession: () => Promise<void> }) {
+  const [setup, setSetup] = useState<{ secret: string; otpauthUrl: string } | null>(null);
+  const [code, setCode] = useState('');
+  const [notice, setNotice] = useState('');
+  const [error, setError] = useState('');
+
+  async function startSetup() {
+    setError('');
+    setNotice('');
+    setSetup(await setupTwoFactor());
+  }
+
+  async function confirmSetup() {
+    setError('');
+    setNotice('');
+    try {
+      await enableTwoFactor(code);
+      await refreshSession();
+      setSetup(null);
+      setCode('');
+      setNotice('二次验证已启用');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : '验证码不正确');
+    }
+  }
+
+  async function disable() {
+    setError('');
+    setNotice('');
+    try {
+      await disableTwoFactor(code);
+      await refreshSession();
+      setCode('');
+      setNotice('二次验证已关闭');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : '验证码不正确');
+    }
+  }
+
+  return <section className="mt-6 border border-slate-200 bg-white p-5">
+    <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
+      <div>
+        <h2 className="text-lg font-bold text-ink">我的二次验证</h2>
+        <p className="mt-1 text-sm text-muted">状态：{currentUser?.twoFactorEnabled ? '已启用' : '未启用'}</p>
+      </div>
+      {!currentUser?.twoFactorEnabled&&<button type="button" onClick={startSetup} className="inline-flex min-h-11 items-center justify-center gap-2 bg-accent px-4 py-3 text-sm font-bold text-white hover:bg-accent-hover">开始启用</button>}
+    </div>
+    {notice&&<div className="mt-4 border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">{notice}</div>}
+    {error&&<div className="mt-4 border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{error}</div>}
+    {setup&&<div className="mt-5 border border-line bg-slate-50 p-4">
+      <p className="text-sm font-semibold text-ink">在身份验证器 App 中添加账户</p>
+      <p className="mt-3 break-all border border-slate-200 bg-white p-3 font-mono text-xs leading-6 text-muted">{setup.otpauthUrl}</p>
+      <p className="mt-3 text-xs leading-5 text-muted">如果 App 不能直接识别上面的链接，可以手动录入密钥：</p>
+      <p className="mt-2 break-all font-mono text-sm font-bold text-ink">{setup.secret}</p>
+    </div>}
+    {(setup || currentUser?.twoFactorEnabled)&&<div className="mt-5 flex flex-wrap gap-3">
+      <input value={code} onChange={event=>setCode(event.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" className="min-h-11 w-48 border border-line px-3 tracking-[.25em] outline-none focus:border-accent" placeholder="6 位验证码"/>
+      {setup
+        ? <button type="button" onClick={confirmSetup} className="inline-flex min-h-11 items-center gap-2 bg-accent px-4 py-3 text-sm font-bold text-white hover:bg-accent-hover">确认启用</button>
+        : <button type="button" onClick={disable} className="inline-flex min-h-11 items-center gap-2 border border-red-300 bg-white px-4 py-3 text-sm font-bold text-red-800 hover:bg-red-100">关闭二次验证</button>}
+    </div>}
+  </section>;
+}
+
+function UsersPanel({ currentUser, refreshSession }: { currentUser: AdminUser | null; refreshSession: () => Promise<void> }) {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [form, setForm] = useState({ username: '', displayName: '', password: '', role: 'editor' as AdminRole });
   const [notice, setNotice] = useState('');
@@ -970,7 +1123,8 @@ function UsersPanel() {
   const manageableUsers = users.filter(user => user.role !== 'owner');
 
   return <section>
-    <div><p className="text-xs font-bold uppercase tracking-[.18em] text-accent">权限管理</p><h1 className="mt-2 text-3xl font-bold text-ink">用户与权限</h1><p className="mt-2 text-sm text-muted">站主账号不在列表中显示。这里管理管理员、内容编辑和只读查看账号。</p></div>
+    <div><p className="text-xs font-bold uppercase tracking-[.18em] text-accent">权限管理</p><h1 className="mt-2 text-3xl font-bold text-ink">用户与权限</h1></div>
+    <TwoFactorPanel currentUser={currentUser} refreshSession={refreshSession}/>
     {notice&&<div className="mt-5 border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">{notice}</div>}
     {error&&<div className="mt-5 border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{error}</div>}
     <form onSubmit={submit} className="mt-6 grid gap-3 border border-slate-200 bg-white p-5 lg:grid-cols-[1fr_1fr_1fr_10rem_auto]">
@@ -1173,7 +1327,7 @@ function AdminDashboard() {
           <div><p className="text-xs font-bold uppercase tracking-[.18em] text-accent">总览</p><h1 className="mt-2 text-3xl font-bold text-ink">站点总览</h1><p className="mt-2 text-sm text-muted">所有内容都从服务器读取，后台编辑后会直接保存到服务器数据库。</p></div>
           <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{statistics.map(item=><Stat key={item.label} label={item.label} value={item.value}/>)}</div>
         </section>}
-        {tab==='content'&&<ContentPanel site={site} saveSiteContent={saveSiteContent} saving={saving}/>}
+        {tab==='content'&&<ContentPanel site={site} saveSiteContent={saveSiteContent} uploadMedia={uploadMedia} saving={saving}/>}
         {tab==='products'&&<ProductPanel site={site} saveSite={saveSite} uploadMedia={uploadMedia} saving={saving}/>}
         {tab==='media'&&<section>
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -1212,7 +1366,7 @@ function AdminDashboard() {
               : <div className="mt-4 border border-dashed border-slate-300 bg-white px-5 py-8 text-sm font-semibold text-muted">当前站点内容里没有识别到文字素材。</div>}
           </div>
         </section>}
-        {tab==='users'&&<UsersPanel/>}
+        {tab==='users'&&<UsersPanel currentUser={adminUser} refreshSession={refreshSession}/>}
         {tab==='analytics'&&<AnalyticsPanel/>}
         {tab==='logs'&&<LogsPanel/>}
         {tab==='data'&&<section>

@@ -67,6 +67,7 @@ export type AdminUser = {
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string | null;
+  twoFactorEnabled: boolean;
 };
 
 export type AdminSession = {
@@ -138,10 +139,12 @@ export function resetSite() {
   });
 }
 
-export function loginAdmin(username: string, password: string) {
-  return request<{ ok: boolean; user: AdminUser; permissions: Permission[] }>('/api/admin/login', {
+export type LoginResponse = { ok: true; user: AdminUser; permissions: Permission[] } | { requiresTwoFactor: true };
+
+export function loginAdmin(username: string, password: string, twoFactorCode?: string) {
+  return request<LoginResponse>('/api/admin/login', {
     method: 'POST',
-    body: JSON.stringify({ username, password }),
+    body: JSON.stringify({ username, password, twoFactorCode }),
   });
 }
 
@@ -195,6 +198,27 @@ export function updateUser(id: number, input: { displayName?: string; password?:
   return request<AdminUser>(`/api/admin/users/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(input),
+  });
+}
+
+export function setupTwoFactor() {
+  return request<{ secret: string; otpauthUrl: string }>('/api/admin/2fa/setup', {
+    method: 'POST',
+    body: JSON.stringify({}),
+  });
+}
+
+export function enableTwoFactor(code: string) {
+  return request<AdminUser>('/api/admin/2fa/enable', {
+    method: 'POST',
+    body: JSON.stringify({ code }),
+  });
+}
+
+export function disableTwoFactor(code: string) {
+  return request<AdminUser>('/api/admin/2fa/disable', {
+    method: 'POST',
+    body: JSON.stringify({ code }),
   });
 }
 
