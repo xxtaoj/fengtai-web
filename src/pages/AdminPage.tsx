@@ -5,8 +5,6 @@ import { useSite } from '../context/SiteContext';
 import { staticMediaFiles } from '../data/staticMediaManifest';
 import {
   createUser,
-  disableTwoFactor,
-  enableTwoFactor,
   listOperationLogs,
   listRequestLogs,
   listUsers,
@@ -15,7 +13,6 @@ import {
   loadProductAnalytics,
   loginAdmin,
   logoutAdmin,
-  setupTwoFactor,
   updateUser,
   type AdminLog,
   type AdminRole,
@@ -65,8 +62,6 @@ function downloadJson(filename: string, data: unknown) {
 function AdminLogin({ onLogin }: { onLogin: () => Promise<void> }) {
   const [username, setUsername] = useState(defaultUsername);
   const [password, setPassword] = useState('');
-  const [twoFactorCode, setTwoFactorCode] = useState('');
-  const [needsTwoFactor, setNeedsTwoFactor] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -75,15 +70,10 @@ function AdminLogin({ onLogin }: { onLogin: () => Promise<void> }) {
     setLoading(true);
     setError('');
     try {
-      const result = await loginAdmin(username, password, needsTwoFactor ? twoFactorCode : undefined);
-      if ('requiresTwoFactor' in result) {
-        setNeedsTwoFactor(true);
-        setError('');
-        return;
-      }
+      await loginAdmin(username, password);
       await onLogin();
     } catch {
-      setError(needsTwoFactor ? '账号、密码或动态验证码不正确' : '账号或密码不正确');
+      setError('账号或密码不正确');
     } finally {
       setLoading(false);
     }
@@ -107,10 +97,6 @@ function AdminLogin({ onLogin }: { onLogin: () => Promise<void> }) {
         管理员密码
         <input type="password" value={password} onChange={event=>setPassword(event.target.value)} className="mt-2 min-h-12 w-full border border-line px-4 py-3 outline-none focus:border-accent focus:ring-2 focus:ring-orange-100" placeholder={defaultPassword}/>
       </label>
-      {needsTwoFactor&&<label className="mt-5 block text-sm font-semibold text-ink">
-        动态验证码
-        <input inputMode="numeric" autoComplete="one-time-code" value={twoFactorCode} onChange={event=>setTwoFactorCode(event.target.value.replace(/\D/g, '').slice(0, 6))} className="mt-2 min-h-12 w-full border border-line px-4 py-3 tracking-[.25em] outline-none focus:border-accent focus:ring-2 focus:ring-orange-100" placeholder="6 位验证码"/>
-      </label>}
       {error&&<p className="mt-3 text-sm text-red-700" role="alert">{error}</p>}
       <button type="submit" disabled={loading} className="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-2 bg-accent px-5 py-3 font-bold text-white hover:bg-accent-hover disabled:opacity-60">
         <Check size={18}/>{loading?'登录中':'进入后台'}
@@ -1022,71 +1008,7 @@ function ProductPanel({ site, saveSite, uploadMedia, saving }: { site: ReturnTyp
   </section>;
 }
 
-function TwoFactorPanel({ currentUser, refreshSession }: { currentUser: AdminUser | null; refreshSession: () => Promise<void> }) {
-  const [setup, setSetup] = useState<{ secret: string; otpauthUrl: string } | null>(null);
-  const [code, setCode] = useState('');
-  const [notice, setNotice] = useState('');
-  const [error, setError] = useState('');
-
-  async function startSetup() {
-    setError('');
-    setNotice('');
-    setSetup(await setupTwoFactor());
-  }
-
-  async function confirmSetup() {
-    setError('');
-    setNotice('');
-    try {
-      await enableTwoFactor(code);
-      await refreshSession();
-      setSetup(null);
-      setCode('');
-      setNotice('二次验证已启用');
-    } catch (error) {
-      setError(error instanceof Error ? error.message : '验证码不正确');
-    }
-  }
-
-  async function disable() {
-    setError('');
-    setNotice('');
-    try {
-      await disableTwoFactor(code);
-      await refreshSession();
-      setCode('');
-      setNotice('二次验证已关闭');
-    } catch (error) {
-      setError(error instanceof Error ? error.message : '验证码不正确');
-    }
-  }
-
-  return <section className="mt-6 border border-slate-200 bg-white p-5">
-    <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
-      <div>
-        <h2 className="text-lg font-bold text-ink">我的二次验证</h2>
-        <p className="mt-1 text-sm text-muted">状态：{currentUser?.twoFactorEnabled ? '已启用' : '未启用'}</p>
-      </div>
-      {!currentUser?.twoFactorEnabled&&<button type="button" onClick={startSetup} className="inline-flex min-h-11 items-center justify-center gap-2 bg-accent px-4 py-3 text-sm font-bold text-white hover:bg-accent-hover">开始启用</button>}
-    </div>
-    {notice&&<div className="mt-4 border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">{notice}</div>}
-    {error&&<div className="mt-4 border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{error}</div>}
-    {setup&&<div className="mt-5 border border-line bg-slate-50 p-4">
-      <p className="text-sm font-semibold text-ink">在身份验证器 App 中添加账户</p>
-      <p className="mt-3 break-all border border-slate-200 bg-white p-3 font-mono text-xs leading-6 text-muted">{setup.otpauthUrl}</p>
-      <p className="mt-3 text-xs leading-5 text-muted">如果 App 不能直接识别上面的链接，可以手动录入密钥：</p>
-      <p className="mt-2 break-all font-mono text-sm font-bold text-ink">{setup.secret}</p>
-    </div>}
-    {(setup || currentUser?.twoFactorEnabled)&&<div className="mt-5 flex flex-wrap gap-3">
-      <input value={code} onChange={event=>setCode(event.target.value.replace(/\D/g, '').slice(0, 6))} inputMode="numeric" autoComplete="one-time-code" className="min-h-11 w-48 border border-line px-3 tracking-[.25em] outline-none focus:border-accent" placeholder="6 位验证码"/>
-      {setup
-        ? <button type="button" onClick={confirmSetup} className="inline-flex min-h-11 items-center gap-2 bg-accent px-4 py-3 text-sm font-bold text-white hover:bg-accent-hover">确认启用</button>
-        : <button type="button" onClick={disable} className="inline-flex min-h-11 items-center gap-2 border border-red-300 bg-white px-4 py-3 text-sm font-bold text-red-800 hover:bg-red-100">关闭二次验证</button>}
-    </div>}
-  </section>;
-}
-
-function UsersPanel({ currentUser, refreshSession }: { currentUser: AdminUser | null; refreshSession: () => Promise<void> }) {
+function UsersPanel({ permissions }: { permissions: Permission[] }) {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [form, setForm] = useState({ username: '', displayName: '', password: '', role: 'editor' as AdminRole });
   const [notice, setNotice] = useState('');
@@ -1121,13 +1043,13 @@ function UsersPanel({ currentUser, refreshSession }: { currentUser: AdminUser | 
   }
 
   const manageableUsers = users.filter(user => user.role !== 'owner');
+  const canCreateUsers = can(permissions, 'users:create');
 
   return <section>
     <div><p className="text-xs font-bold uppercase tracking-[.18em] text-accent">权限管理</p><h1 className="mt-2 text-3xl font-bold text-ink">用户与权限</h1></div>
-    <TwoFactorPanel currentUser={currentUser} refreshSession={refreshSession}/>
     {notice&&<div className="mt-5 border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">{notice}</div>}
     {error&&<div className="mt-5 border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{error}</div>}
-    <form onSubmit={submit} className="mt-6 grid gap-3 border border-slate-200 bg-white p-5 lg:grid-cols-[1fr_1fr_1fr_10rem_auto]">
+    {canCreateUsers&&<form onSubmit={submit} className="mt-6 grid gap-3 border border-slate-200 bg-white p-5 lg:grid-cols-[1fr_1fr_1fr_10rem_auto]">
       <input value={form.username} onChange={event=>setForm({...form,username:event.target.value})} className="min-h-11 border border-line px-3 text-sm outline-none focus:border-accent" placeholder="账号"/>
       <input value={form.displayName} onChange={event=>setForm({...form,displayName:event.target.value})} className="min-h-11 border border-line px-3 text-sm outline-none focus:border-accent" placeholder="显示名称"/>
       <input value={form.password} onChange={event=>setForm({...form,password:event.target.value})} className="min-h-11 border border-line px-3 text-sm outline-none focus:border-accent" placeholder="初始密码，至少 8 位" type="password"/>
@@ -1135,7 +1057,7 @@ function UsersPanel({ currentUser, refreshSession }: { currentUser: AdminUser | 
         {(['admin','editor','viewer'] as AdminRole[]).map(role=><option key={role} value={role}>{roleLabels[role]}</option>)}
       </select>
       <button className="inline-flex min-h-11 items-center justify-center gap-2 bg-accent px-4 text-sm font-bold text-white hover:bg-accent-hover"><UserPlus size={17}/>创建</button>
-    </form>
+    </form>}
     <div className="mt-6 overflow-x-auto border border-slate-200 bg-white">
       <table className="min-w-full text-left text-sm">
         <thead className="bg-slate-50 text-xs font-bold uppercase tracking-[.12em] text-muted"><tr><th className="px-4 py-3">用户</th><th className="px-4 py-3">角色</th><th className="px-4 py-3">状态</th><th className="px-4 py-3">最近登录</th><th className="px-4 py-3">操作</th></tr></thead>
@@ -1366,7 +1288,7 @@ function AdminDashboard() {
               : <div className="mt-4 border border-dashed border-slate-300 bg-white px-5 py-8 text-sm font-semibold text-muted">当前站点内容里没有识别到文字素材。</div>}
           </div>
         </section>}
-        {tab==='users'&&<UsersPanel currentUser={adminUser} refreshSession={refreshSession}/>}
+        {tab==='users'&&<UsersPanel permissions={permissions}/>}
         {tab==='analytics'&&<AnalyticsPanel/>}
         {tab==='logs'&&<LogsPanel/>}
         {tab==='data'&&<section>
