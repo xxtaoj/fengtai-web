@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ArrowDownRight, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCatalog } from '../context/CatalogContext';
@@ -5,7 +6,7 @@ import { useSite } from '../context/SiteContext';
 import { useLanguage } from '../i18n/useLanguage';
 import type { ProductCategory } from '../types/catalog';
 import { LocalImage } from '../components/Media';
-import { ProductCard } from '../components/ProductCard';
+import { ProductAccordion } from '../components/ProductAccordion';
 import { Seo } from '../components/Seo';
 import { SourcingDesk } from '../components/SourcingDesk';
 
@@ -37,22 +38,32 @@ export function ProductsPage(){
     sourcing: { eyebrowZh: string; eyebrowEn: string; titleZh: string; titleEn: string; descriptionZh: string; descriptionEn: string };
     buyerNotes: { eyebrowZh: string; eyebrowEn: string; titleZh: string; titleEn: string; descriptionZh: string; descriptionEn: string };
   };
+  const [openProductId,setOpenProductId]=useState<number|null>(null);
   const readyCategories=categories.filter(category=>category.group==='ready-stock');
   const customCategories=categories.filter(category=>category.group==='custom-weaving');
 
   function renderCategory(category:ProductCategory){
     const items=products.filter(product=>product.subcategory===category.id);
-    return <section id={category.id} key={category.id} className="scroll-mt-28 border-t border-slate-300 py-10 first:mt-0">
-      <div className="grid gap-8 lg:grid-cols-[15rem_1fr] lg:gap-12">
-        <header>
-          <p className="font-mono text-[11px] font-bold uppercase tracking-[.14em] text-accent">{zh?(category.group==='ready-stock'?'现货 / 在机':'来样 / 定织'):(category.group==='ready-stock'?'Stock / running':'Sample / custom')}</p>
-          <h3 className="mt-3 text-2xl font-bold tracking-tight text-ink">{zh?category.titleZh:category.titleEn}</h3>
-          <p className="mt-3 text-sm leading-7 text-muted">{zh?category.descriptionZh:category.descriptionEn}</p>
-          <a href="/contact#inquiry" className="mt-5 inline-flex min-h-11 items-center gap-2 border-b border-ink text-sm font-bold text-ink transition-colors hover:border-accent hover:text-accent">{zh?'询问这类面料':'Ask about this category'}<ArrowRight size={15}/></a>
-        </header>
-        <div className={`grid gap-x-7 gap-y-10 ${items.length>1?'md:grid-cols-2':''}`}>
-          {items.map(product=><ProductCard key={product.id} product={product} variant="catalog"/>)}
+    const activeProduct=items.find(product=>product.id===openProductId)||items[0];
+    return <section id={category.id} key={category.id} className="scroll-mt-28 border-t border-slate-200 py-14 first:border-t-0 first:pt-0 md:py-20">
+      <header className="grid gap-5 lg:grid-cols-[minmax(17rem,.75fr)_minmax(0,1.25fr)] lg:items-end lg:gap-16">
+        <h3 className="text-3xl font-bold tracking-[-.035em] text-ink sm:text-4xl">{zh?category.titleZh:category.titleEn}</h3>
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <p className="max-w-2xl text-sm leading-7 text-muted md:text-base">{zh?category.descriptionZh:category.descriptionEn}</p>
+          <Link to="/contact#inquiry" className="inline-flex min-h-11 shrink-0 items-center gap-2 self-start border-b border-ink text-sm font-semibold text-ink transition-colors hover:border-accent hover:text-accent">{zh?'询问这类面料':'Ask about this category'}<ArrowRight size={15}/></Link>
         </div>
+      </header>
+
+      <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,.85fr)] lg:items-start lg:gap-14">
+        <div className="order-2 border-t border-slate-300 lg:order-1">
+          {items.map(product=><ProductAccordion key={product.id} product={product} open={openProductId===product.id} onToggle={()=>setOpenProductId(current=>current===product.id?null:product.id)}/>)}
+          {items.length===0&&<div className="border-b border-slate-300 py-12 text-sm text-muted">{zh?'该分类暂未添加产品。':'No products have been added to this category yet.'}</div>}
+        </div>
+        {activeProduct&&<div className="order-1 lg:order-2 lg:sticky lg:top-28">
+          <div className="aspect-[4/3] overflow-hidden bg-slate-100">
+            <LocalImage key={activeProduct.id} loading="lazy" decoding="async" src={activeProduct.image} alt={zh?`${activeProduct.nameZh}产品图片`:`${activeProduct.nameEn} product image`} className="size-full animate-fade-in-down object-cover"/>
+          </div>
+        </div>}
       </div>
     </section>;
   }
@@ -63,8 +74,7 @@ export function ProductsPage(){
     <section className="bg-ink pt-28 text-white">
       <div className="container-shell grid min-h-[38rem] lg:grid-cols-[.84fr_1.16fr]">
         <div className="flex flex-col justify-end py-16 pr-0 lg:py-20 lg:pr-14">
-          <p className="font-mono text-xs font-bold uppercase tracking-[.18em] text-amber-400">{zh?copy.hero.eyebrowZh:copy.hero.eyebrowEn}</p>
-          <h1 className="mt-5 text-5xl font-bold leading-[1.02] tracking-[-.045em] sm:text-6xl lg:text-7xl">{t.pages.products}</h1>
+          <h1 className="text-5xl font-bold leading-[1.02] tracking-[-.045em] sm:text-6xl lg:text-7xl">{t.pages.products}</h1>
           <p className="mt-6 max-w-xl text-base leading-8 text-slate-300 md:text-lg">{zh?copy.hero.descriptionZh:copy.hero.descriptionEn}</p>
           <div className="mt-10 grid border-y border-white/20 sm:grid-cols-2">
             <a href="#ready-stock" className="flex min-h-16 items-center justify-between gap-3 py-4 pr-5 text-sm font-bold transition-colors hover:text-amber-400 sm:border-r sm:border-white/20">{zh?'查看现有面料':'Review current range'}<ArrowDownRight size={17}/></a>
@@ -86,38 +96,23 @@ export function ProductsPage(){
     <main>
       <SourcingDesk/>
 
-      <section id="ready-stock" className="scroll-mt-28 bg-canvas py-20 md:py-28">
+      <section id="ready-stock" className="scroll-mt-28 bg-white py-20 md:py-28">
         <div className="container-shell">
-          <header className="grid gap-6 pb-12 lg:grid-cols-[.72fr_1.28fr] lg:items-end">
-            <div>
-              <p className="font-mono text-xs font-bold uppercase tracking-[.16em] text-accent">{zh?copy.sourcing.eyebrowZh:copy.sourcing.eyebrowEn}</p>
-              <h2 className="mt-4 text-4xl font-bold leading-tight tracking-tight text-ink sm:text-5xl">{zh?copy.sourcing.titleZh:copy.sourcing.titleEn}</h2>
-            </div>
-            <p className="max-w-2xl text-base leading-8 text-muted">{zh?copy.sourcing.descriptionZh:copy.sourcing.descriptionEn}</p>
-          </header>
           <div>{readyCategories.map(renderCategory)}</div>
         </div>
       </section>
 
-      <section id="custom-weaving" className="scroll-mt-28 bg-white py-20 md:py-28">
+      <section id="custom-weaving" className="scroll-mt-28 border-t border-slate-200 bg-white py-20 md:py-28">
         <div className="container-shell">
-          <header className="grid gap-6 pb-12 lg:grid-cols-[.72fr_1.28fr] lg:items-end">
-            <div>
-              <p className="font-mono text-xs font-bold uppercase tracking-[.16em] text-accent">{zh?'来样定织':'Custom weaving'}</p>
-              <h2 className="mt-4 text-4xl font-bold leading-tight tracking-tight text-ink sm:text-5xl">{zh?'拿样品和参数来谈':'Bring the sample and specifications'}</h2>
-            </div>
-            <p className="max-w-2xl text-base leading-8 text-muted">{zh?'混纺、交织或特殊组织，不先写成现成能力。收到实物样、成分和用途后，再判断打样与批量生产是否可行。':'Blends, interwoven fabrics, and special constructions are reviewed case by case. Sampling and bulk feasibility are checked after we receive the physical sample, composition, and end use.'}</p>
-          </header>
           <div>{customCategories.map(renderCategory)}</div>
         </div>
       </section>
 
-      <section className="bg-[#D8D2C6] py-10 md:py-14">
+      <section className="border-t border-slate-200 bg-white py-10 md:py-14">
         <div className="container-shell">
-          <div className="grid overflow-hidden rounded-[2rem] border border-ink/10 bg-[#EEEAE1] lg:min-h-[36rem] lg:grid-cols-[.78fr_1.22fr]">
-            <div className="flex flex-col bg-[#D8D2C6] p-8 text-ink sm:p-10 lg:p-12">
-              <p className="font-mono text-xs font-bold uppercase tracking-[.16em] text-accent">{zh?copy.buyerNotes.eyebrowZh:copy.buyerNotes.eyebrowEn}</p>
-              <h2 className="mt-6 max-w-lg text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{zh?copy.buyerNotes.titleZh:copy.buyerNotes.titleEn}</h2>
+          <div className="grid overflow-hidden border border-slate-200 bg-slate-50 lg:min-h-[36rem] lg:grid-cols-[.78fr_1.22fr]">
+            <div className="flex flex-col border-b border-slate-200 bg-slate-50 p-8 text-ink sm:p-10 lg:border-b-0 lg:border-r lg:p-12">
+              <h2 className="max-w-lg text-3xl font-bold leading-tight tracking-tight sm:text-4xl">{zh?copy.buyerNotes.titleZh:copy.buyerNotes.titleEn}</h2>
               <p className="mt-5 max-w-md text-sm leading-7 text-body">{zh?copy.buyerNotes.descriptionZh:copy.buyerNotes.descriptionEn}</p>
               <div className="mt-auto pt-10">
                 <p className="mb-5 text-xs leading-6 text-muted">{zh?'资料不齐也可以先问，我们会告诉你下一步需要什么。':'It is fine to ask first. We will tell you what is needed next.'}</p>
@@ -125,7 +120,7 @@ export function ProductsPage(){
               </div>
             </div>
 
-            <div className="relative bg-[#F3F0E9] text-ink">
+            <div className="relative bg-white text-ink">
               <div className="product-selvedge absolute inset-y-0 left-0 w-7" aria-hidden="true"/>
               <div className="flex h-full flex-col px-7 py-8 pl-14 sm:px-10 sm:py-10 sm:pl-16 lg:px-12 lg:py-12 lg:pl-20">
                 <header className="flex flex-col gap-4 border-b border-ink/20 pb-7 sm:flex-row sm:items-end sm:justify-between">

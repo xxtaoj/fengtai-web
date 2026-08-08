@@ -58,8 +58,8 @@ export const siteSeed: SiteContent = {
         eyebrowEn: 'Main Fabrics',
         titleZh: '按采购用途找到合适面料',
         titleEn: 'Find fabrics by sourcing need',
-        descriptionZh: '先选择常规现货或来样定织，再按床品、服装、混纺与交织方向查看产品。',
-        descriptionEn: 'Start with available fabrics or custom weaving, then browse bedding, apparel, blended, and interwoven options.',
+        descriptionZh: '按用途进入床品面料或服装面料分类，查看分类下的全部产品。',
+        descriptionEn: 'Choose bedding or apparel fabrics by end use, then view every product in that category.',
       },
       factoryVisuals: {
         eyebrowZh: '工厂实拍',

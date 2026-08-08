@@ -5,7 +5,6 @@ import { useSite } from '../context/SiteContext';
 import { useLanguage } from '../i18n/useLanguage';
 import { PrimaryButton, SecondaryButton } from '../components/Button';
 import { LocalImage } from '../components/Media';
-import { ProductCard } from '../components/ProductCard';
 import { NewsCard } from '../components/NewsCard';
 import { SectionHeading } from '../components/SectionHeading';
 import { StatsSection } from '../components/StatsSection';
@@ -19,7 +18,7 @@ export function HomePage(){
   const {language,t}=useLanguage();
   const {catalog}=useCatalog();
   const {site}=useSite();
-  const {products}=catalog;
+  const {products,categories}=catalog;
   const zh=language==='zh';
   const reveal=useScrollReveal<HTMLDivElement>();
   const home = site.copy.home as {
@@ -33,6 +32,35 @@ export function HomePage(){
     activity: { eyebrowZh: string; eyebrowEn: string; titleZh: string; titleEn: string };
   };
   const advantages = zh ? home.advantagesZh : home.advantagesEn;
+  const fabricCategoryCards = [
+    {
+      id:'bedding-fabric',
+      fallbackImage:'/images/products/product-01.jpg',
+      fallbackTitleZh:'床品面料',
+      fallbackTitleEn:'Bedding Fabric',
+      fallbackDescriptionZh:'查看床单、被套、枕套、酒店及家纺渠道相关面料。',
+      fallbackDescriptionEn:'Explore fabrics for sheets, duvet covers, pillowcases, hotels, and home textiles.',
+    },
+    {
+      id:'apparel-fabric',
+      fallbackImage:'/images/products/product-03.jpg',
+      fallbackTitleZh:'服装面料',
+      fallbackTitleEn:'Apparel Fabric',
+      fallbackDescriptionZh:'查看衬衫、休闲服、制服及工装相关面料。',
+      fallbackDescriptionEn:'Explore fabrics for shirts, casualwear, uniforms, and workwear.',
+    },
+  ].map(card=>{
+    const category=categories.find(item=>item.id===card.id);
+    const representative=products.find(item=>item.subcategory===card.id);
+    return {
+      ...card,
+      image:representative?.image||card.fallbackImage,
+      titleZh:category?.titleZh||card.fallbackTitleZh,
+      titleEn:category?.titleEn||card.fallbackTitleEn,
+      descriptionZh:category?.descriptionZh||card.fallbackDescriptionZh,
+      descriptionEn:category?.descriptionEn||card.fallbackDescriptionEn,
+    };
+  });
 
   return <>
     <Seo title={{zh:'首页',en:'Home'}} description={{zh:home.hero.descZh,en:home.hero.descEn}}/>
@@ -75,13 +103,25 @@ export function HomePage(){
       <div className="container-shell mt-16"><StatsSection/></div>
     </section>
 
-    <section className="section-pad">
+    <section className="section-pad bg-ink text-white">
       <div className="container-shell">
         <div className="flex flex-col gap-7 md:flex-row md:items-end md:justify-between">
           <SectionHeading eyebrow={zh?home.mainFabrics.eyebrowZh:home.mainFabrics.eyebrowEn} title={zh?home.mainFabrics.titleZh:home.mainFabrics.titleEn} description={zh?home.mainFabrics.descriptionZh:home.mainFabrics.descriptionEn}/>
-          <SecondaryButton to="/products">{zh?'查看全部产品':'View All Products'}</SecondaryButton>
+          <Link to="/products" className="inline-flex min-h-11 shrink-0 items-center gap-2 self-start border-b border-amber-400 pb-1 text-sm font-bold text-white transition-colors hover:text-amber-400 md:self-auto">{zh?'查看全部产品':'View All Products'}<ArrowUpRight size={16}/></Link>
         </div>
-        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{products.slice(0,6).map(product=><ProductCard key={product.id} product={product}/>)}</div>
+        <div className="mt-12 grid gap-px overflow-hidden border border-white/15 bg-white/15 lg:grid-cols-2">
+          {fabricCategoryCards.map((card,index)=><Link to={`/products#${card.id}`} key={card.id} className="group relative flex min-h-[27rem] items-end overflow-hidden bg-ink p-7 text-white sm:min-h-[32rem] sm:p-10 lg:p-12">
+            <LocalImage src={card.image} alt={zh?`${card.titleZh}分类入口`:`${card.titleEn} category`} className="absolute inset-0 size-full object-cover transition duration-700 ease-out group-hover:scale-[1.035]"/>
+            <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/55 to-ink/10 transition-colors duration-500 group-hover:via-ink/45"/>
+            <span className="absolute right-6 top-6 text-xs font-bold tracking-[.16em] text-white/70">0{index+1}</span>
+            <div className="relative max-w-xl">
+              <p className="text-xs font-bold uppercase tracking-[.16em] text-amber-400">{zh?'常规在机现货':'Regular running stock'}</p>
+              <h3 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">{zh?card.titleZh:card.titleEn}</h3>
+              <p className="mt-4 max-w-lg text-sm leading-7 text-slate-200 sm:text-base">{zh?card.descriptionZh:card.descriptionEn}</p>
+              <span className="mt-7 inline-flex min-h-11 items-center gap-2 border-b border-amber-400 pb-1 text-sm font-bold">{zh?'查看该类全部产品':'View all in this category'}<ArrowUpRight className="transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" size={16}/></span>
+            </div>
+          </Link>)}
+        </div>
       </div>
     </section>
 
