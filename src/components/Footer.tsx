@@ -7,6 +7,7 @@ import { useCatalog } from '../context/CatalogContext';
 import { useLanguage } from '../i18n/useLanguage';
 import { PrimaryButton, SecondaryButton } from './Button';
 import { ImageModal } from './ImageModal';
+import { TextileImageRibbon } from './TextileImageRibbon';
 
 function WhatsAppIcon(){
   return <svg aria-hidden="true" viewBox="0 0 32 32" className="h-10 w-10 fill-current">
@@ -50,21 +51,27 @@ export function Footer(){
   const {products}=catalog;
   const zh=language==='zh';
   const showInquiryPrompt=pathname!=='/products';
+  const inquiryImages = [
+    {src:'/images/hero-poster.jpg',alt:zh?'纺织工厂纱线生产现场':'Yarn production inside the textile factory',position:'48% 50%'},
+    {src:'/images/factory-exterior.jpg',alt:zh?'丰泰永晟工厂与出货车辆':'Fengtai Yongsheng factory and outbound truck',position:'68% 48%'},
+    {src:'/images/products/product-03.jpg',alt:zh?'服装面料应用与规格':'Apparel fabric application and specification',position:'62% 50%'},
+  ];
   return <footer className="bg-ink text-white">
-    {showInquiryPrompt&&<section className="border-b border-white/10">
-      <div className="container-shell grid gap-8 py-11 md:py-12 lg:grid-cols-[1fr_auto] lg:items-end">
-        <div>
+    {showInquiryPrompt&&<section className="overflow-hidden border-b border-white/10">
+      <div className="container-shell grid lg:min-h-[22rem] lg:grid-cols-[1.08fr_.92fr]">
+        <div className="relative z-20 flex flex-col justify-center py-12 pr-0 lg:py-14 lg:pr-12">
           <p className="mb-3 text-xs font-bold uppercase tracking-[.22em] text-amber-400">{zh?'询盘与寄样':'Inquiry and Samples'}</p>
           <h2 className="max-w-3xl text-2xl font-semibold leading-tight md:text-3xl">{zh?'有规格表、产品图片或实物样，直接发给业务团队。':'Send your specification sheet, product image, or physical sample directly to our sales team.'}</h2>
           <p className="mt-3 text-sm leading-6 text-slate-400">{zh?'我们会按现货或来样定织方向回复。':'We will reply with a stock or sample-based custom-weaving route.'}</p>
+          <div className="mt-7 flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:gap-3">
+            <PrimaryButton to="/contact#inquiry" className="group min-h-12 w-full rounded-full !px-2 shadow-[0_12px_28px_-18px_rgba(217,119,6,.9)] hover:-translate-y-0.5 sm:w-auto">
+              <span className="pl-4">{t.common.quote}</span>
+              <span className="ml-1 grid size-8 place-items-center rounded-full bg-white/15 transition-transform duration-300 group-hover:rotate-6" aria-hidden="true"><ArrowUpRight size={16}/></span>
+            </PrimaryButton>
+            <SecondaryButton to="/products" className="min-h-12 w-full rounded-full !border-transparent !bg-white !px-6 !text-ink hover:!border-transparent hover:!bg-slate-100 hover:!text-ink sm:w-auto">{zh?'查看产品':'View Products'}</SecondaryButton>
+          </div>
         </div>
-        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:gap-3">
-          <PrimaryButton to="/contact#inquiry" className="group min-h-12 w-full rounded-full !px-2 shadow-[0_12px_28px_-18px_rgba(217,119,6,.9)] hover:-translate-y-0.5 sm:w-auto">
-            <span className="pl-4">{t.common.quote}</span>
-            <span className="ml-1 grid size-8 place-items-center rounded-full bg-white/15 transition-transform duration-300 group-hover:rotate-6" aria-hidden="true"><ArrowUpRight size={16}/></span>
-          </PrimaryButton>
-          <SecondaryButton to="/products" className="min-h-12 w-full rounded-full !border-transparent !bg-white !px-6 !text-ink hover:!border-transparent hover:!bg-slate-100 hover:!text-ink sm:w-auto">{zh?'查看产品':'View Products'}</SecondaryButton>
-        </div>
+        <TextileImageRibbon images={inquiryImages} dark className="-mx-4 min-h-64 sm:mx-0 lg:-mr-[max(1rem,calc((100vw-80rem)/2))] lg:min-h-full"/>
       </div>
     </section>}
     <div className="container-shell py-14 md:py-16">

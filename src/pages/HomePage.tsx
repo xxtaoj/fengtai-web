@@ -1,14 +1,12 @@
-import { ArrowUpRight, CheckCircle2 } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCatalog } from '../context/CatalogContext';
 import { useSite } from '../context/SiteContext';
 import { useLanguage } from '../i18n/useLanguage';
-import { PrimaryButton, SecondaryButton } from '../components/Button';
+import { SecondaryButton } from '../components/Button';
 import { LocalImage } from '../components/Media';
 import { NewsCard } from '../components/NewsCard';
 import { SectionHeading } from '../components/SectionHeading';
-import { StatsSection } from '../components/StatsSection';
-import { VideoBlock } from '../components/VideoBlock';
 import { QuoteCTA } from '../components/QuoteCTA';
 import { Seo } from '../components/Seo';
 import { FeatureShowcase } from '../components/FeatureShowcase';
@@ -23,15 +21,20 @@ export function HomePage(){
   const reveal=useScrollReveal<HTMLDivElement>();
   const home = site.copy.home as {
     hero: { eyebrowZh: string; eyebrowEn: string; titleZh: string; titleEn: string; descZh: string; descEn: string; video: string; poster: string };
-    advantagesZh: string[];
-    advantagesEn: string[];
-    about: { image: string; locationZh: string; locationEn: string };
     mainFabrics: { eyebrowZh: string; eyebrowEn: string; titleZh: string; titleEn: string; descriptionZh: string; descriptionEn: string };
-    factoryVisuals: { eyebrowZh: string; eyebrowEn: string; titleZh: string; titleEn: string; descriptionZh: string; descriptionEn: string; video: string; poster: string };
-    splitCards: Array<{ image: string; titleZh: string; titleEn: string; descriptionZh: string; descriptionEn: string; to: string }>;
     activity: { eyebrowZh: string; eyebrowEn: string; titleZh: string; titleEn: string };
   };
-  const advantages = zh ? home.advantagesZh : home.advantagesEn;
+  const introductionZh = [
+    '丰泰永晟集团成立于1999年，是一家以纺织为核心，融合汽贸、金融、酒店的多元化企业。集团深耕纺织业25年，依托新疆、宁夏两大生产基地的1500余台喷气织机，构建了从棉花到纱线、坯布的完整产业链，年产高档服装及家纺面料超1亿米。',
+    '我们以“好棉花—纺好纱—织好布”为核心模式，通过规模化生产与金融资本整合，实现出色的产品性价比；严格把控“万能坯”品质，保障产品足支足密、包漂包染；并在江苏、浙江、广东设立现货前置仓，库存超300万米，支持24小时快速配送。',
+    '丰泰永晟始终以优质产品与高效服务携手客户共创价值，践行企业社会责任。',
+  ];
+  const introductionEn = [
+    'Fengtai Yongsheng Group, founded in 1999, is a diversified enterprise with core operations in textiles, complemented by automotive trade, finance, and hotel management. With over 1,500 air-jet looms across production bases in Xinjiang and Ningxia, the group has built an integrated supply chain from cotton to yarn and greige fabric, producing more than 100 million meters of high-quality apparel and home-textile fabric annually.',
+    'Guided by the “Quality Cotton—Premium Yarn—Superior Fabric” principle, the company combines scaled production with financial resources to deliver outstanding value. Rigorous controls ensure full yarn count, density, and meterage, with fabrics suitable for bleaching and dyeing. Forward warehouses in Jiangsu, Zhejiang, and Guangdong hold more than 3 million meters of stock and support dispatch within 24 hours.',
+    'Fengtai Yongsheng delivers reliable quality and rapid service to partners worldwide while remaining committed to sustainability and corporate social responsibility.',
+  ];
+  const introduction = zh ? introductionZh : introductionEn;
   const fabricCategoryCards = [
     {
       id:'bedding-fabric',
@@ -84,23 +87,18 @@ export function HomePage(){
       </div>
     </section>
 
-    <section id="about" className="section-pad scroll-mt-28 bg-white">
-      <div ref={reveal} className="container-shell reveal grid gap-12 lg:grid-cols-[1fr_1fr] lg:items-center">
-        <div className="relative">
-          <LocalImage src={home.about.image} alt={zh?'丰泰永晟工厂外景':'Fengtai Yongsheng factory exterior'} className="aspect-[4/3] w-full object-cover"/>
-          <div className="absolute -bottom-5 right-0 bg-accent px-6 py-5 text-white md:right-[-1rem]"><strong>{zh?site.company.location:site.company.locationEn}</strong><span className="block text-xs opacity-80">{zh?home.about.locationZh:home.about.locationEn}</span></div>
-        </div>
-        <div>
-          <SectionHeading eyebrow={zh?'企业核心优势':'Core Advantages'} title={zh?'现货、定织与交付，一次看清':'Stock, custom weaving, and delivery at a glance'} description={zh?'从常规在机现货到来样定织，采购商可根据用途、规格和交期选择对应的合作方式。':'From available fabrics to sample-based custom weaving, buyers can choose a path by application, specification, and delivery needs.'}/>
-          <div className="mt-8 grid gap-3">
-            {advantages.map(item=><div key={item} className="flex items-start gap-3 border-t border-line pt-4">
-              <CheckCircle2 className="mt-1 shrink-0 text-success" size={20}/>
-              <span className="font-semibold text-ink">{item}</span>
-            </div>)}
+    <section id="about" className="relative isolate scroll-mt-28 overflow-hidden bg-[#F4EFE4] py-20 sm:py-24 lg:min-h-[50rem] lg:py-28">
+      <LocalImage loading="lazy" src="/images/company-introduction-bg-v2.png" alt="" className="absolute inset-0 -z-20 size-full object-cover object-[72%_50%]"/>
+      <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(250,247,239,.97)_0%,rgba(250,247,239,.91)_54%,rgba(250,247,239,.38)_100%)]"/>
+      <div ref={reveal} className="container-shell reveal">
+        <div className="max-w-5xl">
+          <h2 className="text-5xl font-medium leading-none tracking-[-.05em] text-[#8A3F0A] sm:text-6xl lg:text-7xl">{zh?'公司简介':'Company Introduction'}</h2>
+          <div className="mt-10 max-w-4xl space-y-6 text-base leading-8 text-[#6F3B18] sm:text-lg sm:leading-9">
+            {introduction.map(paragraph=><p key={paragraph}>{paragraph}</p>)}
           </div>
+          <Link to="/company" className="mt-10 inline-flex min-h-12 items-center gap-2 border-b border-[#8A3F0A] text-sm font-bold text-[#8A3F0A] transition-colors hover:border-ink hover:text-ink">{zh?'了解更多公司信息':'Learn more about the company'}<ArrowUpRight size={16}/></Link>
         </div>
       </div>
-      <div className="container-shell mt-16"><StatsSection/></div>
     </section>
 
     <section className="section-pad bg-ink text-white">
@@ -126,24 +124,6 @@ export function HomePage(){
     </section>
 
     <FeatureShowcase/>
-
-    <section className="section-pad bg-white">
-      <div className="container-shell grid gap-10 lg:grid-cols-2 lg:items-center">
-        <div>
-          <SectionHeading eyebrow={zh?home.factoryVisuals.eyebrowZh:home.factoryVisuals.eyebrowEn} title={zh?home.factoryVisuals.titleZh:home.factoryVisuals.titleEn} description={zh?home.factoryVisuals.descriptionZh:home.factoryVisuals.descriptionEn}/>
-          <PrimaryButton to="/company#factory-sites" className="mt-8">{zh?'查看工厂实景':'View Factory Sites'}</PrimaryButton>
-        </div>
-        <VideoBlock src={home.factoryVisuals.video} poster={home.factoryVisuals.poster} title={zh?'工厂参观视频':'Factory tour video'}/>
-      </div>
-    </section>
-
-    <section className="grid min-h-[34rem] lg:grid-cols-2">
-      {home.splitCards.map(card=><Link to={card.to} key={card.to} className="group relative flex min-h-80 items-end overflow-hidden p-8 text-white md:p-12">
-        <LocalImage src={card.image} alt={zh?card.titleZh:card.titleEn} className="absolute inset-0 size-full object-cover transition duration-700 group-hover:scale-105"/>
-        <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/55 to-transparent"/>
-        <div className="relative max-w-lg"><h2 className="text-3xl font-bold md:text-4xl">{zh?card.titleZh:card.titleEn}</h2><p className="mt-4 leading-7 text-slate-200">{zh?card.descriptionZh:card.descriptionEn}</p><span className="mt-7 inline-flex items-center gap-1 border-b border-amber-400 pb-1 font-semibold">{t.common.learnMore}<ArrowUpRight size={16}/></span></div>
-      </Link>)}
-    </section>
 
     <section className="section-pad">
       <div className="container-shell">
