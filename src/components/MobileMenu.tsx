@@ -1,4 +1,4 @@
-import { Mail, Phone, X } from 'lucide-react';
+import { Mail, Phone, Video, X } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useSite } from '../context/SiteContext';
 import { useLanguage } from '../i18n/useLanguage';
@@ -32,7 +32,9 @@ export function MobileMenu({open,onClose}:{open:boolean;onClose:()=>void}){
       <div className="mt-auto border-t border-line pt-5">
         <LanguageSwitcher/>
         <div className="mb-5 mt-4 grid gap-2 text-sm">
-          <span className="flex gap-2"><Phone size={17}/>{site.company.phone}</span>
+          <a href={`tel:${site.company.phone.replace(/[^\d+]/g,'')}`} className="flex gap-2"><Phone size={17}/>{site.company.phone}</a>
+          <a href={`tel:${site.company.wendyPhone.replace(/[^\d+]/g,'')}`} className="flex gap-2"><Phone size={17}/>{site.company.wendyContact}: {site.company.wendyPhone}</a>
+          <a href={`facetime:${site.company.facetimePhone.replace(/\s/g,'')}`} className="flex gap-2"><Video size={17}/>FaceTime {zh?'（美国）':'(U.S.)'}: {site.company.facetimePhone}</a>
           <span className="flex gap-2"><Mail size={17}/>{site.company.email}</span>
         </div>
         <PrimaryButton to="/contact#inquiry" className="w-full">{t.common.quote}</PrimaryButton>

@@ -209,6 +209,8 @@ export const siteSeed: SiteContent = {
       channels: [
         { titleZh: '联系人', titleEn: 'Contact', value: `${company.contactPerson} · ${company.contactTitle}` },
         { titleZh: '手机号', titleEn: 'Mobile', value: company.phone, href: `tel:${company.phone}` },
+        { titleZh: 'Wendy 电话', titleEn: 'Wendy Mobile', value: company.wendyPhone, href: `tel:${company.wendyPhone}` },
+        { titleZh: 'FaceTime（美国）', titleEn: 'FaceTime (U.S.)', value: company.facetimePhone, href: `facetime:${company.facetimePhone.replace(/\s/g,'')}` },
         { titleZh: '企业邮箱', titleEn: 'Business Email', value: company.email, href: `mailto:${company.email}` },
         { titleZh: 'WeChat / WhatsApp', titleEn: 'WeChat / WhatsApp', value: `${company.wechat} / ${company.whatsapp}` },
         { titleZh: '服务时间', titleEn: 'Business Hours', value: company.businessHours },

@@ -65,6 +65,9 @@ export type CompanyContent = {
   leadTime: string;
   contactPerson: string;
   contactTitle: string;
+  wendyContact: string;
+  wendyPhone: string;
+  facetimePhone: string;
   exportContact: string;
   domesticContact: string;
   phone: string;

@@ -35,6 +35,9 @@
     "leadTime": "现货快速发样，定织按规格排产",
     "contactPerson": "刘妍 Maggie",
     "contactTitle": "Marketing manager",
+    "wendyContact": "Wendy",
+    "wendyPhone": "+86 137 7500 5018",
+    "facetimePhone": "+1 857 869 7552",
     "exportContact": "刘妍 Maggie",
     "domesticContact": "刘妍 Maggie",
     "phone": "+86 189-3199-8919",
@@ -46,7 +49,7 @@
       "xiaohongshu": "https://xhslink.cn/m/25I0lKFStbT",
       "wechatQr": "/images/wechat-official-account.jpg"
     },
-    "wechat": "+86 189-3199-8919",
+    "wechat": "189-3199-8919",
     "email": "maggieliu@fonter.net.cn",
     "businessHours": "周一至周六 9:00-18:00",
     "businessHoursEn": "Monday to Saturday, 9:00-18:00",
@@ -689,6 +692,18 @@
           "href": "tel:+86 189-3199-8919"
         },
         {
+          "titleZh": "Wendy 电话",
+          "titleEn": "Wendy Mobile",
+          "value": "+86 137 7500 5018",
+          "href": "tel:+86 137 7500 5018"
+        },
+        {
+          "titleZh": "FaceTime（美国）",
+          "titleEn": "FaceTime (U.S.)",
+          "value": "+1 857 869 7552",
+          "href": "facetime:+18578697552"
+        },
+        {
           "titleZh": "企业邮箱",
           "titleEn": "Business Email",
           "value": "maggieliu@fonter.net.cn",
@@ -697,7 +712,7 @@
         {
           "titleZh": "WeChat / WhatsApp",
           "titleEn": "WeChat / WhatsApp",
-          "value": "+86 189-3199-8919 / +86 189-3199-8919"
+          "value": "189-3199-8919 / +86 189-3199-8919"
         },
         {
           "titleZh": "服务时间",

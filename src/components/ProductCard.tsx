@@ -15,8 +15,8 @@ export function ProductCard({product,variant='default'}:{product:Product;variant
       <span className="absolute bottom-0 left-0 bg-white px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-[.14em] text-ink">P-{String(product.id).padStart(2,'0')}</span>
     </Link>
     <div className="pt-5">
-      <p className="text-[11px] font-bold uppercase tracking-[.14em] text-accent">{zh?product.categoryZh:product.categoryEn}</p>
-      <h3 className="mt-2 text-2xl font-bold leading-tight tracking-tight text-ink">
+      <p className="hidden text-[11px] font-bold uppercase tracking-[.14em] text-accent sm:block">{zh?product.categoryZh:product.categoryEn}</p>
+      <h3 className="text-2xl font-bold leading-tight tracking-tight text-ink sm:mt-2">
         <Link to={detailUrl} className="transition-colors hover:text-accent">{zh?product.nameZh:product.nameEn}</Link>
       </h3>
       <p className="mt-3 text-sm leading-7 text-muted">{zh?product.summaryZh:product.summaryEn}</p>
@@ -31,8 +31,8 @@ export function ProductCard({product,variant='default'}:{product:Product;variant
   return <article className="group overflow-hidden border border-line bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lift">
     <Link to={detailUrl} className="block aspect-[4/3] overflow-hidden"><LocalImage src={product.image} alt={zh?`${product.nameZh}产品图片`:`${product.nameEn} product image`} className="size-full object-cover transition duration-500 group-hover:scale-105"/></Link>
     <div className="p-6">
-      <p className="text-xs font-bold uppercase tracking-wider text-accent">{zh?product.categoryZh:product.categoryEn}</p>
-      <h3 className="mt-3 text-xl font-bold text-ink">{zh?product.nameZh:product.nameEn}</h3>
+      <p className="hidden text-xs font-bold uppercase tracking-wider text-accent sm:block">{zh?product.categoryZh:product.categoryEn}</p>
+      <h3 className="text-xl font-bold text-ink sm:mt-3">{zh?product.nameZh:product.nameEn}</h3>
       <p className="mt-2 text-sm leading-6 text-muted">{zh?product.summaryZh:product.summaryEn}</p>
       <div className="mt-5 flex items-center justify-between border-t border-line pt-4 text-sm font-semibold">
         <Link to={detailUrl} className="flex items-center gap-1 text-ink hover:text-accent">{t.common.viewDetails}<ArrowUpRight size={16}/></Link>

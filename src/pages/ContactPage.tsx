@@ -1,4 +1,4 @@
-import { Clock, Mail, MapPin, Send, Warehouse, Phone, MessageCircle } from 'lucide-react';
+import { Clock, Mail, MapPin, Send, Warehouse, Phone, MessageCircle, Video } from 'lucide-react';
 import { useSite } from '../context/SiteContext';
 import { useLanguage } from '../i18n/useLanguage';
 import { PageHero } from '../components/PageHero';
@@ -42,8 +42,8 @@ export function ContactPage(){
           <SectionHeading eyebrow={zh?'客服联络方式':'Service Contacts'} title={zh?'选择最快的业务对接方式':'Choose the fastest business contact path'} description={zh?'用于产品询盘、寄样申请、来样定织、工厂到访和外贸采购沟通。':'For product inquiries, sample requests, custom weaving from samples, factory visits, and export sourcing communication.'}/>
           <div className="mt-10 grid gap-3 md:grid-cols-2 md:items-start">
             <div className="grid gap-3">
-              {contact.channels.slice(0,4).map(item => {
-                const icon = item.titleZh === '联系人' ? Send : item.titleZh === '手机号' ? Phone : item.titleZh === '企业邮箱' ? Mail : MessageCircle;
+              {contact.channels.filter(item=>!['服务时间','办公地址','工厂位置'].includes(item.titleZh)).map(item => {
+                const icon = item.titleZh === '联系人' ? Send : item.titleZh === '企业邮箱' ? Mail : item.titleZh.startsWith('FaceTime') ? Video : item.titleZh === 'WeChat / WhatsApp' ? MessageCircle : Phone;
                 return <ContactCard key={item.titleZh} icon={icon} label={zh?item.titleZh:item.titleEn} value={item.value} href={item.href}/>;
               })}
             </div>

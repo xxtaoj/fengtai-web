@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { ArrowUpRight, Clock3, Factory, Mail, MapPin, MessageCircle, Phone, UserRound } from 'lucide-react';
+import { ArrowUpRight, Clock3, Factory, Mail, MapPin, MessageCircle, Phone, UserRound, Video } from 'lucide-react';
 import { company } from '../data/company';
 import { navigation } from '../data/navigation';
 import { useCatalog } from '../context/CatalogContext';
@@ -96,7 +96,9 @@ export function Footer(){
             <p className="text-xs font-bold uppercase tracking-[.14em] text-white">{zh?'业务联系人':'Business contact'}</p>
             <div className="mt-5 grid gap-3 text-sm text-slate-300">
               <p className="flex min-h-7 items-center gap-3"><UserRound className="shrink-0 text-amber-400" size={17}/><span>{company.contactPerson} · {company.contactTitle}</span></p>
-              <a href={`tel:${company.phone.replace(/[^\d+]/g,'')}`} className="flex min-h-7 items-center gap-3 transition-colors hover:text-white"><Phone className="shrink-0 text-amber-400" size={17}/><span>{company.phone}</span></a>
+              <a href={`tel:${company.phone.replace(/[^\d+]/g,'')}`} className="flex min-h-7 items-center gap-3 transition-colors hover:text-white"><Phone className="shrink-0 text-amber-400" size={17}/><span>{company.contactPerson}: {company.phone}</span></a>
+              <a href={`tel:${company.wendyPhone.replace(/[^\d+]/g,'')}`} className="flex min-h-7 items-center gap-3 transition-colors hover:text-white"><Phone className="shrink-0 text-amber-400" size={17}/><span>{company.wendyContact}: {company.wendyPhone}</span></a>
+              <a href={`facetime:${company.facetimePhone.replace(/\s/g,'')}`} className="flex min-h-7 items-center gap-3 transition-colors hover:text-white"><Video className="shrink-0 text-amber-400" size={17}/><span>FaceTime {zh?'（美国）':'(U.S.)'}: {company.facetimePhone}</span></a>
               <p className="flex min-h-7 items-center gap-3"><MessageCircle className="shrink-0 text-amber-400" size={17}/><span>WeChat: {company.wechat}</span></p>
               <a href={`mailto:${company.email}`} className="flex min-h-7 items-center gap-3 break-all transition-colors hover:text-white"><Mail className="shrink-0 text-amber-400" size={17}/><span>{company.email}</span></a>
               <p className="flex min-h-7 items-center gap-3"><Clock3 className="shrink-0 text-amber-400" size={17}/><span>{zh?company.businessHours:company.businessHoursEn}</span></p>
