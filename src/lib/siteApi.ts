@@ -56,7 +56,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export type AdminRole = 'owner' | 'admin' | 'editor' | 'viewer';
-export type Permission = 'content:write' | 'site-content:write' | 'media:write' | 'users:create' | 'users:manage' | 'logs:read' | 'analytics:read';
+export type Permission = 'content:write' | 'site-content:write' | 'media:write' | 'users:create' | 'users:manage' | 'inquiries:read' | 'inquiries:manage' | 'logs:read' | 'analytics:read';
 
 export type AdminUser = {
   id: number;
@@ -67,6 +67,21 @@ export type AdminUser = {
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string | null;
+};
+
+export type AdminSessionRecord = {
+  id: number;
+  userId: number;
+  username: string;
+  displayName: string;
+  role: AdminRole;
+  active: boolean;
+  createdAt: string;
+  lastSeenAt: string;
+  expiresAt: string;
+  revokedAt: string | null;
+  ip: string | null;
+  userAgent: string | null;
 };
 
 export type AdminSession = {
@@ -112,6 +127,51 @@ export type ProductAnalytics = {
   views: number;
   visitors: number;
   lastViewedAt: string;
+};
+
+export type InquiryStatus = 'new' | 'contacting' | 'done' | 'archived';
+
+export type InquiryRecord = {
+  id: number;
+  type: string;
+  name: string;
+  company: string;
+  country: string;
+  email: string;
+  phone: string;
+  product: string;
+  quantity: string;
+  message: string;
+  payload: Record<string, unknown>;
+  status: InquiryStatus;
+  note: string;
+  handledBy: number | null;
+  handledByUsername: string | null;
+  ip: string | null;
+  userAgent: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type InquirySubmission = {
+  type: string;
+  name: string;
+  company?: string;
+  country?: string;
+  email: string;
+  phone?: string;
+  product?: string;
+  quantity?: string;
+  application?: string;
+  composition?: string;
+  weight?: string;
+  width?: string;
+  hasSample?: string;
+  targetDate?: string;
+  visitDate?: string;
+  visitors?: string;
+  site?: string;
+  message: string;
 };
 
 export function loadSite() {
@@ -184,6 +244,16 @@ export function listUsers() {
   return request<AdminUser[]>('/api/admin/users');
 }
 
+export function listAdminSessions() {
+  return request<AdminSessionRecord[]>('/api/admin/sessions');
+}
+
+export function revokeAdminSession(id: number) {
+  return request<{ ok: boolean; revoked: boolean }>(`/api/admin/sessions/${id}`, {
+    method: 'DELETE',
+  });
+}
+
 export function createUser(input: { username: string; displayName?: string; password: string; role: AdminRole }) {
   return request<AdminUser>('/api/admin/users', {
     method: 'POST',
@@ -216,6 +286,24 @@ export function loadPageAnalytics(limit = 20) {
 
 export function loadProductAnalytics(limit = 50) {
   return request<ProductAnalytics[]>(`/api/admin/analytics/products?limit=${limit}`);
+}
+
+export function submitInquiry(input: InquirySubmission) {
+  return request<{ ok: boolean; inquiry: InquiryRecord }>('/api/inquiries', {
+    method: 'POST',
+    body: JSON.stringify(input),
+  });
+}
+
+export function listInquiries(status: InquiryStatus | 'all' = 'all', limit = 100) {
+  return request<InquiryRecord[]>(`/api/admin/inquiries?status=${status}&limit=${limit}`);
+}
+
+export function updateInquiry(id: number, input: { status?: InquiryStatus; note?: string }) {
+  return request<InquiryRecord>(`/api/admin/inquiries/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(input),
+  });
 }
 
 export function trackPageView(input: {

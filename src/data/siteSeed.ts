@@ -53,6 +53,24 @@ export const siteSeed: SiteContent = {
         locationZh: '办公与生产协同',
         locationEn: 'Office and production coordination',
       },
+      companyIntro: {
+        titleZh: '公司简介',
+        titleEn: 'Company Introduction',
+        paragraphsZh: [
+          '丰泰永晟集团成立于1999年，是一家以纺织为核心，融合汽贸、金融、酒店的多元化企业。集团深耕纺织业25年，依托新疆、宁夏两大生产基地的1500余台喷气织机，构建了从棉花到纱线、坯布的完整产业链，年产高档服装及家纺面料超1亿米。',
+          '我们以“好棉花—纺好纱—织好布”为核心模式，通过规模化生产与金融资本整合，实现出色的产品性价比；严格把控“万能坯”品质，保障产品足支足密、包漂包染；并在江苏、浙江、广东设立现货前置仓，库存超300万米，支持24小时快速配送。',
+          '丰泰永晟始终以优质产品与高效服务携手客户共创价值，践行企业社会责任。',
+        ],
+        paragraphsEn: [
+          'Fengtai Yongsheng Group, founded in 1999, is a diversified enterprise with core operations in textiles, complemented by automotive trade, finance, and hotel management. With over 1,500 air-jet looms across production bases in Xinjiang and Ningxia, the group has built an integrated supply chain from cotton to yarn and greige fabric, producing more than 100 million meters of high-quality apparel and home-textile fabric annually.',
+          'Guided by the “Quality Cotton—Premium Yarn—Superior Fabric” principle, the company combines scaled production with financial resources to deliver outstanding value. Rigorous controls ensure full yarn count, density, and meterage, with fabrics suitable for bleaching and dyeing. Forward warehouses in Jiangsu, Zhejiang, and Guangdong hold more than 3 million meters of stock and support dispatch within 24 hours.',
+          'Fengtai Yongsheng delivers reliable quality and rapid service to partners worldwide while remaining committed to sustainability and corporate social responsibility.',
+        ],
+        ctaZh: '了解更多公司信息',
+        ctaEn: 'Learn more about the company',
+        ctaTo: '/company',
+        backgroundImage: '/images/company-introduction-bg-v2.png',
+      },
       mainFabrics: {
         eyebrowZh: '主力面料',
         eyebrowEn: 'Main Fabrics',

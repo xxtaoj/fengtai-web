@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type DragEvent, type FormEvent, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Activity, BarChart3, Check, Database, Download, ExternalLink, FileText, ImagePlus, LayoutDashboard, LogOut, RotateCcw, Save, Shield, UserPlus, Users } from 'lucide-react';
+import { Activity, BarChart3, Check, Database, Download, ExternalLink, FileText, ImagePlus, Inbox, LayoutDashboard, LogOut, RotateCcw, Save, Shield, UserPlus, Users } from 'lucide-react';
 import { useSite } from '../context/SiteContext';
 import { staticMediaFiles } from '../data/staticMediaManifest';
 import {
   createUser,
+  listAdminSessions,
+  listInquiries,
   listOperationLogs,
   listRequestLogs,
   listUsers,
@@ -13,19 +15,25 @@ import {
   loadProductAnalytics,
   loginAdmin,
   logoutAdmin,
+  revokeAdminSession,
+  updateInquiry,
   updateUser,
   type AdminLog,
   type AdminRole,
+  type AdminSessionRecord,
   type AdminUser,
   type AnalyticsSummary,
+  type InquiryRecord,
+  type InquiryStatus,
   type PageAnalytics,
   type Permission,
   type ProductAnalytics
 } from '../lib/siteApi';
-import type { Product } from '../types/product';
+import type { BeddingSpecification, Product, ProductSpecification, StockSpecification } from '../types/product';
+import type { ProductCategory } from '../types/catalog';
 import type { SiteContent } from '../types/site';
 
-type Tab = 'overview' | 'content' | 'products' | 'media' | 'users' | 'analytics' | 'logs' | 'data';
+type Tab = 'overview' | 'content' | 'products' | 'inquiries' | 'media' | 'users' | 'analytics' | 'logs' | 'data';
 const defaultPassword = 'admin123';
 const defaultUsername = 'admin';
 const roleLabels: Record<AdminRole, string> = {
@@ -46,7 +54,26 @@ const targetLabels: Record<string, string> = {
   auth: '认证',
   user: '用户',
   media: '媒体文件',
+  inquiry: '客户询盘',
   'site-content': '整站内容'
+};
+
+const inquiryStatusLabels: Record<InquiryStatus, string> = {
+  new: '新询盘',
+  contacting: '联系中',
+  done: '已完成',
+  archived: '已归档'
+};
+
+const inquiryTypeLabels: Record<string, string> = {
+  product: '产品询价',
+  sample: '寄送样品',
+  'custom-weaving': '来样定织',
+  visit: '预约看厂',
+  contact: '综合询盘',
+  domestic: '内销询盘',
+  export: '外贸询盘',
+  order: '订单需求'
 };
 
 function downloadJson(filename: string, data: unknown) {
@@ -147,7 +174,7 @@ function can(permissions: Permission[], permission: Permission) {
 }
 
 function cloneProduct(product: Product): Product {
-  return JSON.parse(JSON.stringify(product)) as Product;
+  return ensureProductSpecifications(JSON.parse(JSON.stringify(product)) as Product);
 }
 
 function slugify(value: string) {
@@ -174,7 +201,87 @@ function createBlankProduct(id: number): Product {
     specsZh: [],
     specsEn: [],
     gallery: [],
-    specifications: []
+    specifications: [
+      { id: 'composition', labelZh: '成分', labelEn: 'Composition', valueZh: '', valueEn: '' },
+      { id: 'weight', labelZh: '克重', labelEn: 'Weight', valueZh: '', valueEn: '' },
+      { id: 'width', labelZh: '门幅', labelEn: 'Width', valueZh: '', valueEn: '' },
+      { id: 'application', labelZh: '适用用途', labelEn: 'Application', valueZh: '', valueEn: '' }
+    ],
+    beddingSpecifications: [
+      { labelZh: '成分', labelEn: 'Composition', valueZh: '', valueEn: '' },
+      { labelZh: '克重', labelEn: 'Weight', valueZh: '', valueEn: '' },
+      { labelZh: '门幅', labelEn: 'Width', valueZh: '', valueEn: '' },
+      { labelZh: '适用用途', labelEn: 'Application', valueZh: '', valueEn: '' }
+    ],
+    stockSpecifications: [createStockSpecification()]
+  };
+}
+
+function cloneCategory(category: ProductCategory): ProductCategoryDraft {
+  return { ...JSON.parse(JSON.stringify(category)) as ProductCategory, originalId: category.id };
+}
+
+function categoryLabel(category: ProductCategory) {
+  return `${category.group === 'ready-stock' ? '常规在机现货' : '定制织造'} / ${category.titleZh}`;
+}
+
+function categoryLabelEn(category: ProductCategory) {
+  return `${category.group === 'ready-stock' ? 'Regular In-stock' : 'Custom Weaving'} / ${category.titleEn}`;
+}
+
+function isBeddingCategory(category?: ProductCategory | null) {
+  if (!category) return false;
+  return /床品|bedding/i.test(`${category.id} ${category.titleZh} ${category.titleEn}`);
+}
+
+const productSpecificationPresets: Array<{ id: ProductSpecification['id']; labelZh: string; labelEn: string }> = [
+  { id: 'composition', labelZh: '成分', labelEn: 'Composition' },
+  { id: 'weight', labelZh: '克重', labelEn: 'Weight' },
+  { id: 'width', labelZh: '门幅', labelEn: 'Width' },
+  { id: 'weave', labelZh: '组织结构', labelEn: 'Weave' },
+  { id: 'finish', labelZh: '后整理', labelEn: 'Finish' },
+  { id: 'application', labelZh: '适用用途', labelEn: 'Application' },
+  { id: 'supply-type', labelZh: '供货方式', labelEn: 'Supply type' },
+  { id: 'color-pattern', labelZh: '颜色 / 花型', labelEn: 'Color / pattern' }
+];
+
+function createProductSpecification(id: ProductSpecification['id'] = 'composition'): ProductSpecification {
+  const preset = productSpecificationPresets.find(item => item.id === id) || productSpecificationPresets[0];
+  return { id: preset.id, labelZh: preset.labelZh, labelEn: preset.labelEn, valueZh: '', valueEn: '' };
+}
+
+function createBeddingSpecification(): BeddingSpecification {
+  return { labelZh: '', labelEn: '', valueZh: '', valueEn: '' };
+}
+
+function createStockSpecification(): StockSpecification {
+  return { no: '', composition: '', yarnCount: '', density: '', width: '', weave: '', pkg: '' };
+}
+
+function splitSpecificationLine(line: string, fallbackLabel: string) {
+  const [label, ...rest] = line.split(/[：:]/);
+  const value = rest.join(':').trim();
+  return value ? { label: label.trim(), value } : { label: fallbackLabel, value: line.trim() };
+}
+
+function ensureProductSpecifications(product: Product): Product {
+  if (product.specifications?.length) return product;
+  const maxRows = Math.max(product.specsZh.length, product.specsEn.length);
+  if (!maxRows) return { ...product, specifications: [] };
+
+  return {
+    ...product,
+    specifications: Array.from({ length: maxRows }).map((_, index) => {
+      const zhSpec = splitSpecificationLine(product.specsZh[index] || '', `规格 ${index + 1}`);
+      const enSpec = splitSpecificationLine(product.specsEn[index] || '', `Spec ${index + 1}`);
+      return {
+        id: 'application' as ProductSpecification['id'],
+        labelZh: zhSpec.label,
+        labelEn: enSpec.label,
+        valueZh: zhSpec.value,
+        valueEn: enSpec.value
+      };
+    }).filter(item => item.valueZh || item.valueEn)
   };
 }
 
@@ -185,7 +292,7 @@ function ProductEditorField({ label, children }: { label: string; children: Reac
   </label>;
 }
 
-function ProductImageDropzone({ label, value, alt, uploading, onFile }: { label: string; value: string; alt: string; uploading: boolean; onFile: (file: File) => void | Promise<void> }) {
+function ProductImageDropzone({ label, value, alt, uploading, mediaLibrary, onFile, onSelect }: { label: string; value: string; alt: string; uploading: boolean; mediaLibrary?: MediaLibraryItem[]; onFile: (file: File) => void | Promise<void>; onSelect: (value: string) => void }) {
   const [dragging, setDragging] = useState(false);
 
   function acceptFile(file: File | undefined) {
@@ -203,20 +310,23 @@ function ProductImageDropzone({ label, value, alt, uploading, onFile }: { label:
     acceptFile(event.dataTransfer.files[0]);
   }
 
-  return <label
-    onDragEnter={event => { event.preventDefault(); setDragging(true); }}
-    onDragOver={event => event.preventDefault()}
-    onDragLeave={event => { event.preventDefault(); setDragging(false); }}
-    onDrop={handleDrop}
-    className={`block cursor-pointer border-2 border-dashed p-3 transition ${dragging ? 'border-accent bg-orange-50' : 'border-slate-300 bg-slate-50 hover:border-accent hover:bg-orange-50/60'}`}
-  >
-    <p className="mb-2 text-sm font-semibold text-ink">{label}</p>
-    {value
-      ? <img src={value} alt={alt} className="aspect-video w-full object-cover"/>
-      : <div className="flex aspect-video items-center justify-center bg-white text-center text-sm leading-6 text-muted">将图片拖到这里</div>}
-    <p className="mt-3 text-center text-xs font-semibold text-muted">{uploading ? '上传中...' : '拖拽本地图片到这里，或点击选择图片'}</p>
-    <input type="file" accept="image/*" className="sr-only" onChange={event => { acceptFile(event.target.files?.[0]); event.target.value = ''; }}/>
-  </label>;
+  return <div>
+    <label
+      onDragEnter={event => { event.preventDefault(); setDragging(true); }}
+      onDragOver={event => event.preventDefault()}
+      onDragLeave={event => { event.preventDefault(); setDragging(false); }}
+      onDrop={handleDrop}
+      className={`block cursor-pointer border-2 border-dashed p-3 transition ${dragging ? 'border-accent bg-orange-50' : 'border-slate-300 bg-slate-50 hover:border-accent hover:bg-orange-50/60'}`}
+    >
+      <p className="mb-2 text-sm font-semibold text-ink">{label}</p>
+      {value
+        ? <img src={value} alt={alt} className="aspect-video w-full object-cover"/>
+        : <div className="flex aspect-video items-center justify-center bg-white text-center text-sm leading-6 text-muted">将图片拖到这里</div>}
+      <p className="mt-3 text-center text-xs font-semibold text-muted">{uploading ? '上传中...' : '拖拽本地图片到这里，或点击选择图片'}</p>
+      <input type="file" accept="image/*" className="sr-only" onChange={event => { acceptFile(event.target.files?.[0]); event.target.value = ''; }}/>
+    </label>
+    <MediaLibrarySelect value={value} kind="image" mediaLibrary={mediaLibrary} onChange={onSelect}/>
+  </div>;
 }
 
 type PathPart = string | number;
@@ -242,6 +352,10 @@ type SiteTextItem = {
   value: string;
   source: string;
 };
+type MediaLibraryItem = Pick<SiteMediaItem, 'url' | 'kind' | 'name' | 'source'>;
+type ProductCategoryDraft = ProductCategory & {
+  originalId?: string;
+};
 
 const keyLabels: Record<string, string> = {
   about: '关于模块',
@@ -260,6 +374,7 @@ const keyLabels: Record<string, string> = {
   channels: '联系方式',
   chineseName: '中文公司名',
   company: '公司页面',
+  companyIntro: '首页公司简介板块',
   conditionEn: '英文条件',
   conditionZh: '中文条件',
   contact: '联系页面',
@@ -342,6 +457,8 @@ const keyLabels: Record<string, string> = {
   paymentEn: '英文付款方式',
   phone: '电话',
   poster: '视频封面',
+  paragraphsEn: '英文段落',
+  paragraphsZh: '中文段落',
   products: '产品页文案',
   process: '流程模块',
   quoteCTA: '询价 CTA',
@@ -362,6 +479,10 @@ const keyLabels: Record<string, string> = {
   titleEn: '英文标题',
   titleZh: '中文标题',
   to: '站内链接',
+  ctaEn: '英文按钮文字',
+  ctaTo: '按钮跳转链接',
+  ctaZh: '中文按钮文字',
+  backgroundImage: '背景图片',
   topics: '主题',
   trade: '贸易信息',
   value: '内容',
@@ -439,6 +560,14 @@ function isImageUploadKey(key: string) {
   return /image|logo|poster|qr|wechatQr|gallery/i.test(key) && !/video/i.test(key);
 }
 
+function isVideoUploadKey(key: string) {
+  return /video/i.test(key);
+}
+
+function isUploadMediaKey(key: string) {
+  return isImageUploadKey(key) || isVideoUploadKey(key);
+}
+
 function isLongTextKey(key: string) {
   return /description|summary|content|address|products|markets|hours|payment|title/i.test(key);
 }
@@ -453,6 +582,34 @@ function mediaKindFromUrl(url: string) {
   if (/\.(mp4|webm|mov|m4v)(\?.*)?$/i.test(url) || /^\/videos\//.test(url)) return 'video';
   if (/\.(jpg|jpeg|png|webp|gif|avif|svg)(\?.*)?$/i.test(url) || /^\/images\//.test(url)) return 'image';
   return 'file';
+}
+
+function mergeMediaLibrary(uploadedMedia: MediaLibraryItem[], siteMedia: MediaLibraryItem[]) {
+  const map = new Map<string, MediaLibraryItem>();
+  [...uploadedMedia, ...siteMedia].forEach(item => {
+    if (!item.url) return;
+    map.set(item.url, {
+      ...item,
+      name: item.name || basenameFromUrl(item.url),
+      source: item.source || '媒体库上传文件'
+    });
+  });
+  return Array.from(map.values()).sort((a, b) => `${a.kind}-${a.name}`.localeCompare(`${b.kind}-${b.name}`));
+}
+
+function MediaLibrarySelect({ value, kind, mediaLibrary, onChange }: { value: string; kind: 'image' | 'video'; mediaLibrary?: MediaLibraryItem[]; onChange: (value: string) => void }) {
+  const choices = (mediaLibrary || []).filter(item => item.kind === kind);
+  if (!choices.length) return null;
+  const selectedValue = choices.some(item => item.url === value) ? value : '';
+  return <div className="mt-3">
+    <label className="block text-xs font-bold text-muted">
+      从媒体库选择
+      <select value={selectedValue} onChange={event => { if (event.target.value) onChange(event.target.value); }} className="mt-2 min-h-10 w-full border border-line bg-white px-3 text-sm font-semibold text-ink outline-none focus:border-accent">
+        <option value="">选择已有{kind === 'video' ? '视频' : '图片'}</option>
+        {choices.map(item => <option key={item.url} value={item.url}>{item.name}{item.source ? ` · ${item.source}` : ''}</option>)}
+      </select>
+    </label>
+  </div>;
 }
 
 function basenameFromUrl(url: string) {
@@ -530,15 +687,18 @@ function extractSiteLibrary(site: SiteContent) {
   };
 }
 
-function ContentImageDropzone({ label, value, uploadMedia, onChange }: { label: string; value: string; uploadMedia?: UploadMediaFn; onChange: (value: string) => void }) {
+function ContentMediaDropzone({ label, value, fieldKey, uploadMedia, mediaLibrary, onChange }: { label: string; value: string; fieldKey: string; uploadMedia?: UploadMediaFn; mediaLibrary?: MediaLibraryItem[]; onChange: (value: string) => void }) {
   const [dragging, setDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
+  const videoField = isVideoUploadKey(fieldKey);
+  const mediaLabel = videoField ? '视频' : '图片';
+  const accept = videoField ? 'video/*' : 'image/*';
 
   async function acceptFile(file: File | undefined) {
     if (!file || !uploadMedia) return;
-    if (!file.type.startsWith('image/')) {
-      window.alert('这里只能上传图片文件');
+    if (videoField ? !file.type.startsWith('video/') : !file.type.startsWith('image/')) {
+      window.alert(`这里只能上传${mediaLabel}文件`);
       return;
     }
     setUploading(true);
@@ -546,9 +706,9 @@ function ContentImageDropzone({ label, value, uploadMedia, onChange }: { label: 
     try {
       const url = await uploadMedia(file);
       onChange(url);
-      setMessage('图片已上传，保存当前模块后生效');
+      setMessage(`${mediaLabel}已上传，保存当前模块后生效`);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : '图片上传失败');
+      setMessage(error instanceof Error ? error.message : `${mediaLabel}上传失败`);
     } finally {
       setUploading(false);
     }
@@ -560,23 +720,28 @@ function ContentImageDropzone({ label, value, uploadMedia, onChange }: { label: 
     void acceptFile(event.dataTransfer.files[0]);
   }
 
-  return <label
-    onDragEnter={event => { event.preventDefault(); setDragging(true); }}
-    onDragOver={event => event.preventDefault()}
-    onDragLeave={event => { event.preventDefault(); setDragging(false); }}
-    onDrop={handleDrop}
-    className={`mt-3 block cursor-pointer border-2 border-dashed p-3 transition ${dragging ? 'border-accent bg-orange-50' : 'border-slate-300 bg-slate-50 hover:border-accent hover:bg-orange-50/60'}`}
-  >
-    {value
-      ? <img src={value} alt={label} className="max-h-64 w-full object-contain bg-white p-2"/>
-      : <div className="flex min-h-40 items-center justify-center bg-white text-center text-sm leading-6 text-muted">将图片拖到这里</div>}
-    <p className="mt-3 text-center text-xs font-semibold text-muted">{uploading ? '上传中...' : '拖拽本地图片到这里，或点击选择图片'}</p>
-    {message&&<p className="mt-2 text-center text-xs font-semibold text-accent">{message}</p>}
-    <input type="file" accept="image/*" className="sr-only" onChange={event => { void acceptFile(event.target.files?.[0]); event.target.value = ''; }}/>
-  </label>;
+  return <div className="mt-3">
+    <label
+      onDragEnter={event => { event.preventDefault(); setDragging(true); }}
+      onDragOver={event => event.preventDefault()}
+      onDragLeave={event => { event.preventDefault(); setDragging(false); }}
+      onDrop={handleDrop}
+      className={`block cursor-pointer border-2 border-dashed p-3 transition ${dragging ? 'border-accent bg-orange-50' : 'border-slate-300 bg-slate-50 hover:border-accent hover:bg-orange-50/60'}`}
+    >
+      {value
+        ? videoField
+          ? <video src={value} className="aspect-video w-full bg-black object-contain" controls muted/>
+          : <img src={value} alt={label} className="max-h-64 w-full object-contain bg-white p-2"/>
+        : <div className="flex min-h-40 items-center justify-center bg-white text-center text-sm leading-6 text-muted">将{mediaLabel}拖到这里</div>}
+      <p className="mt-3 text-center text-xs font-semibold text-muted">{uploading ? '上传中...' : `拖拽本地${mediaLabel}到这里，或点击选择${mediaLabel}`}</p>
+      {message&&<p className="mt-2 text-center text-xs font-semibold text-accent">{message}</p>}
+      <input type="file" accept={accept} className="sr-only" onChange={event => { void acceptFile(event.target.files?.[0]); event.target.value = ''; }}/>
+    </label>
+    <MediaLibrarySelect value={value} kind={videoField ? 'video' : 'image'} mediaLibrary={mediaLibrary} onChange={onChange}/>
+  </div>;
 }
 
-function EditableField({ label, value, onChange, fieldKey, uploadMedia }: { label: string; value: string | number | boolean; onChange: (value: string | number | boolean) => void; fieldKey: string; uploadMedia?: UploadMediaFn }) {
+function EditableField({ label, value, onChange, fieldKey, uploadMedia, mediaLibrary }: { label: string; value: string | number | boolean; onChange: (value: string | number | boolean) => void; fieldKey: string; uploadMedia?: UploadMediaFn; mediaLibrary?: MediaLibraryItem[] }) {
   if (typeof value === 'boolean') {
     return <label className="flex min-h-11 items-center gap-3 border border-line px-3 text-sm font-semibold text-ink">
       <input type="checkbox" checked={value} onChange={event => onChange(event.target.checked)} className="size-4 accent-orange-600"/>
@@ -591,11 +756,11 @@ function EditableField({ label, value, onChange, fieldKey, uploadMedia }: { labe
   const textareaClass = "min-h-28 w-full border border-line p-3 text-sm leading-6 outline-none focus:border-accent";
 
   return <ProductEditorField label={label}>
-    {typeof value === 'string' && uploadMedia && isImageUploadKey(fieldKey) && <ContentImageDropzone label={label} value={textValue} uploadMedia={uploadMedia} onChange={next => onChange(next)}/>}
+    {typeof value === 'string' && uploadMedia && isUploadMediaKey(fieldKey) && <ContentMediaDropzone label={label} value={textValue} fieldKey={fieldKey} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={next => onChange(next)}/>}
     {longText
       ? <textarea value={textValue} onChange={event => onChange(numeric ? Number(event.target.value) : event.target.value)} className={textareaClass}/>
       : <input type={numeric ? 'number' : 'text'} value={textValue} onChange={event => onChange(numeric ? Number(event.target.value) : event.target.value)} className={inputClass}/>}
-    {typeof value === 'string' && isMediaKey(fieldKey) && textValue && !isImageUploadKey(fieldKey) && <MediaPreview value={textValue} fieldKey={fieldKey}/>}
+    {typeof value === 'string' && isMediaKey(fieldKey) && textValue && !isUploadMediaKey(fieldKey) && <MediaPreview value={textValue} fieldKey={fieldKey}/>}
   </ProductEditorField>;
 }
 
@@ -608,9 +773,9 @@ function MediaPreview({ value, fieldKey }: { value: string; fieldKey: string }) 
   </div>;
 }
 
-function EditableValue({ value, onChange, fieldKey = 'content', depth = 0, uploadMedia }: { value: unknown; onChange: (value: unknown) => void; fieldKey?: string; depth?: number; uploadMedia?: UploadMediaFn }) {
+function EditableValue({ value, onChange, fieldKey = 'content', depth = 0, uploadMedia, mediaLibrary }: { value: unknown; onChange: (value: unknown) => void; fieldKey?: string; depth?: number; uploadMedia?: UploadMediaFn; mediaLibrary?: MediaLibraryItem[] }) {
   if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-    return <EditableField label={labelForKey(fieldKey)} value={value} onChange={onChange} fieldKey={fieldKey} uploadMedia={uploadMedia}/>;
+    return <EditableField label={labelForKey(fieldKey)} value={value} onChange={onChange} fieldKey={fieldKey} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary}/>;
   }
 
   if (Array.isArray(value)) {
@@ -634,6 +799,7 @@ function EditableValue({ value, onChange, fieldKey = 'content', depth = 0, uploa
                 value={item}
                 fieldKey="image"
                 uploadMedia={uploadMedia}
+                mediaLibrary={mediaLibrary}
                 onChange={next => onChange(value.map((row, rowIndex) => rowIndex === index ? String(next) : row))}
               />
             </div>)}
@@ -657,8 +823,8 @@ function EditableValue({ value, onChange, fieldKey = 'content', depth = 0, uploa
               <button type="button" onClick={() => onChange(value.filter((_, itemIndex) => itemIndex !== index))} className="text-xs font-bold text-red-700">删除</button>
             </div>
             <div className="mt-4 grid gap-4 lg:grid-cols-2">
-              <EditableField label="中文" value={item[0]} fieldKey="zh" uploadMedia={uploadMedia} onChange={next => onChange(value.map((row, rowIndex) => rowIndex === index ? [next, row[1]] : row))}/>
-              <EditableField label="英文" value={item[1]} fieldKey="en" uploadMedia={uploadMedia} onChange={next => onChange(value.map((row, rowIndex) => rowIndex === index ? [row[0], next] : row))}/>
+              <EditableField label="中文" value={item[0]} fieldKey="zh" uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={next => onChange(value.map((row, rowIndex) => rowIndex === index ? [next, row[1]] : row))}/>
+              <EditableField label="英文" value={item[1]} fieldKey="en" uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={next => onChange(value.map((row, rowIndex) => rowIndex === index ? [row[0], next] : row))}/>
             </div>
           </div>)}
         </div>
@@ -683,7 +849,7 @@ function EditableValue({ value, onChange, fieldKey = 'content', depth = 0, uploa
               <button type="button" onClick={() => onChange(value.filter((_, itemIndex) => itemIndex !== index))} className="border border-red-200 px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-50">删除</button>
             </div>
           </div>
-          <EditableValue value={item} fieldKey={`${fieldKey}-${index + 1}`} depth={depth + 1} uploadMedia={uploadMedia} onChange={next => onChange(value.map((row, rowIndex) => rowIndex === index ? next : row))}/>
+          <EditableValue value={item} fieldKey={`${fieldKey}-${index + 1}`} depth={depth + 1} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={next => onChange(value.map((row, rowIndex) => rowIndex === index ? next : row))}/>
         </div>)}
       </div>
     </div>;
@@ -696,9 +862,9 @@ function EditableValue({ value, onChange, fieldKey = 'content', depth = 0, uploa
         {isRecord(item) || Array.isArray(item)
           ? <div className="border border-slate-200 p-4">
               <h2 className="mb-4 text-base font-bold text-ink">{labelForKey(key)}</h2>
-              <EditableValue value={item} fieldKey={key} depth={depth + 1} uploadMedia={uploadMedia} onChange={next => onChange({ ...value, [key]: next })}/>
+              <EditableValue value={item} fieldKey={key} depth={depth + 1} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={next => onChange({ ...value, [key]: next })}/>
             </div>
-          : <EditableValue value={item} fieldKey={key} depth={depth + 1} uploadMedia={uploadMedia} onChange={next => onChange({ ...value, [key]: next })}/>}
+          : <EditableValue value={item} fieldKey={key} depth={depth + 1} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={next => onChange({ ...value, [key]: next })}/>}
       </div>)}
     </div>;
   }
@@ -711,7 +877,7 @@ function EditableValue({ value, onChange, fieldKey = 'content', depth = 0, uploa
 function buildContentModules(site: SiteContent): ContentModule[] {
   const copy = isRecord(site.copy) ? site.copy : {};
   const copyTitles: Record<string, string> = {
-    home: '首页内容',
+    home: '首页内容（与前台同步）',
     company: '公司页面内容',
     contact: '联系页面内容',
     products: '产品页文案',
@@ -739,11 +905,20 @@ function buildContentModules(site: SiteContent): ContentModule[] {
   ];
 }
 
-function ContentPanel({ site, saveSiteContent, uploadMedia, saving }: { site: SiteContent; saveSiteContent: ReturnType<typeof useSite>['saveSiteContent']; uploadMedia: UploadMediaFn; saving: boolean }) {
+const homeFrontendKeys = ['hero', 'companyIntro', 'mainFabrics', 'activity'];
+
+function homeContentForEditor(value: unknown) {
+  if (!isRecord(value)) return {};
+  return Object.fromEntries(homeFrontendKeys
+    .filter(key => key in value)
+    .map(key => [key, value[key]]));
+}
+
+function ContentPanel({ site, saveSiteContent, uploadMedia, mediaLibrary, saving }: { site: SiteContent; saveSiteContent: ReturnType<typeof useSite>['saveSiteContent']; uploadMedia: UploadMediaFn; mediaLibrary: MediaLibraryItem[]; saving: boolean }) {
   const modules = useMemo(() => buildContentModules(site), [site]);
   const [selectedId, setSelectedId] = useState(() => modules[0]?.id || 'company');
   const selected = modules.find(module => module.id === selectedId) || modules[0];
-  const [draft, setDraft] = useState<unknown>(() => selected ? cloneValue(getAtPath(site, selected.path)) : {});
+  const [draft, setDraft] = useState<unknown>(() => selected ? selected.id === 'copy.home' ? homeContentForEditor(getAtPath(site, selected.path)) : cloneValue(getAtPath(site, selected.path)) : {});
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
 
@@ -751,7 +926,7 @@ function ContentPanel({ site, saveSiteContent, uploadMedia, saving }: { site: Si
     const nextSelected = modules.find(module => module.id === selectedId) || modules[0];
     if (!nextSelected) return;
     setSelectedId(nextSelected.id);
-    setDraft(cloneValue(getAtPath(site, nextSelected.path)));
+    setDraft(nextSelected.id === 'copy.home' ? homeContentForEditor(getAtPath(site, nextSelected.path)) : cloneValue(getAtPath(site, nextSelected.path)));
   }, [modules, selectedId, site]);
 
   async function saveModule() {
@@ -781,7 +956,7 @@ function ContentPanel({ site, saveSiteContent, uploadMedia, saving }: { site: Si
       <aside className="h-fit border border-slate-200 bg-white p-3 xl:sticky xl:top-24">
         <p className="px-2 pb-3 text-xs font-bold uppercase tracking-[.16em] text-muted">内容模块</p>
         <div className="grid max-h-[44rem] gap-1 overflow-auto">
-          {modules.map(module => <button key={module.id} onClick={() => { setSelectedId(module.id); setDraft(cloneValue(getAtPath(site, module.path))); setNotice(''); setError(''); }} className={`px-3 py-3 text-left text-sm transition ${selected?.id===module.id?'bg-accent text-white':'hover:bg-orange-50'}`}>
+          {modules.map(module => <button key={module.id} onClick={() => { setSelectedId(module.id); setDraft(module.id === 'copy.home' ? homeContentForEditor(getAtPath(site, module.path)) : cloneValue(getAtPath(site, module.path))); setNotice(''); setError(''); }} className={`px-3 py-3 text-left text-sm transition ${selected?.id===module.id?'bg-accent text-white':'hover:bg-orange-50'}`}>
             <span className="block font-bold">{module.title}</span>
             <span className={`mt-1 block text-xs leading-5 ${selected?.id===module.id?'text-white/75':'text-muted'}`}>{module.description}</span>
           </button>)}
@@ -794,7 +969,7 @@ function ContentPanel({ site, saveSiteContent, uploadMedia, saving }: { site: Si
           <h2 className="mt-1 text-2xl font-bold text-ink">{selected.title}</h2>
           <p className="mt-2 text-sm text-muted">{selected.description}</p>
         </div>}
-        <EditableValue value={draft} onChange={setDraft} fieldKey={selected?.id || 'content'} uploadMedia={uploadMedia}/>
+        <EditableValue value={draft} onChange={setDraft} fieldKey={selected?.id || 'content'} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary}/>
         <div className="mt-6 flex justify-end">
           <button onClick={saveModule} disabled={saving} className="inline-flex min-h-11 items-center gap-2 bg-accent px-5 py-3 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-60"><Save size={17}/>{saving?'保存中':'保存当前模块'}</button>
         </div>
@@ -803,13 +978,16 @@ function ContentPanel({ site, saveSiteContent, uploadMedia, saving }: { site: Si
   </section>;
 }
 
-function ProductPanel({ site, saveSite, uploadMedia, saving }: { site: ReturnType<typeof useSite>['site']; saveSite: ReturnType<typeof useSite>['saveSite']; uploadMedia: ReturnType<typeof useSite>['uploadMedia']; saving: boolean }) {
+function ProductPanel({ site, saveSite, uploadMedia, mediaLibrary, saving }: { site: ReturnType<typeof useSite>['site']; saveSite: ReturnType<typeof useSite>['saveSite']; uploadMedia: ReturnType<typeof useSite>['uploadMedia']; mediaLibrary: MediaLibraryItem[]; saving: boolean }) {
   const products = site.catalog.products;
+  const categories = site.catalog.categories;
   const [selectedId, setSelectedId] = useState<number | null>(() => products[0]?.id ?? null);
   const [draft, setDraft] = useState<Product | null>(() => products[0] ? cloneProduct(products[0]) : createBlankProduct(1));
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [uploadingImage, setUploadingImage] = useState('');
+  const [stockSpecificationPaste, setStockSpecificationPaste] = useState('');
+  const [categoryDrafts, setCategoryDrafts] = useState<ProductCategoryDraft[]>(() => categories.map(cloneCategory));
 
   useEffect(() => {
     if (selectedId === null) {
@@ -826,8 +1004,195 @@ function ProductPanel({ site, saveSite, uploadMedia, saving }: { site: ReturnTyp
     setDraft(cloneProduct(selected));
   }, [products, selectedId]);
 
+  useEffect(() => {
+    setCategoryDrafts(categories.map(cloneCategory));
+  }, [categories]);
+
   function updateDraft(patch: Partial<Product>) {
     setDraft(current => current ? { ...current, ...patch } : current);
+  }
+
+  function updateCategoryDraft(index: number, patch: Partial<ProductCategory>) {
+    setCategoryDrafts(current => current.map((category, itemIndex) => itemIndex === index ? { ...category, ...patch } : category));
+  }
+
+  function addCategory() {
+    const nextId = slugify(`category-${Date.now()}`);
+    setCategoryDrafts(current => [
+      ...current,
+      {
+        id: nextId,
+        originalId: undefined,
+        group: 'ready-stock',
+        titleZh: '新产品大类',
+        titleEn: 'New Product Category',
+        descriptionZh: '请填写这个大类的中文说明。',
+        descriptionEn: 'Please enter the English description for this category.'
+      }
+    ]);
+    setNotice('已新增大类草稿，填写后点击“保存大类设置”');
+    setError('');
+  }
+
+  function removeCategoryDraft(index: number) {
+    const category = categoryDrafts[index];
+    if (category?.originalId && products.some(product => product.subcategory === category.originalId)) {
+      setError(`大类「${category.titleZh}」下面还有商品，请先把商品移动到其他大类或删除商品。`);
+      setNotice('');
+      return;
+    }
+    setCategoryDrafts(current => current.filter((_, itemIndex) => itemIndex !== index));
+    setNotice('大类已从草稿中移除，点击“保存大类设置”后生效');
+    setError('');
+  }
+
+  async function saveCategories() {
+    setError('');
+    setNotice('');
+    const normalized: ProductCategory[] = categoryDrafts.map((category, index) => ({
+      id: slugify(category.id || category.titleEn || category.titleZh || `category-${index + 1}`),
+      group: category.group,
+      titleZh: category.titleZh.trim(),
+      titleEn: category.titleEn.trim(),
+      descriptionZh: category.descriptionZh.trim(),
+      descriptionEn: category.descriptionEn.trim()
+    }));
+    if (normalized.some(category => !category.titleZh || !category.titleEn || !category.id)) {
+      setError('每个大类都需要填写中文名称、英文名称和大类 ID');
+      return;
+    }
+    if (new Set(normalized.map(category => category.id)).size !== normalized.length) {
+      setError('大类 ID 不能重复');
+      return;
+    }
+    const removedCategory = categories.find(category => !categoryDrafts.some(next => next.originalId === category.id));
+    if (removedCategory && products.some(product => product.subcategory === removedCategory.id)) {
+      setError(`大类「${removedCategory.titleZh}」下面还有商品，请先把商品移动到其他大类或删除商品。`);
+      return;
+    }
+    const idMap = new Map<string, ProductCategory>();
+    categoryDrafts.forEach((draftCategory, index) => {
+      const next = normalized[index];
+      if (next && draftCategory.originalId) idMap.set(draftCategory.originalId, next);
+    });
+    const nextProducts = products.map(product => {
+      const nextCategory = idMap.get(product.subcategory) || normalized.find(category => category.id === product.subcategory);
+      if (!nextCategory) return product;
+      return {
+        ...product,
+        group: nextCategory.group,
+        subcategory: nextCategory.id,
+        categoryZh: categoryLabel(nextCategory),
+        categoryEn: categoryLabelEn(nextCategory)
+      };
+    });
+    await saveSite({ ...site, catalog: { ...site.catalog, categories: normalized, products: nextProducts } });
+    setNotice('大类设置已保存');
+  }
+
+  function selectCategory(subcategory: string) {
+    const category = categories.find(item => item.id === subcategory);
+    if (!category) {
+      updateDraft({ subcategory });
+      return;
+    }
+    updateDraft({
+      group: category.group,
+      subcategory: category.id,
+      categoryZh: categoryLabel(category),
+      categoryEn: categoryLabelEn(category)
+    });
+  }
+
+  function selectGroup(group: Product['group']) {
+    const nextCategory = categories.find(category => category.group === group);
+    updateDraft({ group });
+    if (nextCategory) selectCategory(nextCategory.id);
+  }
+
+  function updateSpecification(index: number, patch: Partial<ProductSpecification>) {
+    setDraft(current => {
+      if (!current) return current;
+      const specifications = [...(current.specifications || [])];
+      const next = { ...(specifications[index] || createProductSpecification()), ...patch };
+      if (patch.id) {
+        const preset = productSpecificationPresets.find(item => item.id === patch.id);
+        if (preset) {
+          next.labelZh = preset.labelZh;
+          next.labelEn = preset.labelEn;
+        }
+      }
+      specifications[index] = next;
+      return { ...current, specifications };
+    });
+  }
+
+  function addSpecification() {
+    setDraft(current => current ? { ...current, specifications: [...(current.specifications || []), createProductSpecification()] } : current);
+  }
+
+  function removeSpecification(index: number) {
+    setDraft(current => current ? { ...current, specifications: (current.specifications || []).filter((_, itemIndex) => itemIndex !== index) } : current);
+  }
+
+  function updateBeddingSpecification(index: number, patch: Partial<BeddingSpecification>) {
+    setDraft(current => {
+      if (!current) return current;
+      const beddingSpecifications = [...(current.beddingSpecifications || [])];
+      beddingSpecifications[index] = { ...(beddingSpecifications[index] || createBeddingSpecification()), ...patch };
+      return { ...current, beddingSpecifications };
+    });
+  }
+
+  function addBeddingSpecification() {
+    setDraft(current => current ? { ...current, beddingSpecifications: [...(current.beddingSpecifications || []), createBeddingSpecification()] } : current);
+  }
+
+  function removeBeddingSpecification(index: number) {
+    setDraft(current => current ? { ...current, beddingSpecifications: (current.beddingSpecifications || []).filter((_, itemIndex) => itemIndex !== index) } : current);
+  }
+
+  function updateStockSpecification(index: number, patch: Partial<StockSpecification>) {
+    setDraft(current => {
+      if (!current) return current;
+      const stockSpecifications = [...(current.stockSpecifications || [])];
+      stockSpecifications[index] = { ...(stockSpecifications[index] || createStockSpecification()), ...patch };
+      return { ...current, stockSpecifications };
+    });
+  }
+
+  function addStockSpecification() {
+    setDraft(current => current ? { ...current, stockSpecifications: [...(current.stockSpecifications || []), createStockSpecification()] } : current);
+  }
+
+  function removeStockSpecification(index: number) {
+    setDraft(current => current ? { ...current, stockSpecifications: (current.stockSpecifications || []).filter((_, itemIndex) => itemIndex !== index) } : current);
+  }
+
+  function importStockSpecifications() {
+    const rows = stockSpecificationPaste
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(Boolean)
+      .map(line => line.split(/\t| {2,}/).map(value => value.trim()))
+      .map(columns => ({
+        no: columns[0] || '',
+        composition: columns[1] || '',
+        yarnCount: columns[2] || '',
+        density: columns[3] || '',
+        width: columns[4] || '',
+        weave: columns[5] || '',
+        pkg: columns[6] || ''
+      }))
+      .filter(row => Object.values(row).some(Boolean));
+    if (!rows.length) {
+      setError('没有识别到可导入的规格行，请使用制表符分列后再粘贴。');
+      return;
+    }
+    setDraft(current => current ? { ...current, stockSpecifications: rows } : current);
+    setStockSpecificationPaste('');
+    setError('');
+    setNotice(`已导入 ${rows.length} 条批量规格，点击“保存产品”后生效`);
   }
 
   async function replaceProductImage(file: File, target: 'main' | number) {
@@ -859,6 +1224,21 @@ function ProductPanel({ site, saveSite, uploadMedia, saving }: { site: ReturnTyp
     setError('');
   }
 
+  function selectProductImage(url: string, target: 'main' | number) {
+    if (target === 'main') {
+      updateDraft({ image: url });
+    } else {
+      setDraft(current => {
+        if (!current) return current;
+        const gallery = [...(current.gallery || [])];
+        gallery[target] = url;
+        return { ...current, gallery };
+      });
+    }
+    setNotice('已从媒体库选择图片，保存产品后生效');
+    setError('');
+  }
+
   function removeGalleryImage(index: number) {
     setDraft(current => current ? { ...current, gallery: (current.gallery || []).filter((_, itemIndex) => itemIndex !== index) } : current);
   }
@@ -871,15 +1251,33 @@ function ProductPanel({ site, saveSite, uploadMedia, saving }: { site: ReturnTyp
       setError('产品中英文名称不能为空');
       return;
     }
-    const normalized = { ...draft, slug: slugify(draft.slug || draft.nameEn) };
-    const duplicate = products.find(product => product.slug === normalized.slug && product.id !== normalized.id);
+    if (!Number.isInteger(draft.id) || draft.id < 1) {
+      setError('产品编号必须是大于 0 的整数');
+      return;
+    }
+    const normalized = {
+      ...draft,
+      slug: slugify(draft.slug || draft.nameEn),
+      specsZh: draft.specsZh.map(item => item.trim()).filter(Boolean),
+      specsEn: draft.specsEn.map(item => item.trim()).filter(Boolean),
+      gallery: (draft.gallery || []).filter(Boolean),
+      specifications: (draft.specifications || []).filter(item => item.valueZh.trim() || item.valueEn.trim()),
+      beddingSpecifications: (draft.beddingSpecifications || []).filter(item => item.labelZh.trim() || item.labelEn.trim() || item.valueZh.trim() || item.valueEn.trim()),
+      stockSpecifications: (draft.stockSpecifications || []).filter(item => Object.values(item).some(value => value.trim()))
+    };
+    const duplicate = products.find(product => product.slug === normalized.slug && product.id !== selectedId);
     if (duplicate) {
       setError('产品链接 slug 已存在，请换一个');
       return;
     }
-    const exists = products.some(product => product.id === normalized.id);
+    const duplicateId = products.find(product => product.id === normalized.id && product.id !== selectedId);
+    if (duplicateId) {
+      setError(`产品编号 ${normalized.id} 已存在，请换一个`);
+      return;
+    }
+    const exists = selectedId !== null && products.some(product => product.id === selectedId);
     const nextProducts = exists
-      ? products.map(product => product.id === normalized.id ? normalized : product)
+      ? products.map(product => product.id === selectedId ? normalized : product)
       : [...products, normalized];
     await saveSite({ ...site, catalog: { ...site.catalog, products: nextProducts } });
     setSelectedId(normalized.id);
@@ -887,7 +1285,16 @@ function ProductPanel({ site, saveSite, uploadMedia, saving }: { site: ReturnTyp
   }
 
   function addProduct() {
-    const product = createBlankProduct(nextProductId(products));
+    const category = categories[0];
+    const product = category
+      ? {
+          ...createBlankProduct(nextProductId(products)),
+          group: category.group,
+          subcategory: category.id,
+          categoryZh: categoryLabel(category),
+          categoryEn: categoryLabelEn(category)
+        }
+      : createBlankProduct(nextProductId(products));
     setSelectedId(null);
     setDraft(product);
     setNotice('');
@@ -929,6 +1336,12 @@ function ProductPanel({ site, saveSite, uploadMedia, saving }: { site: ReturnTyp
 
   const specZhText = draft?.specsZh.join('\n') ?? '';
   const specEnText = draft?.specsEn.join('\n') ?? '';
+  const groupedProducts = categories.map(category => ({
+    category,
+    products: products.filter(product => product.subcategory === category.id)
+  }));
+  const uncategorizedProducts = products.filter(product => !categories.some(category => category.id === product.subcategory));
+  const selectedCategory = draft ? categories.find(category => category.id === draft.subcategory) : null;
 
   return <section>
     <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
@@ -941,26 +1354,109 @@ function ProductPanel({ site, saveSite, uploadMedia, saving }: { site: ReturnTyp
     {notice&&<div className="mt-5 border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">{notice}</div>}
     {error&&<div className="mt-5 border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{error}</div>}
 
-    <div className="mt-6 grid gap-6 xl:grid-cols-[18rem_1fr]">
+    <div className="mt-6 border border-slate-200 bg-white p-5">
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[.16em] text-accent">产品大类</p>
+          <h2 className="mt-2 text-xl font-bold text-ink">大类增删与前台分组</h2>
+          <p className="mt-1 text-sm leading-6 text-muted">这里管理前台产品页的大类，例如床品面料、服装面料。每个商品在下方选择所属大类。</p>
+        </div>
+        <div className="flex flex-wrap gap-3">
+          <button type="button" onClick={addCategory} className="inline-flex min-h-10 items-center gap-2 border border-line bg-white px-4 text-sm font-bold text-ink hover:border-accent hover:text-accent">新增大类</button>
+          <button type="button" onClick={() => void saveCategories()} disabled={saving} className="inline-flex min-h-10 items-center gap-2 bg-accent px-4 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-60"><Save size={16}/>{saving?'保存中':'保存大类设置'}</button>
+        </div>
+      </div>
+      <div className="mt-5 grid gap-4">
+        {categoryDrafts.map((category, index) => {
+          const productCount = category.originalId ? products.filter(product => product.subcategory === category.originalId).length : 0;
+          return <div key={`${category.id}-${index}`} className="grid gap-3 border border-slate-200 bg-slate-50 p-4 xl:grid-cols-[9rem_10rem_1fr_1fr_auto]">
+            <label className="text-xs font-bold text-muted">
+              大类 ID
+              <input value={category.id} onChange={event=>updateCategoryDraft(index, { id: slugify(event.target.value) })} className="mt-2 min-h-10 w-full border border-line bg-white px-3 font-mono text-xs text-ink outline-none focus:border-accent"/>
+            </label>
+            <label className="text-xs font-bold text-muted">
+              前台路径
+              <select value={category.group} onChange={event=>updateCategoryDraft(index, { group: event.target.value as ProductCategory['group'] })} className="mt-2 min-h-10 w-full border border-line bg-white px-3 text-sm text-ink outline-none focus:border-accent">
+                <option value="ready-stock">常规现货</option>
+                <option value="custom-weaving">定制织造</option>
+              </select>
+            </label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="text-xs font-bold text-muted">
+                中文大类名
+                <input value={category.titleZh} onChange={event=>updateCategoryDraft(index, { titleZh: event.target.value })} className="mt-2 min-h-10 w-full border border-line bg-white px-3 text-sm text-ink outline-none focus:border-accent"/>
+              </label>
+              <label className="text-xs font-bold text-muted">
+                英文大类名
+                <input value={category.titleEn} onChange={event=>updateCategoryDraft(index, { titleEn: event.target.value })} className="mt-2 min-h-10 w-full border border-line bg-white px-3 text-sm text-ink outline-none focus:border-accent"/>
+              </label>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="text-xs font-bold text-muted">
+                中文说明
+                <textarea value={category.descriptionZh} onChange={event=>updateCategoryDraft(index, { descriptionZh: event.target.value })} className="mt-2 min-h-20 w-full border border-line bg-white p-3 text-sm text-ink outline-none focus:border-accent"/>
+              </label>
+              <label className="text-xs font-bold text-muted">
+                英文说明
+                <textarea value={category.descriptionEn} onChange={event=>updateCategoryDraft(index, { descriptionEn: event.target.value })} className="mt-2 min-h-20 w-full border border-line bg-white p-3 text-sm text-ink outline-none focus:border-accent"/>
+              </label>
+            </div>
+            <div className="flex flex-row items-center justify-between gap-3 xl:flex-col xl:items-end">
+              <span className="text-xs font-semibold text-muted">{productCount} 个商品</span>
+              <button type="button" onClick={()=>removeCategoryDraft(index)} className="text-xs font-bold text-red-700 hover:text-red-900">删除大类</button>
+            </div>
+          </div>;
+        })}
+        {!categoryDrafts.length&&<div className="border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-sm font-semibold text-muted">暂无产品大类，请先新增大类。</div>}
+      </div>
+    </div>
+
+    <div className="mt-6 grid gap-6 xl:grid-cols-[20rem_1fr]">
       <aside className="h-fit border border-slate-200 bg-white p-3">
         <p className="px-2 pb-3 text-xs font-bold uppercase tracking-[.16em] text-muted">产品列表</p>
         <div className="grid max-h-[44rem] gap-1 overflow-auto">
-          {products.map(product => <button key={product.id} onClick={() => { setSelectedId(product.id); setDraft(cloneProduct(product)); setNotice(''); setError(''); }} className={`px-3 py-3 text-left text-sm transition ${draft?.id===product.id?'bg-accent text-white':'hover:bg-orange-50'}`}>
+          {groupedProducts.map(group => <div key={group.category.id} className="border-t border-slate-100 pt-2 first:border-t-0 first:pt-0">
+            <p className="px-2 py-2 text-[11px] font-bold text-muted">{group.category.group === 'ready-stock' ? '常规在机现货' : '定制织造'} · {group.category.titleZh}</p>
+            {group.products.length ? group.products.map(product => <button key={product.id} onClick={() => { setSelectedId(product.id); setDraft(cloneProduct(product)); setNotice(''); setError(''); }} className={`w-full px-3 py-3 text-left text-sm transition ${draft?.id===product.id?'bg-accent text-white':'hover:bg-orange-50'}`}>
+              <span className="block font-bold">{product.nameZh}</span>
+              <span className={`mt-1 block text-xs ${draft?.id===product.id?'text-white/75':'text-muted'}`}>P-{String(product.id).padStart(2,'0')} · {product.slug}</span>
+            </button>) : <p className="px-3 py-3 text-xs text-muted">这个大类下暂无商品</p>}
+          </div>)}
+          {uncategorizedProducts.map(product => <button key={product.id} onClick={() => { setSelectedId(product.id); setDraft(cloneProduct(product)); setNotice(''); setError(''); }} className={`px-3 py-3 text-left text-sm transition ${draft?.id===product.id?'bg-accent text-white':'hover:bg-orange-50'}`}>
             <span className="block font-bold">{product.nameZh}</span>
-            <span className={`mt-1 block text-xs ${draft?.id===product.id?'text-white/75':'text-muted'}`}>P-{String(product.id).padStart(2,'0')} · {product.slug}</span>
+            <span className={`mt-1 block text-xs ${draft?.id===product.id?'text-white/75':'text-muted'}`}>未归类 · {product.slug}</span>
           </button>)}
         </div>
       </aside>
 
       {draft&&<div className="border border-slate-200 bg-white p-5">
+        <div className="mb-6 grid gap-4 border-b border-slate-200 pb-5 lg:grid-cols-[13rem_1fr]">
+          <div className="aspect-[4/3] overflow-hidden bg-slate-100">
+            {draft.image?<img src={draft.image} alt={draft.nameZh} className="size-full object-cover"/>:<div className="flex size-full items-center justify-center text-sm text-muted">暂无主图</div>}
+          </div>
+          <div className="flex flex-col justify-between gap-4">
+            <div>
+              <p className="font-mono text-xs font-bold uppercase tracking-[.16em] text-accent">Fabric passport · P-{String(draft.id).padStart(2,'0')}</p>
+              <h2 className="mt-2 text-2xl font-bold text-ink">{draft.nameZh || '未命名产品'}</h2>
+              <p className="mt-2 text-sm leading-6 text-muted">{selectedCategory ? `${selectedCategory.group === 'ready-stock' ? '常规在机现货' : '定制织造'} / ${selectedCategory.titleZh}` : '未匹配前台分区'}</p>
+            </div>
+            <div className="grid gap-2 text-xs text-muted sm:grid-cols-3">
+              <span className="border border-line px-3 py-2">列表：折叠条目</span>
+              <span className="border border-line px-3 py-2">详情：面料护照</span>
+              <span className="border border-line px-3 py-2">补充规格：可编辑</span>
+            </div>
+          </div>
+        </div>
+
         <div className="grid gap-5 lg:grid-cols-2">
+          <ProductEditorField label="产品编号"><input type="number" min="1" step="1" value={draft.id} onChange={event=>updateDraft({id: Number(event.target.value)})} className="min-h-11 w-full border border-line px-3 font-mono outline-none focus:border-accent"/></ProductEditorField>
           <ProductEditorField label="中文名称"><input value={draft.nameZh} onChange={event=>updateDraft({nameZh:event.target.value})} className="min-h-11 w-full border border-line px-3 outline-none focus:border-accent"/></ProductEditorField>
           <ProductEditorField label="英文名称"><input value={draft.nameEn} onChange={event=>updateDraft({nameEn:event.target.value})} className="min-h-11 w-full border border-line px-3 outline-none focus:border-accent"/></ProductEditorField>
           <ProductEditorField label="产品链接 slug"><input value={draft.slug} onChange={event=>updateDraft({slug:event.target.value})} className="min-h-11 w-full border border-line px-3 font-mono text-sm outline-none focus:border-accent"/></ProductEditorField>
-          <ProductEditorField label="供货类型"><select value={draft.group} onChange={event=>updateDraft({group:event.target.value as Product['group']})} className="min-h-11 w-full border border-line px-3 outline-none focus:border-accent"><option value="ready-stock">常规在机现货</option><option value="custom-weaving">来样定织</option></select></ProductEditorField>
-          <ProductEditorField label="中文分类"><input value={draft.categoryZh} onChange={event=>updateDraft({categoryZh:event.target.value})} className="min-h-11 w-full border border-line px-3 outline-none focus:border-accent"/></ProductEditorField>
-          <ProductEditorField label="英文分类"><input value={draft.categoryEn} onChange={event=>updateDraft({categoryEn:event.target.value})} className="min-h-11 w-full border border-line px-3 outline-none focus:border-accent"/></ProductEditorField>
-          <ProductEditorField label="子分类 ID"><input value={draft.subcategory} onChange={event=>updateDraft({subcategory:event.target.value})} className="min-h-11 w-full border border-line px-3 font-mono text-sm outline-none focus:border-accent"/></ProductEditorField>
+          <ProductEditorField label="前台业务路径"><select value={draft.group} onChange={event=>selectGroup(event.target.value as Product['group'])} className="min-h-11 w-full border border-line px-3 outline-none focus:border-accent"><option value="ready-stock">常规在机现货</option><option value="custom-weaving">来样定织</option></select></ProductEditorField>
+          <ProductEditorField label="前台产品分区"><select value={draft.subcategory} onChange={event=>selectCategory(event.target.value)} className="min-h-11 w-full border border-line px-3 outline-none focus:border-accent">{categories.map(category=><option key={category.id} value={category.id}>{category.group === 'ready-stock' ? '现货' : '定织'} · {category.titleZh}</option>)}</select></ProductEditorField>
+          <ProductEditorField label="详情页分类显示"><input value={draft.categoryZh} onChange={event=>updateDraft({categoryZh:event.target.value})} className="min-h-11 w-full border border-line px-3 outline-none focus:border-accent"/></ProductEditorField>
+          <ProductEditorField label="详情页英文分类"><input value={draft.categoryEn} onChange={event=>updateDraft({categoryEn:event.target.value})} className="min-h-11 w-full border border-line px-3 outline-none focus:border-accent"/></ProductEditorField>
         </div>
 
         <div className="mt-5 grid gap-5 lg:grid-cols-2">
@@ -968,6 +1464,74 @@ function ProductPanel({ site, saveSite, uploadMedia, saving }: { site: ReturnTyp
           <ProductEditorField label="英文简介"><textarea value={draft.summaryEn} onChange={event=>updateDraft({summaryEn:event.target.value})} className="min-h-28 w-full border border-line p-3 outline-none focus:border-accent"/></ProductEditorField>
           <ProductEditorField label="中文规格，每行一条"><textarea value={specZhText} onChange={event=>updateDraft({specsZh:event.target.value.split('\n').map(item=>item.trim()).filter(Boolean)})} className="min-h-36 w-full border border-line p-3 outline-none focus:border-accent"/></ProductEditorField>
           <ProductEditorField label="英文规格，每行一条"><textarea value={specEnText} onChange={event=>updateDraft({specsEn:event.target.value.split('\n').map(item=>item.trim()).filter(Boolean)})} className="min-h-36 w-full border border-line p-3 outline-none focus:border-accent"/></ProductEditorField>
+        </div>
+
+        <div className="mt-6 border-t border-line pt-6">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-sm font-bold text-ink">补充规格表</p>
+              <p className="mt-1 text-xs leading-5 text-muted">这里可为任何产品增加额外规格表，例如服装面料的克重、门幅、成分、适用服装、后整理等。</p>
+            </div>
+            <button type="button" onClick={addBeddingSpecification} className="border border-line px-3 py-2 text-xs font-bold text-ink hover:border-accent hover:text-accent">新增补充规格</button>
+          </div>
+          <div className="mt-4 grid gap-4">
+            {(draft.beddingSpecifications || []).map((specification, index) => <div key={index} className="grid gap-3 border border-slate-200 bg-slate-50 p-3 lg:grid-cols-[.75fr_.75fr_1.3fr_1.3fr_auto]">
+              <input value={specification.labelZh} onChange={event=>updateBeddingSpecification(index, { labelZh: event.target.value })} placeholder="中文标签" className="min-h-11 border border-line bg-white px-3 text-sm outline-none focus:border-accent"/>
+              <input value={specification.labelEn} onChange={event=>updateBeddingSpecification(index, { labelEn: event.target.value })} placeholder="英文标签" className="min-h-11 border border-line bg-white px-3 text-sm outline-none focus:border-accent"/>
+              <textarea value={specification.valueZh} onChange={event=>updateBeddingSpecification(index, { valueZh: event.target.value })} placeholder="中文规格值" className="min-h-24 border border-line bg-white p-3 text-sm outline-none focus:border-accent"/>
+              <textarea value={specification.valueEn} onChange={event=>updateBeddingSpecification(index, { valueEn: event.target.value })} placeholder="英文规格值" className="min-h-24 border border-line bg-white p-3 text-sm outline-none focus:border-accent"/>
+              <button type="button" onClick={()=>removeBeddingSpecification(index)} className="self-start text-xs font-bold text-red-700 hover:text-red-900">删除</button>
+            </div>)}
+            {!(draft.beddingSpecifications || []).length&&<p className="border border-dashed border-slate-300 bg-slate-50 px-4 py-5 text-sm text-muted">暂无补充规格，详情页不会显示补充规格表。</p>}
+          </div>
+        </div>
+
+        <div className="mt-6 border-t border-line pt-6">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-sm font-bold text-ink">批量规格表</p>
+              <p className="mt-1 text-xs leading-5 text-muted">适合录入多条现货或在机规格。列与客户常用表格一致：No.、Comp.、Yarn count、Density、Width、Weave、Pkg。</p>
+            </div>
+            <button type="button" onClick={addStockSpecification} className="border border-line px-3 py-2 text-xs font-bold text-ink hover:border-accent hover:text-accent">新增规格行</button>
+          </div>
+          <div className="mt-4 border border-slate-200 bg-slate-50 p-4">
+            <label className="block text-xs font-bold text-ink">
+              批量粘贴导入
+              <textarea value={stockSpecificationPaste} onChange={event=>setStockSpecificationPaste(event.target.value)} placeholder={'每行一条，按 No.、Comp.、Yarn count、Density、Width、Weave、Pkg 的顺序粘贴。\n例如：1\t100%C\tOE16*OE12\t108*56\t63"\t3/1\t400M'} className="mt-2 min-h-32 w-full border border-line bg-white p-3 font-mono text-xs leading-6 outline-none focus:border-accent"/>
+            </label>
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs leading-5 text-muted">支持从 Excel、WPS 或聊天记录直接粘贴。导入会替换当前表格中的全部行。</p>
+              <button type="button" onClick={importStockSpecifications} className="border border-line bg-white px-3 py-2 text-xs font-bold text-ink hover:border-accent hover:text-accent">导入并替换表格</button>
+            </div>
+          </div>
+          <div className="mt-4 overflow-x-auto border border-slate-200">
+            {(draft.stockSpecifications || []).length ? <table className="min-w-[970px] w-full border-collapse text-sm">
+              <thead className="bg-slate-100 text-left text-xs font-bold uppercase tracking-[.06em] text-muted">
+                <tr>
+                  <th className="border-b border-slate-200 px-3 py-3">No.</th>
+                  <th className="border-b border-slate-200 px-3 py-3">Comp.</th>
+                  <th className="border-b border-slate-200 px-3 py-3">Yarn count</th>
+                  <th className="border-b border-slate-200 px-3 py-3">Density</th>
+                  <th className="border-b border-slate-200 px-3 py-3">Width</th>
+                  <th className="border-b border-slate-200 px-3 py-3">Weave</th>
+                  <th className="border-b border-slate-200 px-3 py-3">Pkg</th>
+                  <th className="border-b border-slate-200 px-3 py-3">操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(draft.stockSpecifications || []).map((specification, index) => <tr key={index} className="bg-white">
+                  <td className="border-b border-slate-200 p-2"><input value={specification.no} onChange={event=>updateStockSpecification(index, { no: event.target.value })} placeholder="1" className="min-h-10 w-16 border border-line px-2 outline-none focus:border-accent"/></td>
+                  <td className="border-b border-slate-200 p-2"><input value={specification.composition} onChange={event=>updateStockSpecification(index, { composition: event.target.value })} placeholder="100%C" className="min-h-10 w-28 border border-line px-2 outline-none focus:border-accent"/></td>
+                  <td className="border-b border-slate-200 p-2"><input value={specification.yarnCount} onChange={event=>updateStockSpecification(index, { yarnCount: event.target.value })} placeholder="OE16*OE12" className="min-h-10 w-36 border border-line px-2 outline-none focus:border-accent"/></td>
+                  <td className="border-b border-slate-200 p-2"><input value={specification.density} onChange={event=>updateStockSpecification(index, { density: event.target.value })} placeholder="108*56" className="min-h-10 w-28 border border-line px-2 outline-none focus:border-accent"/></td>
+                  <td className="border-b border-slate-200 p-2"><input value={specification.width} onChange={event=>updateStockSpecification(index, { width: event.target.value })} placeholder={'63"'} className="min-h-10 w-24 border border-line px-2 outline-none focus:border-accent"/></td>
+                  <td className="border-b border-slate-200 p-2"><input value={specification.weave} onChange={event=>updateStockSpecification(index, { weave: event.target.value })} placeholder="3/1" className="min-h-10 w-24 border border-line px-2 outline-none focus:border-accent"/></td>
+                  <td className="border-b border-slate-200 p-2"><input value={specification.pkg} onChange={event=>updateStockSpecification(index, { pkg: event.target.value })} placeholder="400M" className="min-h-10 w-28 border border-line px-2 outline-none focus:border-accent"/></td>
+                  <td className="border-b border-slate-200 p-2"><button type="button" onClick={()=>removeStockSpecification(index)} className="text-xs font-bold text-red-700 hover:text-red-900">删除</button></td>
+                </tr>)}
+              </tbody>
+            </table> : <p className="px-4 py-5 text-sm text-muted">暂无批量规格，详情页不会显示此表。</p>}
+          </div>
         </div>
 
         <div className="mt-6 border-t border-line pt-6">
@@ -984,7 +1548,9 @@ function ProductPanel({ site, saveSite, uploadMedia, saving }: { site: ReturnTyp
               value={draft.image}
               alt={draft.nameZh}
               uploading={uploadingImage === 'main'}
+              mediaLibrary={mediaLibrary}
               onFile={file => replaceProductImage(file, 'main')}
+              onSelect={url => selectProductImage(url, 'main')}
             />
             {(draft.gallery || []).map((image, index) => <div key={`${index}-${image}`} className="relative">
               <ProductImageDropzone
@@ -992,7 +1558,9 @@ function ProductPanel({ site, saveSite, uploadMedia, saving }: { site: ReturnTyp
                 value={image}
                 alt={`${draft.nameZh} 图片 ${index + 1}`}
                 uploading={uploadingImage === `gallery-${index}`}
+                mediaLibrary={mediaLibrary}
                 onFile={file => replaceProductImage(file, index)}
+                onSelect={url => selectProductImage(url, index)}
               />
               <button type="button" onClick={() => removeGalleryImage(index)} className="mt-2 text-xs font-bold text-red-700 hover:text-red-900">删除这个图库位置</button>
             </div>)}
@@ -1008,19 +1576,26 @@ function ProductPanel({ site, saveSite, uploadMedia, saving }: { site: ReturnTyp
   </section>;
 }
 
-function UsersPanel({ permissions }: { permissions: Permission[] }) {
+function UsersPanel({ permissions, adminUser }: { permissions: Permission[]; adminUser: AdminUser | null }) {
   const [users, setUsers] = useState<AdminUser[]>([]);
+  const [sessions, setSessions] = useState<AdminSessionRecord[]>([]);
   const [form, setForm] = useState({ username: '', displayName: '', password: '', role: 'editor' as AdminRole });
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
+  const isOwner = adminUser?.role === 'owner';
 
   async function refresh() {
     setUsers(await listUsers());
+    if (isOwner) {
+      setSessions(await listAdminSessions());
+    } else {
+      setSessions([]);
+    }
   }
 
   useEffect(() => {
     void refresh().catch(error => setError(error instanceof Error ? error.message : '用户加载失败'));
-  }, []);
+  }, [isOwner]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -1040,6 +1615,20 @@ function UsersPanel({ permissions }: { permissions: Permission[] }) {
     setError('');
     const updated = await updateUser(user.id, patch);
     setUsers(current => current.map(item => item.id === updated.id ? updated : item));
+    if (isOwner) await refresh();
+  }
+
+  async function forceLogout(session: AdminSessionRecord) {
+    if (!window.confirm(`确定下线「${session.displayName || session.username}」这个在线设备吗？`)) return;
+    setError('');
+    setNotice('');
+    try {
+      await revokeAdminSession(session.id);
+      await refresh();
+      setNotice('在线设备已强制下线');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : '强制下线失败');
+    }
   }
 
   const manageableUsers = users.filter(user => user.role !== 'owner');
@@ -1054,6 +1643,7 @@ function UsersPanel({ permissions }: { permissions: Permission[] }) {
       <input value={form.displayName} onChange={event=>setForm({...form,displayName:event.target.value})} className="min-h-11 border border-line px-3 text-sm outline-none focus:border-accent" placeholder="显示名称"/>
       <input value={form.password} onChange={event=>setForm({...form,password:event.target.value})} className="min-h-11 border border-line px-3 text-sm outline-none focus:border-accent" placeholder="初始密码，至少 8 位" type="password"/>
       <select value={form.role} onChange={event=>setForm({...form,role:event.target.value as AdminRole})} className="min-h-11 border border-line px-3 text-sm outline-none focus:border-accent">
+        {isOwner&&<option value="owner">{roleLabels.owner}</option>}
         {(['admin','editor','viewer'] as AdminRole[]).map(role=><option key={role} value={role}>{roleLabels[role]}</option>)}
       </select>
       <button className="inline-flex min-h-11 items-center justify-center gap-2 bg-accent px-4 text-sm font-bold text-white hover:bg-accent-hover"><UserPlus size={17}/>创建</button>
@@ -1071,7 +1661,181 @@ function UsersPanel({ permissions }: { permissions: Permission[] }) {
       </table>
       {!manageableUsers.length&&<div className="border-t border-slate-200 px-4 py-8 text-sm font-semibold text-muted">暂无可管理用户。</div>}
     </div>
+    {isOwner&&<div className="mt-8 border border-slate-200 bg-white">
+      <div className="border-b border-slate-200 px-5 py-4">
+        <h2 className="text-xl font-bold text-ink">当前在线设备</h2>
+        <p className="mt-1 text-sm text-muted">同一个账号只允许一个设备在线；新登录会自动踢掉旧设备。</p>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-left text-sm">
+          <thead className="bg-slate-50 text-xs font-bold uppercase tracking-[.12em] text-muted"><tr><th className="px-4 py-3">用户</th><th className="px-4 py-3">登录 IP</th><th className="px-4 py-3">设备</th><th className="px-4 py-3">最近在线</th><th className="px-4 py-3">过期时间</th><th className="px-4 py-3">操作</th></tr></thead>
+          <tbody>{sessions.map(session=><tr key={session.id} className="border-t border-slate-200">
+            <td className="px-4 py-3"><p className="font-bold text-ink">{session.displayName}</p><p className="text-xs text-muted">{session.username} · {roleLabels[session.role]}</p></td>
+            <td className="px-4 py-3 text-xs text-muted">{session.ip || '-'}</td>
+            <td className="max-w-md px-4 py-3"><p className="line-clamp-2 text-xs leading-5 text-muted">{session.userAgent || '-'}</p></td>
+            <td className="px-4 py-3 text-xs text-muted">{session.lastSeenAt}</td>
+            <td className="px-4 py-3 text-xs text-muted">{session.expiresAt}</td>
+            <td className="px-4 py-3"><button onClick={()=>void forceLogout(session)} className="border border-red-200 px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-50">强制下线</button></td>
+          </tr>)}</tbody>
+        </table>
+        {!sessions.length&&<div className="border-t border-slate-200 px-4 py-8 text-sm font-semibold text-muted">暂无在线设备。</div>}
+      </div>
+    </div>}
   </section>;
+}
+
+function InquiriesPanel({ permissions }: { permissions: Permission[] }) {
+  const [inquiries, setInquiries] = useState<InquiryRecord[]>([]);
+  const [status, setStatus] = useState<InquiryStatus | 'all'>('all');
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [noteDraft, setNoteDraft] = useState('');
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const canManage = can(permissions, 'inquiries:manage');
+
+  async function refresh(nextStatus = status) {
+    const rows = await listInquiries(nextStatus, 200);
+    setInquiries(rows);
+    setSelectedId(current => current && rows.some(row => row.id === current) ? current : rows[0]?.id ?? null);
+  }
+
+  useEffect(() => {
+    void refresh().catch(error => setError(error instanceof Error ? error.message : '询盘加载失败'));
+  }, [status]);
+
+  const selected = inquiries.find(item => item.id === selectedId) || null;
+
+  useEffect(() => {
+    setNoteDraft(selected?.note || '');
+  }, [selected?.id, selected?.note]);
+
+  async function changeStatus(inquiry: InquiryRecord, nextStatus: InquiryStatus) {
+    if (!canManage) return;
+    setError('');
+    setNotice('');
+    try {
+      const updated = await updateInquiry(inquiry.id, { status: nextStatus, note: inquiry.note });
+      setInquiries(current => current.map(item => item.id === updated.id ? updated : item));
+      setNotice('询盘状态已更新');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : '状态更新失败');
+    }
+  }
+
+  async function saveNote() {
+    if (!selected || !canManage) return;
+    setError('');
+    setNotice('');
+    try {
+      const updated = await updateInquiry(selected.id, { status: selected.status, note: noteDraft });
+      setInquiries(current => current.map(item => item.id === updated.id ? updated : item));
+      setNotice('处理备注已保存');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : '备注保存失败');
+    }
+  }
+
+  function payloadRows(inquiry: InquiryRecord) {
+    const labels: Record<string, string> = {
+      application: '用途',
+      composition: '成分',
+      weight: '克重',
+      width: '幅宽',
+      hasSample: '实物样品',
+      targetDate: '期望时间',
+      visitDate: '到访日期',
+      visitors: '到访人数',
+      site: '厂区或业务方向'
+    };
+    return Object.entries(labels)
+      .map(([key, label]) => ({ label, value: String(inquiry.payload[key] || '') }))
+      .filter(row => row.value.trim());
+  }
+
+  const newCount = inquiries.filter(item => item.status === 'new').length;
+
+  return <section>
+    <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+      <div><p className="text-xs font-bold uppercase tracking-[.18em] text-accent">客户询盘</p><h1 className="mt-2 text-3xl font-bold text-ink">客户联系方式与询价记录</h1><p className="mt-2 text-sm text-muted">客户在联系页提交后，会保存到服务器数据库，并显示在这里。</p></div>
+      <button onClick={() => void refresh()} className="inline-flex min-h-11 items-center justify-center gap-2 border border-line bg-white px-4 text-sm font-bold text-ink hover:border-accent hover:text-accent">刷新</button>
+    </div>
+    {notice&&<div className="mt-5 border border-green-200 bg-green-50 px-4 py-3 text-sm font-semibold text-green-800">{notice}</div>}
+    {error&&<div className="mt-5 border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-800">{error}</div>}
+
+    <div className="mt-6 grid gap-4 sm:grid-cols-4">
+      <Stat label="当前列表" value={inquiries.length}/>
+      <Stat label="新询盘" value={newCount}/>
+      <Stat label="联系中" value={inquiries.filter(item=>item.status==='contacting').length}/>
+      <Stat label="已完成" value={inquiries.filter(item=>item.status==='done').length}/>
+    </div>
+
+    <div className="mt-6 flex flex-wrap gap-2">
+      {(['all','new','contacting','done','archived'] as Array<InquiryStatus | 'all'>).map(item=><button key={item} onClick={()=>setStatus(item)} className={`min-h-10 border px-4 text-sm font-bold ${status===item?'border-accent bg-accent text-white':'border-line bg-white text-ink hover:border-accent hover:text-accent'}`}>{item==='all'?'全部':inquiryStatusLabels[item]}</button>)}
+    </div>
+
+    <div className="mt-6 grid gap-6 xl:grid-cols-[24rem_1fr]">
+      <aside className="max-h-[48rem] overflow-auto border border-slate-200 bg-white">
+        {inquiries.map(inquiry=><button key={inquiry.id} type="button" onClick={()=>setSelectedId(inquiry.id)} className={`block w-full border-b border-slate-100 px-4 py-4 text-left transition last:border-b-0 ${selectedId===inquiry.id?'bg-orange-50':'hover:bg-slate-50'}`}>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-bold text-ink">{inquiry.name}</p>
+              <p className="mt-1 text-xs text-muted">{inquiry.company || inquiry.email}</p>
+            </div>
+            <span className={`shrink-0 px-2 py-1 text-[11px] font-bold ${inquiry.status==='new'?'bg-red-50 text-red-700':inquiry.status==='contacting'?'bg-blue-50 text-blue-700':inquiry.status==='done'?'bg-green-50 text-green-700':'bg-slate-100 text-slate-600'}`}>{inquiryStatusLabels[inquiry.status]}</span>
+          </div>
+          <p className="mt-2 line-clamp-2 text-xs leading-5 text-body">{inquiry.product || inquiry.message}</p>
+          <p className="mt-2 text-[11px] text-slate-400">{inquiryTypeLabels[inquiry.type] || inquiry.type} · {inquiry.createdAt}</p>
+        </button>)}
+        {!inquiries.length&&<div className="px-4 py-10 text-sm font-semibold text-muted">暂无询盘记录。</div>}
+      </aside>
+
+      {selected?<article className="border border-slate-200 bg-white p-5">
+        <div className="flex flex-col justify-between gap-4 border-b border-slate-200 pb-5 lg:flex-row lg:items-start">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[.16em] text-accent">{inquiryTypeLabels[selected.type] || selected.type} · #{selected.id}</p>
+            <h2 className="mt-2 text-2xl font-bold text-ink">{selected.name}</h2>
+            <p className="mt-2 text-sm text-muted">{selected.createdAt}</p>
+          </div>
+          <select disabled={!canManage} value={selected.status} onChange={event=>void changeStatus(selected, event.target.value as InquiryStatus)} className="min-h-11 border border-line px-3 text-sm font-bold outline-none focus:border-accent disabled:opacity-60">
+            {(['new','contacting','done','archived'] as InquiryStatus[]).map(item=><option key={item} value={item}>{inquiryStatusLabels[item]}</option>)}
+          </select>
+        </div>
+
+        <div className="mt-5 grid gap-4 lg:grid-cols-2">
+          <InfoRow label="邮箱" value={selected.email} href={`mailto:${selected.email}`}/>
+          <InfoRow label="电话" value={selected.phone || '-'} href={selected.phone ? `tel:${selected.phone.replace(/[^\d+]/g,'')}` : undefined}/>
+          <InfoRow label="公司" value={selected.company || '-'}/>
+          <InfoRow label="国家/地区" value={selected.country || '-'}/>
+          <InfoRow label="产品/面料" value={selected.product || '-'}/>
+          <InfoRow label="预计数量" value={selected.quantity || '-'}/>
+        </div>
+
+        <div className="mt-5 border-t border-slate-200 pt-5">
+          <h3 className="text-sm font-bold text-ink">客户留言</h3>
+          <p className="mt-2 whitespace-pre-line text-sm leading-7 text-body">{selected.message}</p>
+        </div>
+
+        {payloadRows(selected).length>0&&<div className="mt-5 border-t border-slate-200 pt-5">
+          <h3 className="text-sm font-bold text-ink">补充字段</h3>
+          <dl className="mt-3 grid gap-3 lg:grid-cols-2">{payloadRows(selected).map(row=><div key={row.label} className="border border-slate-100 bg-slate-50 px-3 py-2"><dt className="text-[11px] font-bold text-muted">{row.label}</dt><dd className="mt-1 text-sm font-semibold text-ink">{row.value}</dd></div>)}</dl>
+        </div>}
+
+        <div className="mt-5 border-t border-slate-200 pt-5">
+          <h3 className="text-sm font-bold text-ink">处理备注</h3>
+          <textarea disabled={!canManage} value={noteDraft} onChange={event=>setNoteDraft(event.target.value)} className="mt-2 min-h-28 w-full border border-line p-3 text-sm outline-none focus:border-accent disabled:bg-slate-50" placeholder="记录联系进度、报价情况或后续安排"/>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-muted">来源 IP：{selected.ip || '-'}　最近处理：{selected.handledByUsername || '-'}</p>
+            {canManage&&<button onClick={()=>void saveNote()} className="inline-flex min-h-10 items-center gap-2 bg-accent px-4 text-sm font-bold text-white hover:bg-accent-hover"><Save size={15}/>保存备注</button>}
+          </div>
+        </div>
+      </article>:<div className="border border-dashed border-slate-300 bg-white px-5 py-10 text-sm font-semibold text-muted">请选择一条询盘。</div>}
+    </div>
+  </section>;
+}
+
+function InfoRow({ label, value, href }: { label: string; value: string; href?: string }) {
+  const content = <><dt className="text-[11px] font-bold uppercase tracking-[.1em] text-muted">{label}</dt><dd className="mt-1 break-words text-sm font-semibold text-ink">{value}</dd></>;
+  return href ? <a href={href} className="block border border-slate-100 bg-slate-50 px-3 py-3 hover:border-accent">{content}</a> : <dl className="border border-slate-100 bg-slate-50 px-3 py-3">{content}</dl>;
 }
 
 function AnalyticsPanel() {
@@ -1204,11 +1968,16 @@ function AdminDashboard() {
     { label: '上传文件', value: media.length },
   ], [media.length, site.catalog.categories.length, site.catalog.products.length, site.news.length]);
   const siteLibrary = useMemo(() => extractSiteLibrary(site), [site]);
+  const mediaLibrary = useMemo(() => mergeMediaLibrary(
+    media.map(item => ({ url: item.url, kind: item.kind, name: item.originalName || item.name, source: '媒体库上传文件' })),
+    siteLibrary.media
+  ), [media, siteLibrary.media]);
 
   const navItems = ([
     ['overview', '总览', 'overview'],
     ['content', '整站内容', 'site-content:write'],
     ['products', '产品管理', 'content:write'],
+    ['inquiries', '客户询盘', 'inquiries:read'],
     ['media', '媒体库', 'media:write'],
     ['users', '用户权限', 'users:manage'],
     ['analytics', '浏览统计', 'analytics:read'],
@@ -1237,7 +2006,7 @@ function AdminDashboard() {
         <nav className="grid gap-1 sm:grid-cols-4 lg:grid-cols-1">
           {navItems.map(([id, label]) => (
             <button key={id} onClick={() => setTab(id)} className={`flex items-center gap-3 px-3 py-3 text-left text-sm font-semibold transition ${tab===id?'bg-accent text-white':'text-body hover:bg-orange-50 hover:text-accent'}`}>
-              {id==='users'?<Users size={17}/>:id==='analytics'?<BarChart3 size={17}/>:id==='logs'?<Activity size={17}/>:id==='data'?<FileText size={17}/>:id==='content'||id==='products'?<Shield size={17}/>:<Database size={17}/>}
+              {id==='inquiries'?<Inbox size={17}/>:id==='users'?<Users size={17}/>:id==='analytics'?<BarChart3 size={17}/>:id==='logs'?<Activity size={17}/>:id==='data'?<FileText size={17}/>:id==='content'||id==='products'?<Shield size={17}/>:<Database size={17}/>}
               {label}
             </button>
           ))}
@@ -1249,8 +2018,9 @@ function AdminDashboard() {
           <div><p className="text-xs font-bold uppercase tracking-[.18em] text-accent">总览</p><h1 className="mt-2 text-3xl font-bold text-ink">站点总览</h1><p className="mt-2 text-sm text-muted">所有内容都从服务器读取，后台编辑后会直接保存到服务器数据库。</p></div>
           <div className="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{statistics.map(item=><Stat key={item.label} label={item.label} value={item.value}/>)}</div>
         </section>}
-        {tab==='content'&&<ContentPanel site={site} saveSiteContent={saveSiteContent} uploadMedia={uploadMedia} saving={saving}/>}
-        {tab==='products'&&<ProductPanel site={site} saveSite={saveSite} uploadMedia={uploadMedia} saving={saving}/>}
+        {tab==='content'&&<ContentPanel site={site} saveSiteContent={saveSiteContent} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} saving={saving}/>}
+        {tab==='products'&&<ProductPanel site={site} saveSite={saveSite} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} saving={saving}/>}
+        {tab==='inquiries'&&<InquiriesPanel permissions={permissions}/>}
         {tab==='media'&&<section>
           <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div><p className="text-xs font-bold uppercase tracking-[.18em] text-accent">媒体库</p><h1 className="mt-2 text-3xl font-bold text-ink">站点图片、视频和文字素材</h1><p className="mt-2 text-sm text-muted">这里会自动加载服务器上传文件，以及当前整站内容中已经使用的图片、视频和文字。</p></div>
@@ -1288,7 +2058,7 @@ function AdminDashboard() {
               : <div className="mt-4 border border-dashed border-slate-300 bg-white px-5 py-8 text-sm font-semibold text-muted">当前站点内容里没有识别到文字素材。</div>}
           </div>
         </section>}
-        {tab==='users'&&<UsersPanel permissions={permissions}/>}
+        {tab==='users'&&<UsersPanel permissions={permissions} adminUser={adminUser}/>}
         {tab==='analytics'&&<AnalyticsPanel/>}
         {tab==='logs'&&<LogsPanel/>}
         {tab==='data'&&<section>

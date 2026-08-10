@@ -7,6 +7,7 @@ import { useLanguage } from '../i18n/useLanguage';
 import type { ProductCategory } from '../types/catalog';
 import { LocalImage } from '../components/Media';
 import { ProductAccordion } from '../components/ProductAccordion';
+import { ProductImageScroller } from '../components/ProductImageScroller';
 import { Seo } from '../components/Seo';
 import { SourcingDesk } from '../components/SourcingDesk';
 
@@ -60,8 +61,13 @@ export function ProductsPage(){
           {items.length===0&&<div className="border-b border-slate-300 py-12 text-sm text-muted">{zh?'该分类暂未添加产品。':'No products have been added to this category yet.'}</div>}
         </div>
         {activeProduct&&<div className="order-1 lg:order-2 lg:sticky lg:top-28">
-          <div className="aspect-[4/3] overflow-hidden bg-slate-100">
-            <LocalImage key={activeProduct.id} loading="lazy" decoding="async" src={activeProduct.image} alt={zh?`${activeProduct.nameZh}产品图片`:`${activeProduct.nameEn} product image`} className="size-full animate-fade-in-down object-cover"/>
+          <div className="overflow-hidden bg-slate-100">
+            <ProductImageScroller
+              key={activeProduct.id}
+              product={activeProduct}
+              alt={zh?`${activeProduct.nameZh}产品图片`:`${activeProduct.nameEn} product image`}
+              className="aspect-[4/3] animate-fade-in-down"
+            />
           </div>
         </div>}
       </div>

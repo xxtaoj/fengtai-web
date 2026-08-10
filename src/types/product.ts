@@ -16,6 +16,16 @@ export type BeddingSpecification = {
   valueEn: string;
 };
 
+export type StockSpecification = {
+  no: string;
+  composition: string;
+  yarnCount: string;
+  density: string;
+  width: string;
+  weave: string;
+  pkg: string;
+};
+
 export type Product = {
   id: number;
   slug: string;
@@ -33,4 +43,5 @@ export type Product = {
   gallery?: string[];
   specifications?: ProductSpecification[];
   beddingSpecifications?: BeddingSpecification[];
+  stockSpecifications?: StockSpecification[];
 };

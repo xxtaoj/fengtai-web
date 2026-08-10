@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { useCatalog } from '../context/CatalogContext';
@@ -8,6 +7,7 @@ import { ErrorState } from '../components/ErrorState';
 import { LocalImage } from '../components/Media';
 import { PrimaryButton, SecondaryButton } from '../components/Button';
 import { ProductCard } from '../components/ProductCard';
+import { ProductImageScroller } from '../components/ProductImageScroller';
 import { Seo } from '../components/Seo';
 
 type PassportRow = {
@@ -23,17 +23,15 @@ export function ProductDetailPage(){
   const {products}=catalog;
   const zh=language==='zh';
   const product=products.find(item=>item.slug===slug);
-  const [activeImage,setActiveImage]=useState(0);
   if(!product)return <main className="section-pad pt-40"><ErrorState title={zh?'产品未找到':'Product not found'} message={zh?'该产品链接无效。':'This product link is invalid.'}/></main>;
 
-  const isBedding=product.subcategory==='bedding-fabric';
-  const hasBeddingSpecifications=isBedding&&Boolean(product.beddingSpecifications?.length);
+  const hasSupplementalSpecifications=Boolean(product.beddingSpecifications?.length);
+  const hasStockSpecifications=Boolean(product.stockSpecifications?.length);
   const businessPath=zh?(product.group==='ready-stock'?'常规产品':'来样定织'):(product.group==='ready-stock'?'Regular product':'Custom weaving');
   const passportRows:PassportRow[]=[
     {label:zh?'档案编号':'Record number',value:`P-${String(product.id).padStart(2,'0')}`,mono:true},
     {label:zh?'产品分类':'Category',value:zh?product.categoryZh:product.categoryEn},
     {label:zh?'供货路径':'Supply path',value:businessPath},
-    ...(product.specifications??[]).map(specification=>({label:zh?specification.labelZh:specification.labelEn,value:zh?specification.valueZh:specification.valueEn})),
   ].filter(row=>row.value.trim());
   const images=[product.image,...(product.gallery??[]).filter(image=>image!==product.image)];
   const related=products.filter(item=>item.id!==product.id&&(item.subcategory===product.subcategory||item.group===product.group)).slice(0,3);
@@ -55,9 +53,9 @@ export function ProductDetailPage(){
 
           <div className="grid gap-12 lg:grid-cols-[1.08fr_.92fr] lg:gap-16">
             <div>
-              <LocalImage loading="eager" src={images[activeImage]} alt={zh?`${product.nameZh}面料图片 ${activeImage+1}`:`${product.nameEn} fabric image ${activeImage+1}`} className="aspect-[4/3] w-full bg-canvas object-cover"/>
+              <ProductImageScroller product={product} alt={zh?`${product.nameZh}面料图片`:`${product.nameEn} fabric image`} loading="eager"/>
               {images.length>1&&<div className="mt-4 grid grid-cols-4 gap-3" aria-label={zh?'选择产品图片':'Select a product image'}>
-                {images.map((image,index)=><button key={image} type="button" aria-pressed={activeImage===index} onClick={()=>setActiveImage(index)} className={`min-h-11 border p-1 transition-colors ${activeImage===index?'border-accent':'border-slate-300 hover:border-ink'}`}><LocalImage loading="lazy" src={image} alt="" className="aspect-square w-full object-cover"/></button>)}
+                {images.map((image,index)=><div key={image} className="min-h-11 border border-slate-300 p-1"><LocalImage loading="lazy" src={image} alt={zh?`${product.nameZh}缩略图 ${index+1}`:`${product.nameEn} thumbnail ${index+1}`} className="aspect-square w-full object-cover"/></div>)}
               </div>}
             </div>
 
@@ -81,9 +79,9 @@ export function ProductDetailPage(){
           </div>
         </section>
 
-        {hasBeddingSpecifications&&product.beddingSpecifications&&<section aria-labelledby="bedding-specifications-title" className="py-14 md:py-20">
+        {hasSupplementalSpecifications&&product.beddingSpecifications&&<section aria-labelledby="supplemental-specifications-title" className="pb-14 md:pb-20">
           <div className="flex flex-wrap items-baseline justify-between gap-2 border-t-2 border-ink pt-5">
-            <h2 id="bedding-specifications-title" className="text-lg font-bold text-ink">{zh?'床品面料规格':'Bedding fabric specifications'}</h2>
+            <h2 id="supplemental-specifications-title" className="text-lg font-bold text-ink">{zh?'补充规格表':'Supplemental specifications'}</h2>
             <span className="font-mono text-[11px] uppercase tracking-[.12em] text-muted">{zh?'以实际批次为准':'Confirm against actual lot'}</span>
           </div>
           <dl className="mt-4 border-y border-line">
@@ -94,7 +92,34 @@ export function ProductDetailPage(){
           </dl>
         </section>}
 
-        <section className={`border-t border-slate-300 pt-10 ${hasBeddingSpecifications?'':'mt-14 md:mt-20'}`}>
+        {hasStockSpecifications&&product.stockSpecifications&&<section aria-labelledby="stock-specifications-title" className="pb-14 md:pb-20">
+          <div className="flex flex-wrap items-baseline justify-between gap-2 border-t-2 border-ink pt-5">
+            <h2 id="stock-specifications-title" className="text-lg font-bold text-ink">{zh?'批量规格表':'Stock specification table'}</h2>
+            <span className="font-mono text-[11px] uppercase tracking-[.12em] text-muted">{zh?'以实际批次为准':'Confirm against actual lot'}</span>
+          </div>
+          <div className="mt-4 overflow-x-auto border border-line">
+            <table className="min-w-[760px] w-full border-collapse text-left text-sm">
+              <thead className="bg-slate-100 text-xs font-bold uppercase tracking-[.06em] text-muted">
+                <tr>
+                  {['No.', 'Comp.', 'Yarn count', 'Density', 'Width', 'Weave', 'Pkg'].map(column=><th key={column} className="whitespace-nowrap border-b border-line px-4 py-3">{column}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {product.stockSpecifications.map((specification, index)=><tr key={`${specification.no}-${index}`} className="odd:bg-white even:bg-slate-50/70">
+                  <td className="whitespace-nowrap border-b border-line px-4 py-3 font-semibold text-ink">{specification.no}</td>
+                  <td className="whitespace-nowrap border-b border-line px-4 py-3 text-ink">{specification.composition}</td>
+                  <td className="whitespace-nowrap border-b border-line px-4 py-3 text-ink">{specification.yarnCount}</td>
+                  <td className="whitespace-nowrap border-b border-line px-4 py-3 text-ink">{specification.density}</td>
+                  <td className="whitespace-nowrap border-b border-line px-4 py-3 text-ink">{specification.width}</td>
+                  <td className="whitespace-nowrap border-b border-line px-4 py-3 text-ink">{specification.weave}</td>
+                  <td className="whitespace-nowrap border-b border-line px-4 py-3 text-ink">{specification.pkg}</td>
+                </tr>)}
+              </tbody>
+            </table>
+          </div>
+        </section>}
+
+        <section className="border-t border-slate-300 pt-10">
           <h2 className="text-2xl font-bold text-ink">{zh?'相关产品':'Related products'}</h2>
           <div className="mt-8 grid gap-6 md:grid-cols-3">{related.map(item=><ProductCard key={item.id} product={item}/>)}</div>
         </section>

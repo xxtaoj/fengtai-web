@@ -3,6 +3,7 @@ import { CheckCircle2 } from 'lucide-react';
 import { useLanguage } from '../i18n/useLanguage';
 import { FormField,SelectInput,TextArea,TextInput } from '../components/FormField';
 import { FileUpload } from '../components/FileUpload';
+import { submitInquiry } from '../lib/siteApi';
 
 type Kind='export'|'domestic'|'contact';
 
@@ -11,8 +12,10 @@ export function BaseInquiryForm({kind}:{kind:Kind}){
   const zh=language==='zh';
   const [errors,setErrors]=useState<Record<string,string>>({});
   const [success,setSuccess]=useState(false);
+  const [submitting,setSubmitting]=useState(false);
+  const [submitError,setSubmitError]=useState('');
 
-  function submit(e:FormEvent<HTMLFormElement>){
+  async function submit(e:FormEvent<HTMLFormElement>){
     e.preventDefault();
     const fd=new FormData(e.currentTarget);
     const next:Record<string,string>={};
@@ -20,14 +23,34 @@ export function BaseInquiryForm({kind}:{kind:Kind}){
     const email=String(fd.get('email')||'');
     if(email&&!/^\S+@\S+\.\S+$/.test(email))next.email=t.common.invalidEmail;
     setErrors(next);
+    setSubmitError('');
     if(!Object.keys(next).length){
-      setSuccess(true);
-      e.currentTarget.reset();
-      /* Connect the real CRM, email service, or backend API here. */
+      setSubmitting(true);
+      try{
+        await submitInquiry({
+          type: kind,
+          name: String(fd.get('name') || ''),
+          company: String(fd.get('company') || ''),
+          country: String(fd.get('country') || ''),
+          email,
+          phone: String(fd.get('phone') || fd.get('messenger') || ''),
+          product: String(fd.get('product') || ''),
+          quantity: String(fd.get('quantity') || ''),
+          application: String(fd.get('application') || fd.get('port') || fd.get('incoterm') || ''),
+          targetDate: String(fd.get('date') || ''),
+          message: String(fd.get('message') || '')
+        });
+        setSuccess(true);
+        e.currentTarget.reset();
+      }catch(error){
+        setSubmitError(error instanceof Error ? error.message : (zh?'提交失败，请稍后再试。':'Submission failed. Please try again later.'));
+      }finally{
+        setSubmitting(false);
+      }
     }
   }
 
-  if(success) return <div className="border border-green-200 bg-green-50 p-10 text-center text-success" role="status"><CheckCircle2 className="mx-auto" size={36}/><h3 className="mt-4 text-xl font-bold">{zh?'演示提交完成':'Demo submission complete'}</h3><p className="mt-2 text-sm">{t.common.success}</p><button className="mt-5 text-sm font-semibold underline" onClick={()=>setSuccess(false)}>{zh?'继续填写':'Send another'}</button></div>;
+  if(success) return <div className="border border-green-200 bg-green-50 p-10 text-center text-success" role="status"><CheckCircle2 className="mx-auto" size={36}/><h3 className="mt-4 text-xl font-bold">{zh?'询盘已提交':'Inquiry submitted'}</h3><p className="mt-2 text-sm">{t.common.success}</p><button className="mt-5 text-sm font-semibold underline" onClick={()=>setSuccess(false)}>{zh?'继续填写':'Send another'}</button></div>;
 
   return <form onSubmit={submit} noValidate className="grid gap-5 rounded-sm border border-line bg-white p-5 shadow-sm md:grid-cols-2 md:p-8">
     <FormField label={zh?'姓名':'Name'} required error={errors.name}><TextInput name="name" autoComplete="name"/></FormField>
@@ -51,6 +74,7 @@ export function BaseInquiryForm({kind}:{kind:Kind}){
     <div className="md:col-span-2"><FormField label={zh?'询盘内容与面料规格':'Inquiry Message & Fabric Specifications'} required error={errors.message}><TextArea name="message" placeholder={zh?'请填写成分、纱支、密度、门幅、克重、颜色、后整理、包装、交期或来样信息。':'Add composition, yarn count, density, width, weight, color, finishing, packing, lead time, or buyer sample details.'}/></FormField></div>
     <div className="md:col-span-2"><FileUpload/></div>
     <label className="flex items-start gap-3 text-sm text-muted md:col-span-2"><input type="checkbox" required className="mt-1 size-4 accent-amber-600"/><span>{zh?'我同意将以上信息用于本次业务联系。':'I consent to the use of this information for this business inquiry.'}</span></label>
-    <button className="min-h-12 bg-accent px-6 font-semibold text-white hover:bg-accent-hover md:col-span-2" type="submit">{t.common.submit}</button>
+    {submitError&&<p className="text-sm font-semibold text-red-700 md:col-span-2">{submitError}</p>}
+    <button disabled={submitting} className="min-h-12 bg-accent px-6 font-semibold text-white hover:bg-accent-hover disabled:opacity-60 md:col-span-2" type="submit">{submitting?(zh?'提交中...':'Submitting...'):t.common.submit}</button>
   </form>;
 }

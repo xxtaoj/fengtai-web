@@ -5,6 +5,7 @@ import { useSite } from '../context/SiteContext';
 import { useLanguage } from '../i18n/useLanguage';
 import { FileUpload } from './FileUpload';
 import { FormField, SelectInput, TextArea, TextInput } from './FormField';
+import { submitInquiry } from '../lib/siteApi';
 
 type InquiryIntent = 'product' | 'sample' | 'custom-weaving' | 'visit';
 type InquiryField = 'name' | 'company' | 'country' | 'email' | 'phone' | 'product' | 'quantity' | 'application' | 'composition' | 'weight' | 'width' | 'hasSample' | 'targetDate' | 'visitDate' | 'visitors' | 'site' | 'message';
@@ -42,12 +43,14 @@ export function InquiryComposer(){
   const [intent,setIntent]=useState<InquiryIntent>(isIntent(requestedIntent)?requestedIntent:'product');
   const [values,setValues]=useState<InquiryValues>(()=>({...emptyValues,product:searchParams.get('product')??''}));
   const [errors,setErrors]=useState<InquiryErrors>({});
-  const [status,setStatus]=useState<'idle'|'ready'|'copied'|'copy-error'>('idle');
+  const [status,setStatus]=useState<'idle'|'submitting'|'submitted'|'ready'|'copied'|'copy-error'|'submit-error'>('idle');
+  const [submitError,setSubmitError]=useState('');
   const selectedIntent=intentOptions.find(option=>option.id===intent)??intentOptions[0];
 
   function update(field:InquiryField,value:string){
     setValues(current=>({...current,[field]:value}));
     setErrors(current=>({...current,[field]:undefined}));
+    setSubmitError('');
     setStatus('idle');
   }
 
@@ -73,9 +76,19 @@ export function InquiryComposer(){
     return Object.keys(next).length===0;
   }
 
-  function prepare(event:FormEvent<HTMLFormElement>){
+  async function prepare(event:FormEvent<HTMLFormElement>){
     event.preventDefault();
-    if(validate())setStatus('ready');
+    if(!validate())return;
+    setStatus('submitting');
+    setSubmitError('');
+    try{
+      await submitInquiry({type:intent,...values});
+      setStatus('submitted');
+      setValues({...emptyValues});
+    }catch(error){
+      setSubmitError(error instanceof Error ? error.message : (zh?'提交失败，请稍后再试。':'Submission failed. Please try again later.'));
+      setStatus('submit-error');
+    }
   }
 
   async function copySummary(){
@@ -151,7 +164,7 @@ export function InquiryComposer(){
           {(intent==='sample'||intent==='custom-weaving')&&<div className="md:col-span-2 [&>div>label]:rounded-xl [&>div>label]:border-slate-300 [&>div>label]:bg-[#FBFAF7]"><FileUpload/></div>}
           <div className="flex flex-col gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:items-center sm:justify-between md:col-span-2">
             <p className="max-w-md text-xs leading-5 text-muted">{zh?'不确定的规格可以先留空，业务会根据用途继续确认。':'Leave uncertain specifications blank; our team will confirm them with you.'}</p>
-            <button type="submit" className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#0B4AA2] px-7 text-sm font-bold text-white transition-colors hover:bg-[#083B82]">{zh?'整理成邮件':'Prepare email'}</button>
+            <button type="submit" disabled={status==='submitting'} className="inline-flex min-h-12 items-center justify-center rounded-full bg-[#0B4AA2] px-7 text-sm font-bold text-white transition-colors hover:bg-[#083B82] disabled:opacity-60">{status==='submitting'?(zh?'提交中...':'Submitting...'):(zh?'提交询盘':'Submit inquiry')}</button>
           </div>
         </form>
 
@@ -166,6 +179,8 @@ export function InquiryComposer(){
               {summaryRows.map(row=><div key={row.label} className="py-3"><dt className="text-[11px] font-bold text-muted">{row.label}</dt><dd className="mt-1 break-words text-sm leading-5 text-ink">{row.value}</dd></div>)}
             </dl>
             {!summaryRows.length&&<p className="mt-5 text-sm leading-6 text-muted">{zh?'填好左侧后，邮件内容会在这里整理出来。':'Complete the form and the email content will appear here.'}</p>}
+            {status==='submitted'&&<p className="mt-5 flex gap-2 text-sm font-semibold text-success"><Check size={17}/>{zh?'询盘已提交，我们会尽快联系。':'Inquiry submitted. We will contact you soon.'}</p>}
+            {status==='submit-error'&&<p className="mt-5 text-sm font-semibold text-red-700">{submitError}</p>}
             {status==='ready'&&<p className="mt-5 flex gap-2 text-sm font-semibold text-success"><Check size={17}/>{zh?'内容已整理好，可以复制或打开邮箱。':'The email content is ready to copy or send.'}</p>}
             {status==='copied'&&<p className="mt-5 flex gap-2 text-sm font-semibold text-success"><Check size={17}/>{zh?'邮件内容已复制。':'Email content copied.'}</p>}
             {status==='copy-error'&&<p className="mt-5 text-sm font-semibold text-red-700">{zh?'暂时无法自动复制，请手动选择文字。':'Copy was unavailable. Please select the text manually.'}</p>}

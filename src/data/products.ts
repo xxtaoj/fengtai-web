@@ -15,6 +15,12 @@ export const products: Product[] = [
     summaryEn: 'For sheets, duvet covers, pillowcases, and home textile orders, with width, density, finishing, and packing options to confirm.',
     specsZh: ['常规现货优先匹配', '可寄样确认手感与组织', '支持后整理需求沟通'],
     specsEn: ['Regular stock matching first', 'Samples available for hand-feel and weave check', 'Finishing requirements can be discussed'],
+    specifications: [
+      { id: 'composition', labelZh: '成分', labelEn: 'Composition', valueZh: '100% 棉', valueEn: '100% cotton' },
+      { id: 'width', labelZh: '门幅', labelEn: 'Width', valueZh: '105″ 等规格按批次确认', valueEn: '105″ and other widths confirmed by lot' },
+      { id: 'weave', labelZh: '组织结构', labelEn: 'Weave', valueZh: '平纹、斜纹或双层等', valueEn: 'Plain, twill, double-layer, or confirmed by lot' },
+      { id: 'application', labelZh: '适用用途', labelEn: 'Application', valueZh: '床单、被套、枕套等家纺订单', valueEn: 'Sheets, duvet covers, pillowcases, and home textile orders' },
+    ],
     beddingSpecifications: [
       { labelZh: '成分', labelEn: 'Composition', valueZh: '100% 棉', valueEn: '100% cotton' },
       {
@@ -40,6 +46,12 @@ export const products: Product[] = [
     summaryEn: 'For hotel, dormitory, and home textile channels, balancing durability, cost control, and batch delivery efficiency.',
     specsZh: ['适配批量采购', '可沟通成分比例', '支持来样对色对版'],
     specsEn: ['Suitable for bulk purchasing', 'Blend ratio can be discussed', 'Sample color and pattern matching supported'],
+    specifications: [
+      { id: 'composition', labelZh: '成分', labelEn: 'Composition', valueZh: '涤棉混纺，比例按产品批次确认', valueEn: 'Poly-cotton blend; ratio confirmed by product lot' },
+      { id: 'width', labelZh: '门幅', labelEn: 'Width', valueZh: '按产品批次与订单要求确认', valueEn: 'Confirmed by product lot and order requirement' },
+      { id: 'weave', labelZh: '组织结构', labelEn: 'Weave', valueZh: '按现货批次或来样要求确认', valueEn: 'Confirmed by stock lot or buyer sample' },
+      { id: 'application', labelZh: '适用用途', labelEn: 'Application', valueZh: '酒店、宿舍及家居床品', valueEn: 'Hotel, dormitory, and home bedding' },
+    ],
     beddingSpecifications: [
       { labelZh: '成分', labelEn: 'Composition', valueZh: '涤棉混纺，比例按产品批次确认', valueEn: 'Poly-cotton blend; ratio confirmed by product lot' },
       { labelZh: '纱支 / 密度', labelEn: 'Yarn count / Construction', valueZh: '按现货批次或来样要求确认', valueEn: 'Confirmed by stock lot or buyer sample' },
@@ -61,6 +73,12 @@ export const products: Product[] = [
     summaryEn: 'For shirts, casualwear, workwear, and apparel sourcing, helping overseas buyers quickly screen regular specifications.',
     specsZh: ['常规规格快速沟通', '支持小样确认', '可配合后整理工艺'],
     specsEn: ['Fast discussion for regular specs', 'Sample confirmation supported', 'Compatible with finishing processes'],
+    specifications: [
+      { id: 'composition', labelZh: '成分', labelEn: 'Composition', valueZh: '全棉或按现货批次确认', valueEn: 'Cotton or confirmed by stock lot' },
+      { id: 'weight', labelZh: '克重', labelEn: 'Weight', valueZh: '按用途与批次确认', valueEn: 'Confirmed by application and lot' },
+      { id: 'width', labelZh: '门幅', labelEn: 'Width', valueZh: '按订单要求确认', valueEn: 'Confirmed by order requirement' },
+      { id: 'application', labelZh: '适用用途', labelEn: 'Application', valueZh: '衬衫、休闲服、工装等', valueEn: 'Shirts, casualwear, workwear, and related apparel' },
+    ],
   },
   {
     id: 4,
@@ -76,6 +94,12 @@ export const products: Product[] = [
     summaryEn: 'For uniforms, workwear, and durable apparel orders, evaluated by weight, strength, color fastness, and other requirements.',
     specsZh: ['适合工装渠道', '可确认克重与强力', '支持功能整理需求沟通'],
     specsEn: ['Suitable for workwear channels', 'Weight and strength can be checked', 'Functional finishing can be discussed'],
+    specifications: [
+      { id: 'composition', labelZh: '成分', labelEn: 'Composition', valueZh: '按耐磨、强力和成本要求确认', valueEn: 'Confirmed by durability, strength, and cost requirements' },
+      { id: 'weight', labelZh: '克重', labelEn: 'Weight', valueZh: '可按工装用途确认克重', valueEn: 'Weight confirmed by workwear application' },
+      { id: 'finish', labelZh: '后整理', labelEn: 'Finish', valueZh: '可沟通防缩、耐磨、色牢度等要求', valueEn: 'Shrinkage, abrasion, and color fastness requirements can be discussed' },
+      { id: 'application', labelZh: '适用用途', labelEn: 'Application', valueZh: '制服、工装及耐磨服装订单', valueEn: 'Uniforms, workwear, and durable apparel orders' },
+    ],
   },
   {
     id: 5,
@@ -91,6 +115,12 @@ export const products: Product[] = [
     summaryEn: 'Custom weaving based on buyer samples, target composition, hand-feel, and application, suitable for projects with clear specs or repeat demand.',
     specsZh: ['支持来样分析', '成分比例按需求沟通', '打样后确认批量可行性'],
     specsEn: ['Sample analysis supported', 'Blend ratio discussed by requirement', 'Bulk feasibility confirmed after sampling'],
+    specifications: [
+      { id: 'composition', labelZh: '成分', labelEn: 'Composition', valueZh: '按客户来样或目标比例确认', valueEn: 'Confirmed by buyer sample or target blend ratio' },
+      { id: 'weave', labelZh: '组织结构', labelEn: 'Weave', valueZh: '按样品分析和用途评估', valueEn: 'Evaluated by sample analysis and application' },
+      { id: 'application', labelZh: '适用用途', labelEn: 'Application', valueZh: '混纺面料定制开发', valueEn: 'Custom development for blended fabrics' },
+      { id: 'supply-type', labelZh: '供货方式', labelEn: 'Supply type', valueZh: '来样分析、打样确认后排产', valueEn: 'Sample analysis, sampling confirmation, then production scheduling' },
+    ],
   },
   {
     id: 6,
@@ -106,5 +136,11 @@ export const products: Product[] = [
     summaryEn: 'For fabrics with different warp and weft materials, structures, or special hand-feel, developed through samples and technical targets.',
     specsZh: ['适合结构型面料开发', '可沟通纱支密度与门幅', '按样品推进打样确认'],
     specsEn: ['For structured fabric development', 'Yarn count, density, and width can be discussed', 'Sampling proceeds from buyer samples'],
+    specifications: [
+      { id: 'composition', labelZh: '成分', labelEn: 'Composition', valueZh: '经纬原料按样品或开发目标确认', valueEn: 'Warp and weft materials confirmed by sample or development target' },
+      { id: 'weave', labelZh: '组织结构', labelEn: 'Weave', valueZh: '适合经纬不同原料或特殊组织开发', valueEn: 'For warp/weft material differences or special structures' },
+      { id: 'width', labelZh: '门幅', labelEn: 'Width', valueZh: '按订单和工艺可行性确认', valueEn: 'Confirmed by order and technical feasibility' },
+      { id: 'supply-type', labelZh: '供货方式', labelEn: 'Supply type', valueZh: '按样品推进打样确认', valueEn: 'Sampling proceeds from buyer samples' },
+    ],
   },
 ];
