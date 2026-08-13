@@ -7,11 +7,20 @@ import { ErrorState } from '../components/ErrorState';
 import { QuoteCTA } from '../components/QuoteCTA';
 import { Seo } from '../components/Seo';
 import { LocalImage } from '../components/Media';
+import type { NewsContentBlock } from '../types/news';
 
 type FieldNote = {
   label: string;
   value: string;
 };
+
+function renderEnglishBold(text: string) {
+  return text.split(/(\*\*[^*]+\*\*)/g).filter(Boolean).map((part, index) =>
+    part.startsWith('**') && part.endsWith('**')
+      ? <strong key={index}>{part.slice(2, -2)}</strong>
+      : part
+  );
+}
 
 export function NewsDetailPage(){
   const {slug}=useParams();
@@ -36,6 +45,12 @@ export function NewsDetailPage(){
     {label:zh?'记录分类':'Category',value:zh?article.categoryZh:article.categoryEn},
     ...optionalNotes,
   ];
+  const contentBlocks: NewsContentBlock[] = article.contentBlocks?.length
+    ? article.contentBlocks
+    : [
+        ...article.contentZh.map((text, index) => ({ type: 'text' as const, textZh: text, textEn: article.contentEn[index] || '' })),
+        ...(article.gallery || []).map(image => ({ type: 'image' as const, image }))
+      ];
 
   return <>
     <Seo title={{zh:article.titleZh,en:article.titleEn}} description={{zh:article.summaryZh,en:article.summaryEn}}/>
@@ -72,10 +87,15 @@ export function NewsDetailPage(){
                 <span className="h-px w-9 bg-accent" aria-hidden="true"/>
                 <h2 className="text-xs font-bold tracking-[.14em] text-muted">{zh?'记录内容':'WHAT HAPPENED'}</h2>
               </div>
-              <div className="prose-factory max-w-3xl text-lg text-body">{(zh?article.contentZh:article.contentEn).map((paragraph,index)=><p key={index}>{paragraph}</p>)}</div>
-              {article.gallery?.length?<div className="mt-12 grid gap-4 sm:grid-cols-2">
-                {article.gallery.map((image,index)=><LocalImage key={image} loading="lazy" src={image} alt={zh?`${article.titleZh}现场图片 ${index+1}`:`${article.titleEn} field image ${index+1}`} className="aspect-[4/3] w-full object-cover"/>)}
-              </div>:null}
+              <div className="max-w-3xl text-lg text-body">
+                {contentBlocks.map((block, index) => {
+                  if (block.type === 'text') return <p key={`text-${index}`} className="prose-factory">{zh ? block.textZh : renderEnglishBold(block.textEn)}</p>;
+                  if (block.type === 'heading') return <h3 key={`heading-${index}`} className="my-14 text-center text-2xl font-bold leading-tight text-ink">{zh ? block.titleZh : renderEnglishBold(block.titleEn)}</h3>;
+                  return block.image
+                    ? <LocalImage key={`image-${index}`} loading="lazy" src={block.image} alt={zh ? (block.altZh || `${article.titleZh}现场图片`) : (block.altEn || `${article.titleEn} field image`)} className="my-8 aspect-[16/10] w-full object-cover"/>
+                    : null;
+                })}
+              </div>
             </div>
           </div>
         </article>

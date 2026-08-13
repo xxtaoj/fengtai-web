@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type DragEvent, type FormEvent, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Activity, BarChart3, Check, Database, Download, ExternalLink, FileText, ImagePlus, Inbox, LayoutDashboard, LogOut, RotateCcw, Save, Shield, UserPlus, Users } from 'lucide-react';
+import { Activity, BarChart3, Check, Database, Download, ExternalLink, FileText, GripVertical, ImagePlus, Inbox, LayoutDashboard, LogOut, RotateCcw, Save, Shield, UserPlus, Users } from 'lucide-react';
 import { useSite } from '../context/SiteContext';
 import { staticMediaFiles } from '../data/staticMediaManifest';
 import {
@@ -32,6 +32,7 @@ import {
 import type { BeddingSpecification, Product, ProductSpecification, StockSpecification } from '../types/product';
 import type { ProductCategory } from '../types/catalog';
 import type { SiteContent } from '../types/site';
+import type { NewsArticle, NewsContentBlock } from '../types/news';
 
 type Tab = 'overview' | 'content' | 'products' | 'inquiries' | 'media' | 'users' | 'analytics' | 'logs' | 'data';
 const defaultPassword = 'admin123';
@@ -914,6 +915,205 @@ function homeContentForEditor(value: unknown) {
     .map(key => [key, value[key]]));
 }
 
+function newsBlocksForEditor(article: NewsArticle): NewsContentBlock[] {
+  if (article.contentBlocks?.length) return cloneValue(article.contentBlocks);
+  return [
+    ...article.contentZh.map((textZh, index) => ({ type: 'text' as const, textZh, textEn: article.contentEn[index] || '' })),
+    ...(article.gallery || []).map(image => ({ type: 'image' as const, image }))
+  ];
+}
+
+function NewsInput({ label, value, onChange, textarea = false }: { label: string; value: string; onChange: (value: string) => void; textarea?: boolean }) {
+  return <label className="block">
+    <span className="mb-2 block text-xs font-bold text-muted">{label}</span>
+    {textarea
+      ? <textarea value={value} onChange={event => onChange(event.target.value)} className="min-h-28 w-full border border-line p-3 text-sm leading-6 outline-none focus:border-accent"/>
+      : <input value={value} onChange={event => onChange(event.target.value)} className="min-h-11 w-full border border-line px-3 text-sm outline-none focus:border-accent"/>}
+  </label>;
+}
+
+function NewsEditor({ article, uploadMedia, mediaLibrary, onChange }: { article: NewsArticle; uploadMedia: UploadMediaFn; mediaLibrary: MediaLibraryItem[]; onChange: (article: NewsArticle) => void }) {
+  const blocks = newsBlocksForEditor(article);
+  const [draggedBlockIndex, setDraggedBlockIndex] = useState<number | null>(null);
+  const [dropTargetIndex, setDropTargetIndex] = useState<number | null>(null);
+
+  function updateArticle(patch: Partial<NewsArticle>) {
+    onChange({ ...article, ...patch });
+  }
+
+  function updateBlocks(nextBlocks: NewsContentBlock[]) {
+    onChange({
+      ...article,
+      contentBlocks: nextBlocks,
+      contentZh: nextBlocks.filter(block => block.type === 'text').map(block => block.textZh),
+      contentEn: nextBlocks.filter(block => block.type === 'text').map(block => block.textEn),
+      gallery: nextBlocks.filter(block => block.type === 'image').map(block => block.image).filter(Boolean)
+    });
+  }
+
+  function updateBlock(index: number, patch: Partial<NewsContentBlock>) {
+    updateBlocks(blocks.map((block, blockIndex) => blockIndex === index ? { ...block, ...patch } as NewsContentBlock : block));
+  }
+
+  function moveBlock(index: number, direction: -1 | 1) {
+    const target = index + direction;
+    if (target < 0 || target >= blocks.length) return;
+    const next = [...blocks];
+    [next[index], next[target]] = [next[target], next[index]];
+    updateBlocks(next);
+  }
+
+  function moveBlockTo(from: number, to: number) {
+    if (from === to) return;
+    const next = [...blocks];
+    const [moved] = next.splice(from, 1);
+    next.splice(to, 0, moved);
+    updateBlocks(next);
+  }
+
+  function addTextBlock() {
+    updateBlocks([...blocks, { type: 'text', textZh: '', textEn: '' }]);
+  }
+
+  function addImageBlock() {
+    updateBlocks([...blocks, { type: 'image', image: '' }]);
+  }
+
+  function addHeadingBlock() {
+    updateBlocks([...blocks, { type: 'heading', titleZh: '', titleEn: '' }]);
+  }
+
+  return <div className="grid gap-8">
+    <div className="border border-slate-200 p-5">
+      <div className="mb-5 flex items-center justify-between gap-3 border-b border-slate-200 pb-4">
+        <div><p className="text-xs font-bold uppercase tracking-[.12em] text-accent">新闻基本信息</p><h3 className="mt-1 text-lg font-bold text-ink">顶部标题和摘要</h3></div>
+        <span className="text-xs text-muted">这里的标题就是前台详情页头部标题</span>
+      </div>
+      <div className="grid gap-5 lg:grid-cols-2">
+        <NewsInput label="中文标题" value={article.titleZh} onChange={value => updateArticle({ titleZh: value })}/>
+        <NewsInput label="英文标题" value={article.titleEn} onChange={value => updateArticle({ titleEn: value })}/>
+        <NewsInput label="中文分类" value={article.categoryZh} onChange={value => updateArticle({ categoryZh: value })}/>
+        <NewsInput label="英文分类" value={article.categoryEn} onChange={value => updateArticle({ categoryEn: value })}/>
+        <NewsInput label="分类 ID" value={article.category} onChange={value => updateArticle({ category: value })}/>
+        <NewsInput label="日期" value={article.date} onChange={value => updateArticle({ date: value })}/>
+        <NewsInput label="链接 slug" value={article.slug} onChange={value => updateArticle({ slug: value })}/>
+        <NewsInput label="中文摘要" value={article.summaryZh} textarea onChange={value => updateArticle({ summaryZh: value })}/>
+        <NewsInput label="英文摘要" value={article.summaryEn} textarea onChange={value => updateArticle({ summaryEn: value })}/>
+      </div>
+      <div className="mt-5 max-w-xl">
+        <p className="text-xs font-bold text-muted">封面图片</p>
+        <ContentMediaDropzone label="封面图片" value={article.image} fieldKey="image" uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={value => updateArticle({ image: value })}/>
+      </div>
+    </div>
+
+    <div className="border border-slate-200 p-5">
+      <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-slate-200 pb-4">
+        <div><p className="text-xs font-bold uppercase tracking-[.12em] text-accent">详情内容</p><h3 className="mt-1 text-lg font-bold text-ink">文字和图片自由排序</h3><p className="mt-1 text-sm text-muted">前台会按照这里从上到下的顺序显示。</p></div>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" onClick={addTextBlock} className="border border-line px-3 py-2 text-xs font-bold hover:border-accent hover:text-accent">新增文字</button>
+          <button type="button" onClick={addImageBlock} className="border border-line px-3 py-2 text-xs font-bold hover:border-accent hover:text-accent">新增图片</button>
+          <button type="button" onClick={addHeadingBlock} className="border border-line px-3 py-2 text-xs font-bold hover:border-accent hover:text-accent">新增小标题</button>
+        </div>
+      </div>
+      <div className="grid gap-4">
+        {blocks.map((block, index) => <div key={index} onDragOver={event => { event.preventDefault(); if (draggedBlockIndex !== null && draggedBlockIndex !== index) setDropTargetIndex(index); }} onDragLeave={() => setDropTargetIndex(current => current === index ? null : current)} onDrop={event => { event.preventDefault(); if (draggedBlockIndex !== null) moveBlockTo(draggedBlockIndex, index); setDraggedBlockIndex(null); setDropTargetIndex(null); }} className={`border bg-slate-50 p-4 transition ${dropTargetIndex === index ? 'border-accent ring-2 ring-orange-200' : 'border-slate-200'}`}>
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <button type="button" draggable onDragStart={event => { event.dataTransfer.effectAllowed = 'move'; setDraggedBlockIndex(index); }} onDragEnd={() => { setDraggedBlockIndex(null); setDropTargetIndex(null); }} title="拖拽排序" aria-label="拖拽排序" className="cursor-grab touch-none text-muted hover:text-accent active:cursor-grabbing"><GripVertical size={18}/></button>
+              <p className="text-xs font-bold uppercase tracking-[.12em] text-muted">第 {index + 1} 段 · {block.type === 'text' ? '文字' : block.type === 'heading' ? '小标题' : '图片'}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button type="button" disabled={index === 0} onClick={() => moveBlock(index, -1)} className="border border-line px-2 py-1 text-xs font-bold disabled:opacity-40">上移</button>
+              <button type="button" disabled={index === blocks.length - 1} onClick={() => moveBlock(index, 1)} className="border border-line px-2 py-1 text-xs font-bold disabled:opacity-40">下移</button>
+              <button type="button" onClick={() => updateBlocks(blocks.filter((_, blockIndex) => blockIndex !== index))} className="border border-red-200 px-2 py-1 text-xs font-bold text-red-700">删除</button>
+            </div>
+          </div>
+          {block.type === 'text'
+            ? <div className="grid gap-4 lg:grid-cols-2"><NewsInput label="中文文字" value={block.textZh} textarea onChange={value => updateBlock(index, { textZh: value })}/><NewsInput label="英文文字" value={block.textEn} textarea onChange={value => updateBlock(index, { textEn: value })}/></div>
+            : block.type === 'heading'
+              ? <div className="grid gap-4 lg:grid-cols-2"><NewsInput label="中文小标题" value={block.titleZh} onChange={value => updateBlock(index, { titleZh: value })}/><NewsInput label="英文小标题" value={block.titleEn} onChange={value => updateBlock(index, { titleEn: value })}/></div>
+              : <div className="grid gap-4 lg:grid-cols-2"><div><p className="mb-2 text-xs font-bold text-muted">图片</p><ContentMediaDropzone label={`第 ${index + 1} 段图片`} value={block.image} fieldKey="image" uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={value => updateBlock(index, { image: value })}/></div><div className="grid content-start gap-4"><NewsInput label="中文替代文字" value={block.altZh || ''} onChange={value => updateBlock(index, { altZh: value })}/><NewsInput label="英文替代文字" value={block.altEn || ''} onChange={value => updateBlock(index, { altEn: value })}/></div></div>}
+        </div>)}
+        {!blocks.length && <p className="border border-dashed border-slate-300 py-10 text-center text-sm text-muted">还没有内容，请新增文字或图片。</p>}
+      </div>
+    </div>
+  </div>;
+}
+
+function createBlankNews(id: number): NewsArticle {
+  return {
+    id,
+    slug: `new-news-${id}`,
+    category: 'news-insights',
+    categoryZh: '企业新闻与行业资讯',
+    categoryEn: 'Company & Industry News',
+    date: new Date().toISOString().slice(0, 10),
+    image: '',
+    titleZh: '',
+    titleEn: '',
+    summaryZh: '',
+    summaryEn: '',
+    contentZh: [],
+    contentEn: [],
+    contentBlocks: []
+  };
+}
+
+function NewsCollectionEditor({ articles, uploadMedia, mediaLibrary, onChange }: { articles: NewsArticle[]; uploadMedia: UploadMediaFn; mediaLibrary: MediaLibraryItem[]; onChange: (articles: NewsArticle[]) => void }) {
+  const [selectedIndex, setSelectedIndex] = useState(articles.length ? 0 : -1);
+  useEffect(() => {
+    if (selectedIndex >= articles.length) setSelectedIndex(Math.max(articles.length - 1, -1));
+  }, [articles.length, selectedIndex]);
+
+  function addNews() {
+    const next = [...articles, createBlankNews(Date.now())];
+    onChange(next);
+    setSelectedIndex(next.length - 1);
+  }
+
+  function removeNews(index: number) {
+    const next = articles.filter((_, itemIndex) => itemIndex !== index);
+    onChange(next);
+    setSelectedIndex(Math.min(index, next.length - 1));
+  }
+
+  function copyNews(index: number) {
+    const source = articles[index];
+    const copy = { ...cloneValue(source), id: Date.now(), slug: `${source.slug}-copy` };
+    const next = [...articles.slice(0, index + 1), copy, ...articles.slice(index + 1)];
+    onChange(next);
+    setSelectedIndex(index + 1);
+  }
+
+  const selectedArticle = selectedIndex >= 0 ? articles[selectedIndex] : null;
+  return <div className="grid gap-6 xl:grid-cols-[18rem_1fr]">
+    <aside className="h-fit border border-slate-200 bg-white p-3 xl:sticky xl:top-24">
+      <div className="mb-3 flex items-center justify-between gap-2 px-2">
+        <p className="text-xs font-bold uppercase tracking-[.16em] text-muted">新闻列表</p>
+        <button type="button" onClick={addNews} className="border border-line px-2 py-1 text-xs font-bold hover:border-accent hover:text-accent">新增</button>
+      </div>
+      <div className="grid gap-1">
+        {articles.map((article, index) => <button key={`${article.id}-${index}`} type="button" onClick={() => setSelectedIndex(index)} className={`px-3 py-3 text-left text-sm ${selectedIndex === index ? 'bg-accent text-white' : 'hover:bg-orange-50'}`}>
+          <span className="block text-xs font-bold opacity-70">第 {index + 1} 项</span>
+          <span className="mt-1 block font-bold">{article.titleZh || article.titleEn || '未命名新闻'}</span>
+        </button>)}
+        {!articles.length && <p className="px-2 py-8 text-center text-sm text-muted">暂无新闻，请点击新增。</p>}
+      </div>
+    </aside>
+    <div>
+      {selectedArticle
+        ? <>
+            <div className="mb-4 flex flex-wrap justify-end gap-2">
+              <button type="button" onClick={() => copyNews(selectedIndex)} className="border border-line px-3 py-2 text-xs font-bold hover:border-accent hover:text-accent">复制当前新闻</button>
+              <button type="button" onClick={() => removeNews(selectedIndex)} className="border border-red-200 px-3 py-2 text-xs font-bold text-red-700">删除当前新闻</button>
+            </div>
+            <NewsEditor article={selectedArticle} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={next => onChange(articles.map((item, index) => index === selectedIndex ? next : item))}/>
+          </>
+        : <div className="border border-dashed border-slate-300 py-16 text-center text-sm text-muted">请选择或新增一条新闻。</div>}
+    </div>
+  </div>;
+}
+
 function ContentPanel({ site, saveSiteContent, uploadMedia, mediaLibrary, saving }: { site: SiteContent; saveSiteContent: ReturnType<typeof useSite>['saveSiteContent']; uploadMedia: UploadMediaFn; mediaLibrary: MediaLibraryItem[]; saving: boolean }) {
   const modules = useMemo(() => buildContentModules(site), [site]);
   const [selectedId, setSelectedId] = useState(() => modules[0]?.id || 'company');
@@ -969,7 +1169,9 @@ function ContentPanel({ site, saveSiteContent, uploadMedia, mediaLibrary, saving
           <h2 className="mt-1 text-2xl font-bold text-ink">{selected.title}</h2>
           <p className="mt-2 text-sm text-muted">{selected.description}</p>
         </div>}
-        <EditableValue value={draft} onChange={setDraft} fieldKey={selected?.id || 'content'} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary}/>
+        {selected?.id === 'news' && Array.isArray(draft)
+          ? <NewsCollectionEditor articles={draft as NewsArticle[]} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={next => setDraft(next)}/>
+          : <EditableValue value={draft} onChange={setDraft} fieldKey={selected?.id || 'content'} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary}/>}
         <div className="mt-6 flex justify-end">
           <button onClick={saveModule} disabled={saving} className="inline-flex min-h-11 items-center gap-2 bg-accent px-5 py-3 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-60"><Save size={17}/>{saving?'保存中':'保存当前模块'}</button>
         </div>
