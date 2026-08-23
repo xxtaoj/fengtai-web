@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ChangeEvent, type DragEvent, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Activity, BarChart3, Check, Database, Download, ExternalLink, FileText, GripVertical, ImagePlus, Inbox, Languages, LayoutDashboard, LogOut, RotateCcw, Save, Shield, UserPlus, Users } from 'lucide-react';
+import { Activity, BarChart3, Check, Database, Download, ExternalLink, FileText, GripVertical, ImagePlus, Inbox, LayoutDashboard, LogOut, RotateCcw, Save, Shield, UserPlus, Users } from 'lucide-react';
 import { useSite } from '../context/SiteContext';
 import { staticMediaFiles } from '../data/staticMediaManifest';
 import {
@@ -29,7 +29,6 @@ import {
   type Permission,
   type ProductAnalytics
 } from '../lib/siteApi';
-import { translateText } from '../lib/siteApi';
 import type { BeddingSpecification, Product, ProductSpecification, StockSpecification } from '../types/product';
 import type { ProductCategory } from '../types/catalog';
 import type { SiteContent } from '../types/site';
@@ -939,49 +938,6 @@ function NewsInput({ label, value, onChange, textarea = false }: { label: string
   </label>;
 }
 
-function TranslatedNewsPair({ label, zhValue, enValue, onChange, textarea = false }: { label: string; zhValue: string; enValue: string; onChange: (next: { zh: string; en: string }) => void; textarea?: boolean }) {
-  const [translating, setTranslating] = useState(false);
-  const [message, setMessage] = useState('');
-
-  async function translate() {
-    if (!zhValue.trim()) return;
-    setTranslating(true);
-    setMessage('');
-    try {
-      const result = await translateText(zhValue);
-      onChange({ zh: zhValue, en: result.translation });
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : '翻译失败');
-    } finally {
-      setTranslating(false);
-    }
-  }
-
-  function updateZh(value: string) {
-    onChange({ zh: value, en: enValue });
-    setMessage('');
-  }
-
-  return <div className="grid gap-4 lg:col-span-2 lg:grid-cols-2">
-    <label className="block">
-      <span className="mb-2 block text-xs font-bold text-muted">{label}（中文）</span>
-      {textarea
-        ? <textarea value={zhValue} onChange={event => updateZh(event.target.value)} onBlur={() => { if (zhValue.trim() && !enValue.trim()) void translate(); }} className="min-h-28 w-full border border-line p-3 text-sm leading-6 outline-none focus:border-accent"/>
-        : <input value={zhValue} onChange={event => updateZh(event.target.value)} onBlur={() => { if (zhValue.trim() && !enValue.trim()) void translate(); }} className="min-h-11 w-full border border-line px-3 text-sm outline-none focus:border-accent"/>}
-    </label>
-    <label className="block">
-      <span className="mb-2 flex items-center justify-between gap-2 text-xs font-bold text-muted">
-        <span>{label}（英文）</span>
-        <button type="button" onClick={() => void translate()} disabled={translating || !zhValue.trim()} className="inline-flex items-center gap-1 text-accent hover:text-accent-hover disabled:opacity-50"><Languages size={14}/>{translating ? '翻译中...' : '重新翻译'}</button>
-      </span>
-      {textarea
-        ? <textarea value={enValue} onChange={event => onChange({ zh: zhValue, en: event.target.value })} className="min-h-28 w-full border border-line p-3 text-sm leading-6 outline-none focus:border-accent"/>
-        : <input value={enValue} onChange={event => onChange({ zh: zhValue, en: event.target.value })} className="min-h-11 w-full border border-line px-3 text-sm outline-none focus:border-accent"/>}
-      {message && <span className="mt-2 block text-xs font-semibold text-red-700">{message}</span>}
-    </label>
-  </div>;
-}
-
 function CoverCropEditor({ value, position, zoom, uploadMedia, mediaLibrary, onChange, onPositionChange, onZoomChange }: { value: string; position?: string; zoom?: number; uploadMedia: UploadMediaFn; mediaLibrary: MediaLibraryItem[]; onChange: (value: string) => void; onPositionChange: (value: string) => void; onZoomChange: (value: number) => void }) {
   const objectPosition = position || '50% 50%';
   const imageZoom = Math.min(3, Math.max(1, zoom || 1));
@@ -1077,12 +1033,15 @@ function NewsEditor({ article, uploadMedia, mediaLibrary, onChange }: { article:
         <span className="text-xs text-muted">这里的标题就是前台详情页头部标题</span>
       </div>
       <div className="grid gap-5 lg:grid-cols-2">
-        <TranslatedNewsPair label="标题" zhValue={article.titleZh} enValue={article.titleEn} onChange={value => updateArticle({ titleZh: value.zh, titleEn: value.en })}/>
-        <TranslatedNewsPair label="分类" zhValue={article.categoryZh} enValue={article.categoryEn} onChange={value => updateArticle({ categoryZh: value.zh, categoryEn: value.en })}/>
+        <NewsInput label="标题（中文）" value={article.titleZh} onChange={value => updateArticle({ titleZh: value })}/>
+        <NewsInput label="标题（英文）" value={article.titleEn} onChange={value => updateArticle({ titleEn: value })}/>
+        <NewsInput label="分类（中文）" value={article.categoryZh} onChange={value => updateArticle({ categoryZh: value })}/>
+        <NewsInput label="分类（英文）" value={article.categoryEn} onChange={value => updateArticle({ categoryEn: value })}/>
         <NewsInput label="分类 ID" value={article.category} onChange={value => updateArticle({ category: value })}/>
         <NewsInput label="日期" value={article.date} onChange={value => updateArticle({ date: value })}/>
         <NewsInput label="链接 slug" value={article.slug} onChange={value => updateArticle({ slug: value })}/>
-        <TranslatedNewsPair label="摘要" zhValue={article.summaryZh} enValue={article.summaryEn} textarea onChange={value => updateArticle({ summaryZh: value.zh, summaryEn: value.en })}/>
+        <NewsInput label="摘要（中文）" value={article.summaryZh} onChange={value => updateArticle({ summaryZh: value })} textarea/>
+        <NewsInput label="摘要（英文）" value={article.summaryEn} onChange={value => updateArticle({ summaryEn: value })} textarea/>
       </div>
       <div className="mt-5 max-w-xl">
         <p className="text-xs font-bold text-muted">封面图片</p>
@@ -1113,9 +1072,15 @@ function NewsEditor({ article, uploadMedia, mediaLibrary, onChange }: { article:
             </div>
           </div>
           {block.type === 'text'
-            ? <TranslatedNewsPair label="文字" zhValue={block.textZh} enValue={block.textEn} textarea onChange={value => updateBlock(index, { textZh: value.zh, textEn: value.en })}/>
+            ? <div className="grid gap-4 lg:grid-cols-2">
+                <NewsInput label="文字（中文）" value={block.textZh} onChange={value => updateBlock(index, { textZh: value })} textarea/>
+                <NewsInput label="文字（英文）" value={block.textEn} onChange={value => updateBlock(index, { textEn: value })} textarea/>
+              </div>
             : block.type === 'heading'
-              ? <TranslatedNewsPair label="小标题" zhValue={block.titleZh} enValue={block.titleEn} onChange={value => updateBlock(index, { titleZh: value.zh, titleEn: value.en })}/>
+              ? <div className="grid gap-4 lg:grid-cols-2">
+                  <NewsInput label="小标题（中文）" value={block.titleZh} onChange={value => updateBlock(index, { titleZh: value })}/>
+                  <NewsInput label="小标题（英文）" value={block.titleEn} onChange={value => updateBlock(index, { titleEn: value })}/>
+                </div>
               : <div className="grid gap-4 lg:grid-cols-2"><div><p className="mb-2 text-xs font-bold text-muted">图片</p><ContentMediaDropzone label={`第 ${index + 1} 段图片`} value={block.image} fieldKey="image" uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={value => updateBlock(index, { image: value })}/></div><div className="grid content-start gap-4"><NewsInput label="中文替代文字" value={block.altZh || ''} onChange={value => updateBlock(index, { altZh: value })}/><NewsInput label="英文替代文字" value={block.altEn || ''} onChange={value => updateBlock(index, { altEn: value })}/></div></div>}
         </div>)}
         {!blocks.length && <p className="border border-dashed border-slate-300 py-10 text-center text-sm text-muted">还没有内容，请新增文字或图片。</p>}
