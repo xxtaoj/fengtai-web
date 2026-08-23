@@ -12,19 +12,23 @@ type VisibleFeatureIds = Set<FeatureShowcaseItem['id']>;
 
 function FeatureVideo({item,alt}:{item:FeatureShowcaseItem;alt:string}){
   const reducedMotion=useReducedMotion();
-  if(reducedMotion||!item.video){
-    return <LocalImage src={item.poster} alt={alt} className="aspect-video w-full rounded-xl object-cover"/>;
-  }
-  return <video
-    src={item.video}
-    poster={item.poster}
-    autoPlay
-    muted
-    loop
-    playsInline
-    className="aspect-video w-full rounded-xl object-cover"
-    aria-label={alt}
-  >Your browser does not support video playback.</video>;
+  const objectPosition=item.videoPosition||'50% 50%';
+  const videoZoom=Math.min(3,Math.max(1,item.videoZoom||1));
+  return <div className="aspect-video overflow-hidden rounded-xl bg-black">
+    {reducedMotion||!item.video
+      ? <LocalImage src={item.poster} alt={alt} style={{objectPosition,transform:`scale(${videoZoom})`}} className="size-full object-cover"/>
+      : <video
+          src={item.video}
+          poster={item.poster}
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{objectPosition,transform:`scale(${videoZoom})`}}
+          className="size-full object-cover"
+          aria-label={alt}
+        >Your browser does not support video playback.</video>}
+  </div>;
 }
 
 export function FeatureShowcase(){

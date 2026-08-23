@@ -31,7 +31,7 @@ import {
 } from '../lib/siteApi';
 import type { BeddingSpecification, Product, ProductSpecification, StockSpecification } from '../types/product';
 import type { ProductCategory } from '../types/catalog';
-import type { SiteContent } from '../types/site';
+import type { FeatureShowcaseItem, SiteContent } from '../types/site';
 import type { NewsArticle, NewsContentBlock } from '../types/news';
 
 type Tab = 'overview' | 'content' | 'products' | 'inquiries' | 'media' | 'users' | 'analytics' | 'logs' | 'data';
@@ -468,6 +468,8 @@ const keyLabels: Record<string, string> = {
   servicesTitleZh: '中文服务标题',
   sites: '办公/工厂地点',
   slug: '链接 slug',
+  videoPosition: '视频显示位置',
+  videoZoom: '视频显示缩放',
   socialLinks: '社交链接',
   sourcing: '采购说明',
   sourcingDesk: '采购路径',
@@ -554,15 +556,15 @@ function makeEmptyFromTemplate(value: unknown): unknown {
 }
 
 function isMediaKey(key: string) {
-  return /image|logo|poster|video|qr|wechatQr/i.test(key);
+  return /image|logo|poster|video|qr|wechatQr/i.test(key) && !/(position|zoom)$/i.test(key);
 }
 
 function isImageUploadKey(key: string) {
-  return /image|logo|poster|qr|wechatQr|gallery/i.test(key) && !/video/i.test(key);
+  return /image|logo|poster|qr|wechatQr|gallery/i.test(key) && !/(video|position|zoom)/i.test(key);
 }
 
 function isVideoUploadKey(key: string) {
-  return /video/i.test(key);
+  return /video/i.test(key) && !/(position|zoom)$/i.test(key);
 }
 
 function isUploadMediaKey(key: string) {
@@ -629,7 +631,8 @@ function sourceLabel(path: PathPart[]) {
 
 function isTextContentKey(key: string) {
   if (isMediaKey(key)) return false;
-  if (['id', 'slug', 'href', 'to', 'tag', 'category'].includes(key)) return false;
+  if (['id', 'slug', 'href', 'to', 'tag', 'category', 'imagePosition', 'imageZoom', 'videoPosition', 'videoZoom'].includes(key)) return false;
+  if (/(position|zoom)$/i.test(key)) return false;
   return true;
 }
 
@@ -975,6 +978,152 @@ function CoverCropEditor({ value, position, zoom, uploadMedia, mediaLibrary, onC
   </div>;
 }
 
+function FeatureVideoEditor({ value, poster, position, zoom, uploadMedia, mediaLibrary, onChange, onPosterChange, onPositionChange, onZoomChange }: { value: string; poster: string; position?: string; zoom?: number; uploadMedia: UploadMediaFn; mediaLibrary: MediaLibraryItem[]; onChange: (value: string) => void; onPosterChange: (value: string) => void; onPositionChange: (value: string) => void; onZoomChange: (value: number) => void }) {
+  const previewPosition = position || '50% 50%';
+  const previewZoom = Math.min(3, Math.max(1, zoom || 1));
+
+  function setPosition(event: ReactPointerEvent<HTMLDivElement>) {
+    if (!value) return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = Math.round(Math.min(100, Math.max(0, ((event.clientX - bounds.left) / bounds.width) * 100)));
+    const y = Math.round(Math.min(100, Math.max(0, ((event.clientY - bounds.top) / bounds.height) * 100)));
+    onPositionChange(`${x}% ${y}%`);
+  }
+
+  return <div className="grid gap-5">
+    <div className="grid gap-5 lg:grid-cols-2">
+      <ContentMediaDropzone label="视频" value={value} fieldKey="video" uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={onChange}/>
+      <ContentMediaDropzone label="视频封面" value={poster} fieldKey="poster" uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={onPosterChange}/>
+    </div>
+    <div className="border border-dashed border-slate-300 bg-slate-50 p-3">
+      <div className="relative aspect-video w-full overflow-hidden bg-black" onPointerDown={setPosition} onPointerMove={event => { if (event.buttons === 1) setPosition(event); }} title="拖动或点击视频预览，设置网页显示位置">
+        {value
+          ? <video
+              src={value}
+              poster={poster}
+              autoPlay
+              muted
+              loop
+              playsInline
+              style={{ objectPosition: previewPosition, transform: `scale(${previewZoom})` }}
+              className="size-full object-cover"
+            >
+              Your browser does not support video playback.
+            </video>
+          : <div className="flex size-full items-center justify-center text-sm text-white/70">先上传或选择视频</div>}
+        <div className="pointer-events-none absolute inset-0 border border-white/40"/>
+        <span className="pointer-events-none absolute left-2 top-2 bg-ink/75 px-2 py-1 text-[11px] font-bold text-white">网页显示范围 · 16:9</span>
+        {value&&<span className="pointer-events-none absolute bottom-2 right-2 bg-white/90 px-2 py-1 text-[11px] font-semibold text-ink">拖动视频调整位置</span>}
+      </div>
+      <div className="mt-3 border border-slate-200 bg-white p-3">
+        <div className="flex items-center justify-between gap-3 text-xs font-bold text-muted"><span>视频缩放</span><span>{previewZoom.toFixed(1)}x</span></div>
+        <div className="mt-2 flex items-center gap-3">
+          <button type="button" onClick={() => onZoomChange(Math.max(1, Number((previewZoom - 0.1).toFixed(1))))} aria-label="缩小" title="缩小" className="grid size-9 place-items-center border border-line bg-white text-lg font-bold text-ink hover:border-accent hover:text-accent">−</button>
+          <input type="range" min="1" max="3" step="0.1" value={previewZoom} onChange={event => onZoomChange(Number(event.target.value))} aria-label="视频显示缩放" className="w-full accent-orange-600"/>
+          <button type="button" onClick={() => onZoomChange(Math.min(3, Number((previewZoom + 0.1).toFixed(1))))} aria-label="放大" title="放大" className="grid size-9 place-items-center border border-line bg-white text-lg font-bold text-ink hover:border-accent hover:text-accent">+</button>
+        </div>
+        <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted">
+          <span>位置：{previewPosition}</span>
+          <button type="button" onClick={() => { onPositionChange('50% 50%'); onZoomChange(1); }} className="font-bold text-accent hover:text-accent-hover">恢复默认</button>
+        </div>
+      </div>
+    </div>
+  </div>;
+}
+
+function createBlankFeatureItem(index: number): FeatureShowcaseItem {
+  return {
+    id: `feature-${Date.now()}-${index + 1}`,
+    tag: 'STOCK',
+    navTitleZh: '',
+    navTitleEn: '',
+    titleZh: '',
+    titleEn: '',
+    descriptionZh: '',
+    descriptionEn: '',
+    video: '',
+    poster: '',
+    videoPosition: '50% 50%',
+    videoZoom: 1
+  };
+}
+
+function FeatureShowcaseEditor({ items, uploadMedia, mediaLibrary, onChange }: { items: FeatureShowcaseItem[]; uploadMedia: UploadMediaFn; mediaLibrary: MediaLibraryItem[]; onChange: (items: FeatureShowcaseItem[]) => void }) {
+  function updateItem(index: number, patch: Partial<FeatureShowcaseItem>) {
+    onChange(items.map((item, itemIndex) => itemIndex === index ? { ...item, ...patch } : item));
+  }
+
+  function addItem() {
+    onChange([...items, createBlankFeatureItem(items.length)]);
+  }
+
+  function duplicateItem(index: number) {
+    const item = items[index];
+    if (!item) return;
+    onChange([...items.slice(0, index + 1), { ...cloneValue(item), id: `feature-${Date.now()}-${index + 1}` }, ...items.slice(index + 1)]);
+  }
+
+  function removeItem(index: number) {
+    onChange(items.filter((_, itemIndex) => itemIndex !== index));
+  }
+
+  return <div className="grid gap-5">
+    <div className="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <p className="text-xs font-bold uppercase tracking-[.14em] text-muted">首页特色展示</p>
+        <p className="mt-1 text-sm text-muted">每一项都可以单独调整视频显示范围，拖动预览画面即可改变网页里的显示位置。</p>
+      </div>
+      <button type="button" onClick={addItem} className="inline-flex min-h-11 items-center gap-2 border border-line bg-white px-4 py-3 text-sm font-bold text-ink hover:border-accent hover:text-accent">新增展示项</button>
+    </div>
+    <div className="grid gap-5">
+      {items.map((item, index) => <div key={item.id || index} className="border border-slate-200 bg-slate-50 p-5">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[.12em] text-muted">第 {index + 1} 项</p>
+            <h3 className="mt-1 text-lg font-bold text-ink">{item.titleZh || item.titleEn || item.navTitleZh || item.navTitleEn || item.id}</h3>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={() => duplicateItem(index)} className="border border-line bg-white px-3 py-2 text-xs font-bold hover:border-accent hover:text-accent">复制</button>
+            <button type="button" onClick={() => removeItem(index)} className="border border-red-200 bg-white px-3 py-2 text-xs font-bold text-red-700 hover:bg-red-50">删除</button>
+          </div>
+        </div>
+
+        <div className="grid gap-5">
+          <div className="grid gap-4 lg:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-xs font-bold text-muted">标签</span>
+              <select value={item.tag} onChange={event => updateItem(index, { tag: event.target.value as FeatureShowcaseItem['tag'] })} className="min-h-11 w-full border border-line bg-white px-3 text-sm outline-none focus:border-accent">
+                <option value="STOCK">STOCK</option>
+                <option value="CUSTOM">CUSTOM</option>
+                <option value="DELIVERY">DELIVERY</option>
+              </select>
+            </label>
+            <NewsInput label="ID" value={item.id} onChange={value => updateItem(index, { id: value })}/>
+            <NewsInput label="中文导航标题" value={item.navTitleZh} onChange={value => updateItem(index, { navTitleZh: value })}/>
+            <NewsInput label="英文导航标题" value={item.navTitleEn} onChange={value => updateItem(index, { navTitleEn: value })}/>
+            <NewsInput label="中文标题" value={item.titleZh} onChange={value => updateItem(index, { titleZh: value })}/>
+            <NewsInput label="英文标题" value={item.titleEn} onChange={value => updateItem(index, { titleEn: value })}/>
+            <NewsInput label="中文说明" value={item.descriptionZh} onChange={value => updateItem(index, { descriptionZh: value })} textarea/>
+            <NewsInput label="英文说明" value={item.descriptionEn} onChange={value => updateItem(index, { descriptionEn: value })} textarea/>
+          </div>
+          <FeatureVideoEditor
+            value={item.video || ''}
+            poster={item.poster}
+            position={item.videoPosition}
+            zoom={item.videoZoom}
+            uploadMedia={uploadMedia}
+            mediaLibrary={mediaLibrary}
+            onChange={value => updateItem(index, { video: value })}
+            onPosterChange={value => updateItem(index, { poster: value })}
+            onPositionChange={value => updateItem(index, { videoPosition: value })}
+            onZoomChange={value => updateItem(index, { videoZoom: value })}
+          />
+        </div>
+      </div>)}
+    </div>
+  </div>;
+}
+
 function NewsEditor({ article, uploadMedia, mediaLibrary, onChange }: { article: NewsArticle; uploadMedia: UploadMediaFn; mediaLibrary: MediaLibraryItem[]; onChange: (article: NewsArticle) => void }) {
   const blocks = newsBlocksForEditor(article);
   const [draggedBlockIndex, setDraggedBlockIndex] = useState<number | null>(null);
@@ -1220,6 +1369,8 @@ function ContentPanel({ site, saveSiteContent, uploadMedia, mediaLibrary, saving
         </div>}
         {selected?.id === 'news' && Array.isArray(draft)
           ? <NewsCollectionEditor articles={draft as NewsArticle[]} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={next => setDraft(next)}/>
+          : selected?.id === 'features' && Array.isArray(draft)
+            ? <FeatureShowcaseEditor items={draft as FeatureShowcaseItem[]} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={next => setDraft(next)}/>
           : <EditableValue value={draft} onChange={setDraft} fieldKey={selected?.id || 'content'} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary}/>}
         <div className="mt-6 flex justify-end">
           <button onClick={saveModule} disabled={saving} className="inline-flex min-h-11 items-center gap-2 bg-accent px-5 py-3 text-sm font-bold text-white hover:bg-accent-hover disabled:opacity-60"><Save size={17}/>{saving?'保存中':'保存当前模块'}</button>

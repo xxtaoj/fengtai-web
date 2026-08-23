@@ -30,6 +30,8 @@ export type FeatureShowcaseItem = {
   descriptionEn: string;
   video?: string;
   poster: string;
+  videoPosition?: string;
+  videoZoom?: number;
 };
 
 export type CompanyContent = {

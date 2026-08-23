@@ -9,6 +9,8 @@ export type FeatureShowcaseItem = {
   descriptionEn: string;
   video?: string;
   poster: string;
+  videoPosition?: string;
+  videoZoom?: number;
 };
 
 export const featureShowcaseItems: FeatureShowcaseItem[] = [
@@ -23,6 +25,8 @@ export const featureShowcaseItems: FeatureShowcaseItem[] = [
     descriptionEn: 'Review available and in-production bedding and apparel fabrics, then confirm samples, specifications, and quotation details.',
     video: '/videos/factory-hero.mp4',
     poster: '/images/hero-poster.jpg',
+    videoPosition: '50% 48%',
+    videoZoom: 1.34,
   },
   {
     id: 'factory-tour',
@@ -35,6 +39,8 @@ export const featureShowcaseItems: FeatureShowcaseItem[] = [
     descriptionEn: 'Send us a fabric sample or target specification. We will review the composition, construction, hand feel, end use, and order quantity.',
     video: '/videos/factory-tour.mp4',
     poster: '/images/factory-interior.jpg',
+    videoPosition: '50% 50%',
+    videoZoom: 1,
   },
   {
     id: 'process-control',
@@ -47,5 +53,7 @@ export const featureShowcaseItems: FeatureShowcaseItem[] = [
     descriptionEn: 'We follow the order from sample approval through production, pre-shipment checks, packing, and delivery coordination.',
     video: '/videos/production-process.mp4',
     poster: '/images/quality-control.jpg',
+    videoPosition: '50% 50%',
+    videoZoom: 1,
   },
 ];
