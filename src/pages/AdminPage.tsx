@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState, type ChangeEvent, type DragEvent, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useMemo, useState, type ChangeEvent, type DragEvent, type FormEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
-import { Activity, BarChart3, Check, Database, Download, ExternalLink, FileText, GripVertical, ImagePlus, Inbox, LayoutDashboard, LogOut, RotateCcw, Save, Shield, UserPlus, Users } from 'lucide-react';
+import { Activity, BarChart3, Check, Database, Download, ExternalLink, FileText, GripVertical, ImagePlus, Inbox, Languages, LayoutDashboard, LogOut, RotateCcw, Save, Shield, UserPlus, Users } from 'lucide-react';
 import { useSite } from '../context/SiteContext';
 import { staticMediaFiles } from '../data/staticMediaManifest';
 import {
@@ -29,6 +29,7 @@ import {
   type Permission,
   type ProductAnalytics
 } from '../lib/siteApi';
+import { translateText } from '../lib/siteApi';
 import type { BeddingSpecification, Product, ProductSpecification, StockSpecification } from '../types/product';
 import type { ProductCategory } from '../types/catalog';
 import type { SiteContent } from '../types/site';
@@ -614,7 +615,13 @@ function MediaLibrarySelect({ value, kind, mediaLibrary, onChange }: { value: st
 }
 
 function basenameFromUrl(url: string) {
-  return decodeURIComponent(url.split('?')[0].split('/').filter(Boolean).pop() || url);
+  const filename = url.split('?')[0].split('/').filter(Boolean).pop() || url;
+  try {
+    return decodeURIComponent(filename);
+  } catch {
+    // Keep malformed legacy URLs usable in the media library.
+    return filename;
+  }
 }
 
 function sourceLabel(path: PathPart[]) {
@@ -932,6 +939,86 @@ function NewsInput({ label, value, onChange, textarea = false }: { label: string
   </label>;
 }
 
+function TranslatedNewsPair({ label, zhValue, enValue, onChange, textarea = false }: { label: string; zhValue: string; enValue: string; onChange: (next: { zh: string; en: string }) => void; textarea?: boolean }) {
+  const [translating, setTranslating] = useState(false);
+  const [message, setMessage] = useState('');
+
+  async function translate() {
+    if (!zhValue.trim()) return;
+    setTranslating(true);
+    setMessage('');
+    try {
+      const result = await translateText(zhValue);
+      onChange({ zh: zhValue, en: result.translation });
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : '翻译失败');
+    } finally {
+      setTranslating(false);
+    }
+  }
+
+  function updateZh(value: string) {
+    onChange({ zh: value, en: enValue });
+    setMessage('');
+  }
+
+  return <div className="grid gap-4 lg:col-span-2 lg:grid-cols-2">
+    <label className="block">
+      <span className="mb-2 block text-xs font-bold text-muted">{label}（中文）</span>
+      {textarea
+        ? <textarea value={zhValue} onChange={event => updateZh(event.target.value)} onBlur={() => { if (zhValue.trim() && !enValue.trim()) void translate(); }} className="min-h-28 w-full border border-line p-3 text-sm leading-6 outline-none focus:border-accent"/>
+        : <input value={zhValue} onChange={event => updateZh(event.target.value)} onBlur={() => { if (zhValue.trim() && !enValue.trim()) void translate(); }} className="min-h-11 w-full border border-line px-3 text-sm outline-none focus:border-accent"/>}
+    </label>
+    <label className="block">
+      <span className="mb-2 flex items-center justify-between gap-2 text-xs font-bold text-muted">
+        <span>{label}（英文）</span>
+        <button type="button" onClick={() => void translate()} disabled={translating || !zhValue.trim()} className="inline-flex items-center gap-1 text-accent hover:text-accent-hover disabled:opacity-50"><Languages size={14}/>{translating ? '翻译中...' : '重新翻译'}</button>
+      </span>
+      {textarea
+        ? <textarea value={enValue} onChange={event => onChange({ zh: zhValue, en: event.target.value })} className="min-h-28 w-full border border-line p-3 text-sm leading-6 outline-none focus:border-accent"/>
+        : <input value={enValue} onChange={event => onChange({ zh: zhValue, en: event.target.value })} className="min-h-11 w-full border border-line px-3 text-sm outline-none focus:border-accent"/>}
+      {message && <span className="mt-2 block text-xs font-semibold text-red-700">{message}</span>}
+    </label>
+  </div>;
+}
+
+function CoverCropEditor({ value, position, zoom, uploadMedia, mediaLibrary, onChange, onPositionChange, onZoomChange }: { value: string; position?: string; zoom?: number; uploadMedia: UploadMediaFn; mediaLibrary: MediaLibraryItem[]; onChange: (value: string) => void; onPositionChange: (value: string) => void; onZoomChange: (value: number) => void }) {
+  const objectPosition = position || '50% 50%';
+  const imageZoom = Math.min(3, Math.max(1, zoom || 1));
+
+  function setPosition(event: ReactPointerEvent<HTMLDivElement>) {
+    if (!value) return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    const x = Math.round(Math.min(100, Math.max(0, ((event.clientX - bounds.left) / bounds.width) * 100)));
+    const y = Math.round(Math.min(100, Math.max(0, ((event.clientY - bounds.top) / bounds.height) * 100)));
+    onPositionChange(`${x}% ${y}%`);
+  }
+
+  return <div className="mt-3">
+    <div className="relative aspect-[16/10] w-full overflow-hidden border-2 border-dashed border-accent bg-slate-100" onPointerDown={setPosition} onPointerMove={event => { if (event.buttons === 1) setPosition(event); }} title="拖动或点击图片，设置网页显示位置">
+      {value
+        ? <img src={value} alt="封面裁剪预览" style={{ objectPosition, transform: `scale(${imageZoom})` }} className="size-full select-none object-cover" draggable={false}/>
+        : <div className="flex size-full items-center justify-center text-sm text-muted">先上传或选择封面图片</div>}
+      <div className="pointer-events-none absolute inset-0 border border-white/80 shadow-[inset_0_0_0_1px_rgba(15,23,42,.25)]"/>
+      <span className="pointer-events-none absolute left-2 top-2 bg-ink/75 px-2 py-1 text-[11px] font-bold text-white">网页显示范围 · 16:10</span>
+      {value&&<span className="pointer-events-none absolute bottom-2 right-2 bg-white/90 px-2 py-1 text-[11px] font-semibold text-ink">拖动图片调整位置</span>}
+    </div>
+    <ContentMediaDropzone label="封面图片" value={value} fieldKey="image" uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={onChange}/>
+    <div className="mt-3 border border-slate-200 bg-slate-50 p-3">
+      <div className="flex items-center justify-between gap-3 text-xs font-bold text-muted"><span>图片缩放</span><span>{imageZoom.toFixed(1)}x</span></div>
+      <div className="mt-2 flex items-center gap-3">
+        <button type="button" onClick={() => onZoomChange(Math.max(1, Number((imageZoom - 0.1).toFixed(1))))} aria-label="缩小" title="缩小" className="grid size-9 place-items-center border border-line bg-white text-lg font-bold text-ink hover:border-accent hover:text-accent">−</button>
+        <input type="range" min="1" max="3" step="0.1" value={imageZoom} onChange={event => onZoomChange(Number(event.target.value))} aria-label="封面图片缩放" className="w-full accent-orange-600"/>
+        <button type="button" onClick={() => onZoomChange(Math.min(3, Number((imageZoom + 0.1).toFixed(1))))} aria-label="放大" title="放大" className="grid size-9 place-items-center border border-line bg-white text-lg font-bold text-ink hover:border-accent hover:text-accent">+</button>
+      </div>
+      <div className="mt-2 flex items-center justify-between gap-3 text-xs text-muted">
+        <span>位置：{objectPosition}</span>
+        <button type="button" onClick={() => { onPositionChange('50% 50%'); onZoomChange(1); }} className="font-bold text-accent hover:text-accent-hover">恢复默认</button>
+      </div>
+    </div>
+  </div>;
+}
+
 function NewsEditor({ article, uploadMedia, mediaLibrary, onChange }: { article: NewsArticle; uploadMedia: UploadMediaFn; mediaLibrary: MediaLibraryItem[]; onChange: (article: NewsArticle) => void }) {
   const blocks = newsBlocksForEditor(article);
   const [draggedBlockIndex, setDraggedBlockIndex] = useState<number | null>(null);
@@ -990,19 +1077,16 @@ function NewsEditor({ article, uploadMedia, mediaLibrary, onChange }: { article:
         <span className="text-xs text-muted">这里的标题就是前台详情页头部标题</span>
       </div>
       <div className="grid gap-5 lg:grid-cols-2">
-        <NewsInput label="中文标题" value={article.titleZh} onChange={value => updateArticle({ titleZh: value })}/>
-        <NewsInput label="英文标题" value={article.titleEn} onChange={value => updateArticle({ titleEn: value })}/>
-        <NewsInput label="中文分类" value={article.categoryZh} onChange={value => updateArticle({ categoryZh: value })}/>
-        <NewsInput label="英文分类" value={article.categoryEn} onChange={value => updateArticle({ categoryEn: value })}/>
+        <TranslatedNewsPair label="标题" zhValue={article.titleZh} enValue={article.titleEn} onChange={value => updateArticle({ titleZh: value.zh, titleEn: value.en })}/>
+        <TranslatedNewsPair label="分类" zhValue={article.categoryZh} enValue={article.categoryEn} onChange={value => updateArticle({ categoryZh: value.zh, categoryEn: value.en })}/>
         <NewsInput label="分类 ID" value={article.category} onChange={value => updateArticle({ category: value })}/>
         <NewsInput label="日期" value={article.date} onChange={value => updateArticle({ date: value })}/>
         <NewsInput label="链接 slug" value={article.slug} onChange={value => updateArticle({ slug: value })}/>
-        <NewsInput label="中文摘要" value={article.summaryZh} textarea onChange={value => updateArticle({ summaryZh: value })}/>
-        <NewsInput label="英文摘要" value={article.summaryEn} textarea onChange={value => updateArticle({ summaryEn: value })}/>
+        <TranslatedNewsPair label="摘要" zhValue={article.summaryZh} enValue={article.summaryEn} textarea onChange={value => updateArticle({ summaryZh: value.zh, summaryEn: value.en })}/>
       </div>
       <div className="mt-5 max-w-xl">
         <p className="text-xs font-bold text-muted">封面图片</p>
-        <ContentMediaDropzone label="封面图片" value={article.image} fieldKey="image" uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={value => updateArticle({ image: value })}/>
+        <CoverCropEditor value={article.image} position={article.imagePosition} zoom={article.imageZoom} uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={value => updateArticle({ image: value })} onPositionChange={value => updateArticle({ imagePosition: value })} onZoomChange={value => updateArticle({ imageZoom: value })}/>
       </div>
     </div>
 
@@ -1029,9 +1113,9 @@ function NewsEditor({ article, uploadMedia, mediaLibrary, onChange }: { article:
             </div>
           </div>
           {block.type === 'text'
-            ? <div className="grid gap-4 lg:grid-cols-2"><NewsInput label="中文文字" value={block.textZh} textarea onChange={value => updateBlock(index, { textZh: value })}/><NewsInput label="英文文字" value={block.textEn} textarea onChange={value => updateBlock(index, { textEn: value })}/></div>
+            ? <TranslatedNewsPair label="文字" zhValue={block.textZh} enValue={block.textEn} textarea onChange={value => updateBlock(index, { textZh: value.zh, textEn: value.en })}/>
             : block.type === 'heading'
-              ? <div className="grid gap-4 lg:grid-cols-2"><NewsInput label="中文小标题" value={block.titleZh} onChange={value => updateBlock(index, { titleZh: value })}/><NewsInput label="英文小标题" value={block.titleEn} onChange={value => updateBlock(index, { titleEn: value })}/></div>
+              ? <TranslatedNewsPair label="小标题" zhValue={block.titleZh} enValue={block.titleEn} onChange={value => updateBlock(index, { titleZh: value.zh, titleEn: value.en })}/>
               : <div className="grid gap-4 lg:grid-cols-2"><div><p className="mb-2 text-xs font-bold text-muted">图片</p><ContentMediaDropzone label={`第 ${index + 1} 段图片`} value={block.image} fieldKey="image" uploadMedia={uploadMedia} mediaLibrary={mediaLibrary} onChange={value => updateBlock(index, { image: value })}/></div><div className="grid content-start gap-4"><NewsInput label="中文替代文字" value={block.altZh || ''} onChange={value => updateBlock(index, { altZh: value })}/><NewsInput label="英文替代文字" value={block.altEn || ''} onChange={value => updateBlock(index, { altEn: value })}/></div></div>}
         </div>)}
         {!blocks.length && <p className="border border-dashed border-slate-300 py-10 text-center text-sm text-muted">还没有内容，请新增文字或图片。</p>}

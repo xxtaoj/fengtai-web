@@ -70,7 +70,7 @@ export function NewsDetailPage(){
             </div>
           </header>
 
-          {article.image&&<LocalImage loading="eager" src={article.image} alt={zh?`${article.titleZh}活动现场`:`Field image for ${article.titleEn}`} className="mt-10 aspect-[16/8] w-full object-cover"/>}
+          {article.image&&<LocalImage loading="eager" src={article.image} alt={zh?`${article.titleZh}活动现场`:`Field image for ${article.titleEn}`} style={{objectPosition:article.imagePosition||'50% 50%',transform:`scale(${article.imageZoom||1})`}} className="mt-10 aspect-[16/10] w-full object-cover"/>}
 
           <div className="mt-10 grid gap-10 border-b border-slate-300 pb-14 lg:grid-cols-[18rem_minmax(0,1fr)] lg:gap-20 lg:pb-20">
             <aside aria-labelledby="field-notes-title" className="self-start border-t border-slate-400 lg:sticky lg:top-28">

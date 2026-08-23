@@ -138,7 +138,11 @@ function segmentMatch(pattern: string, pathname: string) {
     const patternPart = patternParts[index];
     const pathPart = pathParts[index];
     if (patternPart.startsWith(':')) {
-      params[patternPart.slice(1)] = decodeURIComponent(pathPart);
+      try {
+        params[patternPart.slice(1)] = decodeURIComponent(pathPart);
+      } catch {
+        params[patternPart.slice(1)] = pathPart;
+      }
       continue;
     }
     if (patternPart !== pathPart) return { matched: false, params: {} };

@@ -205,6 +205,13 @@ export function loginAdmin(username: string, password: string) {
   });
 }
 
+export function translateText(text: string) {
+  return request<{ translation: string }>('/api/admin/translate', {
+    method: 'POST',
+    body: JSON.stringify({ text, sourceLanguage: 'zh', targetLanguage: 'en' }),
+  });
+}
+
 export function logoutAdmin() {
   return request<{ ok: boolean }>('/api/admin/logout', {
     method: 'POST',

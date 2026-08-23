@@ -16,6 +16,8 @@ export type NewsArticle = {
   categoryEn: string;
   date: string;
   image: string;
+  imagePosition?: string;
+  imageZoom?: number;
   titleZh: string;
   titleEn: string;
   summaryZh: string;
