@@ -25,7 +25,7 @@ export function QuoteCTA(){
           <SecondaryButton to="/products" className="min-h-12 w-full rounded-full !border-slate-300 !bg-transparent px-6 hover:!border-ink hover:!bg-white hover:!text-ink sm:w-auto">{zh?'查看产品':'View Products'}</SecondaryButton>
         </div>
       </div>
-      <TextileImageRibbon images={ribbonImages} className="-mx-4 min-h-64 sm:mx-0 lg:-mr-[max(1rem,calc((100vw-80rem)/2))] lg:min-h-full"/>
+      <TextileImageRibbon images={ribbonImages} variant="layered" className="-mx-4 min-h-64 sm:mx-0 lg:-mr-[max(1rem,calc((100vw-80rem)/2))] lg:min-h-full"/>
     </div>
   </section>;
 }

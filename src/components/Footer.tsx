@@ -52,9 +52,7 @@ export function Footer(){
   const zh=language==='zh';
   const showInquiryPrompt=pathname!=='/products';
   const inquiryImages = [
-    {src:'/images/hero-poster.jpg',alt:zh?'纺织工厂纱线生产现场':'Yarn production inside the textile factory',position:'48% 50%'},
-    {src:'/images/factory-exterior.jpg',alt:zh?'丰泰永晟工厂与出货车辆':'Fengtai Yongsheng factory and outbound truck',position:'68% 48%'},
-    {src:'/images/products/product-03.jpg',alt:zh?'服装面料应用与规格':'Apparel fabric application and specification',position:'62% 50%'},
+    {src:'/images/factory-exterior.jpg',alt:zh?'丰泰永晟工厂与出货车辆':'Fengtai Yongsheng factory and outbound truck',position:'62% 48%'},
   ];
   return <footer className="bg-ink text-white">
     {showInquiryPrompt&&<section className="overflow-hidden border-b border-white/10">
@@ -71,7 +69,7 @@ export function Footer(){
             <SecondaryButton to="/products" className="min-h-12 w-full rounded-full !border-transparent !bg-white !px-6 !text-ink hover:!border-transparent hover:!bg-slate-100 hover:!text-ink sm:w-auto">{zh?'查看产品':'View Products'}</SecondaryButton>
           </div>
         </div>
-        <TextileImageRibbon images={inquiryImages} dark className="-mx-4 min-h-64 sm:mx-0 lg:-mr-[max(1rem,calc((100vw-80rem)/2))] lg:min-h-full"/>
+        <TextileImageRibbon images={inquiryImages} variant="single" dark className="-mx-4 min-h-64 sm:mx-0 lg:-mr-[max(1rem,calc((100vw-80rem)/2))] lg:min-h-full"/>
       </div>
     </section>}
     <div className="container-shell py-14 md:py-16">
